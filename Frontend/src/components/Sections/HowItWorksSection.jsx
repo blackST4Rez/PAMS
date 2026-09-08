@@ -1,4 +1,4 @@
-import { BiPlus, BiRightArrowAlt } from 'react-icons/bi';
+import { BiCheckCircle, BiDollar, BiPlus, BiRightArrowAlt, BiWrench } from 'react-icons/bi';
 
 const HowItWorksSection = () => {
 
@@ -46,7 +46,7 @@ const HowItWorksSection = () => {
                             02
                         </div>
                         <div className="p-4 rounded-2xl w-fit mb-6">
-                            <BiPlus className="w-10 h-10 text-indigo-600" />
+                            <BiWrench className="w-10 h-10 text-indigo-600" />
                         </div>
                         <h3 className="text-2xl font-bold text-gray-900 mb-3">
                             Track & Maintain
@@ -64,7 +64,7 @@ const HowItWorksSection = () => {
                             03
                         </div>
                         <div className="p-4 rounded-2xl w-fit mb-6">
-                            <BiPlus className="w-10 h-10 text-indigo-600" />
+                            <BiDollar className="w-10 h-10 text-indigo-600" />
                         </div>
                         <h3 className="text-2xl font-bold text-gray-900 mb-3">
                             Value & Depreciate
@@ -83,7 +83,7 @@ const HowItWorksSection = () => {
                             04
                         </div>
                         <div className="p-4 rounded-2xl w-fit mb-6">
-                            <BiPlus className="w-10 h-10 text-indigo-600" />
+                            <BiCheckCircle className="w-10 h-10 text-indigo-600" />
                         </div>
                         <h3 className="text-2xl font-bold text-gray-900 mb-3">
                             Approve & Transfer
