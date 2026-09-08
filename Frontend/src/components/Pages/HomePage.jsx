@@ -3,6 +3,7 @@ import Footer from "../Common/Footer"
 import HeroSection from "../Sections/HeroSection"
 import FeaturesSection from "../Sections/FeatureSection"
 import HowItWorksSection from "../Sections/HowItWorksSection"
+import CTASection from "../Sections/CTASection"
 
 const HomePage = () => {
     return (
@@ -11,6 +12,7 @@ const HomePage = () => {
             <HeroSection />
             <FeaturesSection />
             <HowItWorksSection />
+            <CTASection />
             <Footer />
         </div>
     )

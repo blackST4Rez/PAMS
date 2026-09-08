@@ -1,4 +1,4 @@
-import { BiArrowFromLeft} from 'react-icons/bi';
+import { BiArrowFromLeft } from 'react-icons/bi';
 import HeroImage from '../../assets/HeroImage.svg';
 
 const HeroSection = () => {
@@ -24,28 +24,28 @@ const HeroSection = () => {
                         {/* Buttons */}
                         <div className="flex flex-wrap gap-6 pt-2">
                             <button
-                        className="flex w-60 h-5 my-auto gap-2 items-center bg-[#173ef0] text-white px-12 py-8 font-semibold text-xl hover:bg-[#264bee] transition-all ease-in-out duration-300 cursor-pointer">
+                                className="flex w-60 h-5 my-auto gap-2 items-center bg-[#173ef0] text-white px-12 py-8 font-semibold text-xl hover:bg-[#0020ad] transition-colors ease-in-out duration-300 cursor-pointer">
                                 <span>Get Started</span>
                                 <BiArrowFromLeft className="w-6 h-6 text-white" />
-                    </button>
+                            </button>
                         </div>
 
                         {/* Features */}
                         <div className="flex flex-wrap items-center gap-8 pt-2">
-                            
+
                         </div>
                     </div>
 
                     {/* Right Side - Bigger Image */}
                     <div className="relative">
-                            <img
-                                src={HeroImage}
-                                alt="Asset Management Illustration"
-                                className="w-full h-auto max-h-300 object-contain"
-                            />
-                        </div>
+                        <img
+                            src={HeroImage}
+                            alt="Asset Management Illustration"
+                            className="w-full h-auto max-h-300 object-contain"
+                        />
                     </div>
                 </div>
+            </div>
         </section>
     );
 };

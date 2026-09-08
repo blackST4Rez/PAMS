@@ -3,7 +3,7 @@ import { BiPlus, BiRightArrowAlt } from 'react-icons/bi';
 const HowItWorksSection = () => {
 
     return (
-        <section className="py-20 px-8 lg:px-12">
+        <section className="bg-gray-50 py-20 px-8 lg:px-12">
             <div className="max-w-7xl mx-auto">
                 {/* Header */}
                 <div className="space-y-2 mb-10">

@@ -21,13 +21,13 @@ const Header = () => {
                         <p className="text-white text-lg">System for Gaurishankar Rural</p>
                         <p className="text-white text-lg">Municipality, Dolakha.</p>
                         <div className="flex gap-4 mt-8">
-                            <div className="flex w-10 h-10 bg-[#173ef0] hover:bg-[#264bee] justify-center items-center rounded cursor-pointer">
+                            <div className="flex w-10 h-10 bg-[#173ef0] hover:bg-[#0020ad] justify-center items-center rounded cursor-pointer transition-colors ease-in-out duration-300">
                                 <BiBuildingHouse className="w-8 h-8 text-white" />
                             </div>
-                            <div className="flex w-10 h-10 bg-[#173ef0] hover:bg-[#264bee] justify-center items-center rounded cursor-pointer">
+                            <div className="flex w-10 h-10 bg-[#173ef0] hover:bg-[#0020ad] justify-center items-center rounded cursor-pointer transition-colors ease-in-out duration-300 ">
                                 <BiPhone className="w-8 h-8 text-white" />
                             </div>
-                            <div className="flex w-10 h-10 bg-[#173ef0] hover:bg-[#264bee] justify-center items-center rounded cursor-pointer">
+                            <div className="flex w-10 h-10 bg-[#173ef0] hover:bg-[#0020ad] justify-center items-center rounded cursor-pointer transition-colors ease-in-out duration-300">
                                 <BiLogoGmail className="w-8 h-8 text-white" />
                             </div>
                         </div>
@@ -37,10 +37,10 @@ const Header = () => {
                     <div>
                         <h4 className="text-2xl font-semibold mb-8 text-[#3c5dee]">Quick Links</h4>
                         <ul className="space-y-4 text-lg">
-                            <li>Sign In</li>
-                            <li>Get Started</li>
-                            <li>About</li>
-                            <li>Contact</li>
+                            <li className="hover:text-[#3c5dee] transition-colors ease-in-out duration-300">Sign In</li>
+                            <li className="hover:text-[#3c5dee] transition-colors ease-in-out duration-300" >Get Started</li>
+                            <li className="hover:text-[#3c5dee] transition-colors ease-in-out duration-300" >About</li>
+                            <li className="hover:text-[#3c5dee] transition-colors ease-in-out duration-300" >Contact</li>
                         </ul>
                     </div>
 
@@ -48,10 +48,10 @@ const Header = () => {
                     <div>
                         <h4 className="text-2xl font-semibold mb-8 text-[#3c5dee]">Features</h4>
                         <ul className="space-y-4 text-lg">
-                            <li>Asset Registry</li>
-                            <li>Maintainence</li>
-                            <li>Valuation</li>
-                            <li>Reports</li>
+                            <li className="hover:text-[#3c5dee] transition-colors ease-in-out duration-300" >Asset Registry</li>
+                            <li className="hover:text-[#3c5dee] transition-colors ease-in-out duration-300" >Maintainence</li>
+                            <li className="hover:text-[#3c5dee] transition-colors ease-in-out duration-300" >Valuation</li>
+                            <li className="hover:text-[#3c5dee] transition-colors ease-in-out duration-300" >Reports</li>
                         </ul>
                     </div>
 
