@@ -1,43 +1,31 @@
-import { Link } from 'react-router-dom';
-import Button from './Button';
-import { BiLogIn } from 'react-icons/bi';
-import LogoImage from '../../assets/Logo.svg';
+import { BiLogIn } from "react-icons/bi"
+import LogoImage from "../../assets/Logo.svg"
 
-const Header = ({ title, subtitle, navLinks }) => {
+const Header = () => {
     return (
-        <header className="fixed top-0 left-0 right-0 w-full bg-[#121213] border-b border-[##002cf2] z-50 shadow-sm">
-            <div className="max-w-7xl mx-auto px-8 lg:px-12">
-                <div className="flex items-center justify-between h-24 lg:h-28">
-                    <Link to="/" className="flex items-center gap-4 group">
-                        <div className="w-14 h-14 flex items-center justify-center">
-                            <img
-                                src={LogoImage}
-                                alt="LogoImage"
-                            />
+        <div>
+            <div className="bg-[#111112]">
+                <div className="flex max-w-6xl h-25 bg-[#111112] items-center justify-between mx-auto" >
+                    <div className="flex gap-4">
+                        <img
+                            src={LogoImage}
+                            alt="LogoImage"
+                            className="w-15 h-15"
+                        />
+                        <div className="h-15 flex-row items-center">
+                            <span className="font-bold text-2xl text-[#173ef0]">PMS</span>
+                            <p className="text-white">Asset Management</p>
                         </div>
-                        <div>
-                            <h1 className="text-2xl lg:text-3xl font-bold text-[#002cf2]">{title}</h1>
-                            <p className="text-sm text-white">{subtitle}</p>
-                        </div>
-                    </Link>
-                    <div className="flex items-center gap-6 lg:gap-8">
-                        {navLinks.map((link, index) => (
-                            <Button
-                                key={index}
-                                to={link.path}
-                                variant={link.primary ? 'primary' : 'ghost'}
-                                size={link.primary ? 'large' : 'medium'}
-                                icon={link.primary ? BiLogIn : null}
-                                className='text-white'
-                            >
-                                {link.label}
-                            </Button>
-                        ))}
                     </div>
+                    <button
+                        className="flex w-50 h-5 my-auto gap-2 items-center bg-[#173ef0] text-white px-12 py-8 font-semibold text-xl hover:bg-[#264bee] transition-all ease-in-out duration-300 cursor-pointer">
+                        <BiLogIn className="w-6 h-6 text-white" />
+                        <span>Sign In</span>
+                    </button>
                 </div>
             </div>
-        </header>
-    );
-};
+        </div>
+    )
+    }
 
-export default Header;
+export default Header

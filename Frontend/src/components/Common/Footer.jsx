@@ -1,10 +1,7 @@
-import { Link } from 'react-router-dom';
-import { BiMapPin, BiCalendar, BiPhone } from 'react-icons/bi';
-import LogoImage from '../../assets/Logo.svg'
+import { BiBuildingHouse, BiCalendar, BiLogoGmail, BiPhone, BiSolidNavigation } from "react-icons/bi"
+import LogoImage from "../../assets/Logo.svg"
 
-const Footer = ({
-    description, quickLinks, features, contact, socialLinks, copyright
-}) => {
+const Header = () => {
     return (
         <footer className="bg-[#121213] text-white py-24 px-8 lg:px-12">
             <div className="max-w-7xl mx-auto">
@@ -20,30 +17,30 @@ const Footer = ({
                                 />
                             </div>
                         </div>
-                        <p className="text-white text-lg leading-relaxed">{description}</p>
+                        <p className="text-white text-lg">Public Assets Management</p>
+                        <p className="text-white text-lg">System for Gaurishankar Rural</p>
+                        <p className="text-white text-lg">Municipality, Dolakha.</p>
                         <div className="flex gap-4 mt-8">
-                            {socialLinks.map((link, index) => {
-                                const Icon = link.icon;
-                                return (
-                                    <a key={index} href={link.path} className="p-2 bg-[#002cf2] rounded hover:bg-gray-700 transition-colors">
-                                        <Icon className="w-7 h-7 text-white" />
-                                    </a>
-                                );
-                            })}
+                            <div className="flex w-10 h-10 bg-[#173ef0] hover:bg-[#264bee] justify-center items-center rounded cursor-pointer">
+                                <BiBuildingHouse className="w-8 h-8 text-white" />
+                            </div>
+                            <div className="flex w-10 h-10 bg-[#173ef0] hover:bg-[#264bee] justify-center items-center rounded cursor-pointer">
+                                <BiPhone className="w-8 h-8 text-white" />
+                            </div>
+                            <div className="flex w-10 h-10 bg-[#173ef0] hover:bg-[#264bee] justify-center items-center rounded cursor-pointer">
+                                <BiLogoGmail className="w-8 h-8 text-white" />
+                            </div>
                         </div>
                     </div>
 
                     {/* Quick Links */}
-                    <div> 
+                    <div>
                         <h4 className="text-2xl font-semibold mb-8 text-[#3c5dee]">Quick Links</h4>
                         <ul className="space-y-4 text-lg">
-                            {quickLinks.map((link, index) => (
-                                <li key={index}>
-                                    <Link to={link.path} className="text-white hover:text-[#3c5dee] transition-colors">
-                                        {link.label}
-                                    </Link>
-                                </li>
-                            ))}
+                            <li>Sign In</li>
+                            <li>Get Started</li>
+                            <li>About</li>
+                            <li>Contact</li>
                         </ul>
                     </div>
 
@@ -51,13 +48,10 @@ const Footer = ({
                     <div>
                         <h4 className="text-2xl font-semibold mb-8 text-[#3c5dee]">Features</h4>
                         <ul className="space-y-4 text-lg">
-                            {features.map((link, index) => (
-                                <li key={index}>
-                                    <a href={link.path} className="text-white hover:text-[#3c5dee] transition-colors">
-                                        {link.label}
-                                    </a>
-                                </li>
-                            ))}
+                            <li>Asset Registry</li>
+                            <li>Maintainence</li>
+                            <li>Valuation</li>
+                            <li>Reports</li>
                         </ul>
                     </div>
 
@@ -66,26 +60,26 @@ const Footer = ({
                         <h4 className="text-2xl font-semibold mb-8 text-[#3c5dee]">Contact</h4>
                         <ul className="space-y-4 text-lg text-white">
                             <li className="flex items-center gap-3">
-                                <BiMapPin className="w-7 h-7 shrink-0" />
-                                <span>{contact.address}</span>
+                                <BiSolidNavigation className="w-7 h-7 shrink-0" />
+                                <span>Gaurishankar, Dolakha</span>
                             </li>
                             <li className="flex items-center gap-3">
                                 <BiCalendar className="w-7 h-7 shrink-0" />
-                                <span>{contact.hours}</span>
+                                <span>9 AM to 5 PM</span>
                             </li>
                             <li className="flex items-center gap-3">
                                 <BiPhone className="w-7 h-7 shrink-0" />
-                                <span>{contact.phone}</span>
+                                <span>+977 123 456789</span>
                             </li>
                         </ul>
                     </div>
                 </div>
                 <div className="border-t border-[#3c5dee] mt-20 pt-10 text-center text-lg text-white">
-                    <p>&copy; {new Date().getFullYear()} {copyright}</p>
+                    <p>&copy; {new Date().getFullYear()} Gaurishankar Rural Municipality. All Rights Resserved.</p>
                 </div>
             </div>
         </footer>
-    );
-};
+    )
+}
 
-export default Footer;
+export default Header
