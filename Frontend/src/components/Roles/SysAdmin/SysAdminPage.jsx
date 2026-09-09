@@ -26,7 +26,7 @@ import SystemStatus from '../../Stats/SystemStatus';
 
 const SysAdminPage = () => {
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col">
+        <div className="min-h-screen bg-gray-700 flex flex-col">
             {/* Header Component */}
             <Header />
 
@@ -37,12 +37,12 @@ const SysAdminPage = () => {
                 <Sidebar />
 
                 {/* Right Content Area - Takes all remaining space */}
-                <div className="flex-1 p-6 lg:p-8 overflow-y-auto bg-gray-50">
+                <div className="flex-1 p-6 lg:p-8 overflow-y-auto bg-[#1a1a1a]">
                     
                     {/* Page Header */}
                     <div className="mb-6">
-                        <h1 className="text-3xl font-bold text-gray-900">Overview</h1>
-                        <p className="text-gray-600 text-lg mt-1">System Admin Dashboard Overview</p>
+                        <h1 className="text-3xl font-bold text-white">Overview</h1>
+                        <p className="text-white gray-600 text-lg mt-1">System Admin Dashboard Overview</p>
                     </div>
 
                     {/* Header Stats - 4 columns */}
