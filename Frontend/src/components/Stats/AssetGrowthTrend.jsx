@@ -2,7 +2,7 @@ import { FaChartLine } from 'react-icons/fa';
 
 const AssetGrowthTrend = () => {
     return (
-        <div className="bg-[#242424] rounded-xl shadow-sm p-6 h-full flex flex-col">
+        <div className="p-6 h-full flex flex-col">
             <div className="flex items-center gap-2 mb-4">
                 <FaChartLine className="w-5 h-5 text-green-400" />
                 <h3 className="text-sm font-semibold text-white">Asset Growth Trend</h3>

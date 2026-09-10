@@ -29,7 +29,7 @@ const SystemAlerts = () => {
     };
 
     return (
-        <div className="bg-[#242424] rounded-xl shadow-sm p-6 h-full flex flex-col">
+        <div className="p-6 h-full flex flex-col">
             <div className="flex items-center gap-2 mb-4">
                 <div className="p-1.5 rounded-lg">
                     <FaExclamationTriangle className="w-4 h-4 text-red-500" />

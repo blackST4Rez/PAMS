@@ -2,7 +2,7 @@ import { FaBell } from 'react-icons/fa';
 
 const PendingAuditItems = () => {
     return (
-        <div className="bg-[#242424] rounded-xl p-6 h-full flex flex-col">
+        <div className="p-6 h-full flex flex-col">
             <div className="flex items-start justify-between">
                 <div className="flex-1">
                     <p className="text-xs font-medium text-white/80 uppercase tracking-wider">Pending Audit Items</p>

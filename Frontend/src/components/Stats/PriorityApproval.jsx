@@ -8,7 +8,7 @@ const PriorityApproval = () => {
     ];
 
     return (
-        <div className="bg-[#242424] rounded-xl shadow-sm p-6 h-full flex flex-col">
+        <div className="p-6 h-full flex flex-col">
             <div className="flex items-center gap-2 mb-4">
                 <div className="p-1.5 rounded-lg">
                     <FaCheckCircle className="w-4 h-4 text-green-400" />
@@ -17,7 +17,7 @@ const PriorityApproval = () => {
             </div>
             <div className="flex-1 space-y-2.5">
                 {approvals.map((item) => (
-                    <div key={item.title} className="flex items-center justify-between p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-colors duration-200">
+                    <div key={item.title} className="flex items-center justify-between p-3 rounded-lg hover:bg-white/10 transition-colors duration-200">
                         <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-white truncate">{item.title}</p>
                             <p className="text-xs text-white/50 mt-0.5">{item.time}</p>

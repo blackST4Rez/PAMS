@@ -2,13 +2,13 @@ import { FaSignal, FaUser, FaBox, FaShieldAlt, FaLock, FaHdd } from 'react-icons
 
 const ActivityFeed = () => {
     return (
-        <div className="bg-[#242424] rounded-xl shadow-sm p-6 h-full flex flex-col">
+        <div className="p-6 h-full flex flex-col">
             <h3 className="text-base font-semibold text-white mb-4 flex items-center gap-2 shrink-0">
-                <FaSignal className="text-[#173ef0] w-5 h-5" />
+                <FaSignal className="text-emerald-400 w-5 h-5" />
                 Recent Activity Feed
             </h3>
             <div className="hide-scrollbar flex-1 space-y-3 overflow-y-auto scrollbar-hide">
-                <div className="flex items-start gap-3 p-2.5 border-b border-white/10 hover:bg-white/5 rounded-lg transition-colors duration-200">
+                <div className="flex items-start gap-3 p-2.5 border-b border-white/10 hover:bg-white/5 transition-colors duration-200">
                     <div className="p-2.5 rounded-lg shrink-0">
                         <FaUser className="text-blue-400 w-4 h-4" />
                     </div>
@@ -17,7 +17,7 @@ const ActivityFeed = () => {
                         <p className="text-xs text-white/50 mt-0.5">2 minutes ago</p>
                     </div>
                 </div>
-                <div className="flex items-start gap-3 p-2.5 border-b border-white/10 hover:bg-white/5 rounded-lg transition-colors duration-200">
+                <div className="flex items-start gap-3 p-2.5 border-b border-white/10 hover:bg-white/5 transition-colors duration-200">
                     <div className="p-2.5 rounded-lg shrink-0">
                         <FaBox className="text-green-400 w-4 h-4" />
                     </div>
@@ -26,7 +26,7 @@ const ActivityFeed = () => {
                         <p className="text-xs text-white/50 mt-0.5">15 minutes ago</p>
                     </div>
                 </div>
-                <div className="flex items-start gap-3 p-2.5 border-b border-white/10 hover:bg-white/5 rounded-lg transition-colors duration-200">
+                <div className="flex items-start gap-3 p-2.5 border-b border-white/10 hover:bg-white/5 transition-colors duration-200">
                     <div className="p-2.5 rounded-lg shrink-0">
                         <FaShieldAlt className="text-yellow-400 w-4 h-4" />
                     </div>
@@ -35,7 +35,7 @@ const ActivityFeed = () => {
                         <p className="text-xs text-white/50 mt-0.5">1 hour ago</p>
                     </div>
                 </div>
-                <div className="flex items-start gap-3 p-2.5 border-b border-white/10 hover:bg-white/5 rounded-lg transition-colors duration-200">
+                <div className="flex items-start gap-3 p-2.5 border-b border-white/10 hover:bg-white/5 transition-colors duration-200">
                     <div className="p-2.5 rounded-lg shrink-0">
                         <FaLock className="text-red-400 w-4 h-4" />
                     </div>
@@ -44,7 +44,7 @@ const ActivityFeed = () => {
                         <p className="text-xs text-white/50 mt-0.5">2 hours ago</p>
                     </div>
                 </div>
-                <div className="flex items-start gap-3 p-2.5 border-b border-white/10 hover:bg-white/5 rounded-lg transition-colors duration-200">
+                <div className="flex items-start gap-3 p-2.5 border-b border-white/10 hover:bg-white/5 transition-colors duration-200">
                     <div className="p-2.5 rounded-lg shrink-0">
                         <FaHdd className="text-purple-400 w-4 h-4" />
                     </div>
@@ -53,7 +53,7 @@ const ActivityFeed = () => {
                         <p className="text-xs text-white/50 mt-0.5">3 hours ago</p>
                     </div>
                 </div>
-                <div className="flex items-start gap-3 p-2.5 border-b border-white/10 hover:bg-white/5 rounded-lg transition-colors duration-200">
+                <div className="flex items-start gap-3 p-2.5 border-b border-white/10 hover:bg-white/5 transition-colors duration-200">
                     <div className="p-2.5 rounded-lg shrink-0">
                         <FaUser className="text-blue-400 w-4 h-4" />
                     </div>
@@ -62,7 +62,7 @@ const ActivityFeed = () => {
                         <p className="text-xs text-white/50 mt-0.5">4 hours ago</p>
                     </div>
                 </div>
-                <div className="flex items-start gap-3 p-2.5 hover:bg-white/5 rounded-lg transition-colors duration-200">
+                <div className="flex items-start gap-3 p-2.5 hover:bg-white/5 transition-colors duration-200">
                     <div className="p-2.5 rounded-lg shrink-0">
                         <FaBox className="text-green-400 w-4 h-4" />
                     </div>

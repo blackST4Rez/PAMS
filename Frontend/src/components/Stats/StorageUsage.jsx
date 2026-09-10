@@ -1,6 +1,6 @@
 const StorageUsage = () => {
     return (
-        <div className="bg-[#242424] rounded-xl shadow-sm p-6 h-max flex flex-col">
+        <div className="p-6 h-max flex flex-col">
             <h3 className="text-sm font-semibold text-white mb-4">Storage Usage</h3>
             <div className="flex-1 flex flex-col justify-center">
                 <div className="flex justify-between text-sm mb-2">

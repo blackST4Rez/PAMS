@@ -2,7 +2,7 @@ import { FaChartPie } from 'react-icons/fa';
 
 const UserByRole = () => {
     return (
-        <div className="bg-[#242424] rounded-xl shadow-sm p-6 h-full flex flex-col">
+        <div className="p-6 h-full flex flex-col">
             <div className="flex items-center gap-2 mb-4">
                 <FaChartPie className="w-5 h-5 text-orange-400" />
                 <h3 className="text-sm font-semibold text-white">Users by Role</h3>
