@@ -6,7 +6,7 @@ const Header = () => {
     return (
         <div>
             <div className="bg-[#111112]">
-                <div className="flex max-w-6xl h-25 bg-[#111112] items-center justify-between mx-auto px-4">
+                <div className="flex max-w-10xl h-25 bg-[#111112] items-center justify-between mx-auto px-4">
                     {/* Logo - Click to go to Home */}
                     <Link to="/" className="flex gap-4 items-center">
                         <img
