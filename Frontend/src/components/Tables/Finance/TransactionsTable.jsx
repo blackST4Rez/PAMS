@@ -57,9 +57,8 @@ const TransactionsTable = () => {
                                         {txn.type}
                                     </span>
                                 </td>
-                                <td className={`py-2.5 px-3 text-sm font-medium text-right ${
-                                    txn.type === 'Income' ? 'text-green-400' : 'text-red-400'
-                                }`}>{txn.amount}</td>
+                                <td className={`py-2.5 px-3 text-sm font-medium text-right ${txn.type === 'Income' ? 'text-green-400' : 'text-red-400'
+                                    }`}>{txn.amount}</td>
                                 <td className="py-2.5 px-3 text-sm text-white/60 text-right">{txn.date}</td>
                             </tr>
                         ))}

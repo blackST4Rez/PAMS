@@ -1,4 +1,3 @@
-import { BiLogIn } from "react-icons/bi";
 import { Link } from "react-router-dom";
 import LogoImage from "../../assets/Logo.svg";
 
@@ -23,10 +22,16 @@ const Header = () => {
                     <div className="flex items-center gap-3">
                         <Link to="/login">
                             <button
-                                className="flex w-50 h-5 my-auto gap-2 rounded-4xl items-center bg-[#173ef0] text-white px-12 py-8 font-semibold text-xl hover:bg-[#0020ad] transition-colors ease-in-out duration-300 cursor-pointer"
+                                className="flex w-45 h-15 gap-2 rounded-4xl items-center justify-center bg-[#173ef0] text-white px-6 font-semibold text-xl hover:bg-[#0020ad] transition-colors ease-in-out duration-300 cursor-pointer"
                             >
-                                <BiLogIn className="w-6 h-6 text-white" />
-                                <span>Sign In</span>
+                                <span>Log In</span>
+                            </button>
+                        </Link>
+                        <Link to="/register">
+                            <button
+                                className="flex w-45 h-15 gap-2 rounded-4xl items-center justify-center bg-[#173ef0] text-white px-6 font-semibold text-xl hover:bg-[#0020ad] transition-colors ease-in-out duration-300 cursor-pointer"
+                            >
+                                <span>Register</span>
                             </button>
                         </Link>
                     </div>

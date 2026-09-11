@@ -1,24 +1,32 @@
 import { FaChartLine } from 'react-icons/fa';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { CHART_EXPENSE_TREND } from '../../mock/dashboardData';
+import { tooltipStyle, axisStyle } from '../chartTheme';
 
-const ExpenseTrend = () => {
-    return (
-        <div className="bg-[#242424] rounded-xl shadow-sm p-6 h-full flex flex-col">
-            <div className="flex items-center gap-2 mb-4">
-                <FaChartLine className="w-5 h-5 text-green-400" />
-                <h3 className="text-sm font-semibold text-white">Expense Trend</h3>
-            </div>
-            <div className="flex-1 flex items-center justify-center min-h-30">
-                <div className="text-center">
-                    <FaChartLine className="w-16 h-16 text-green-400 mx-auto" />
-                    <p className="text-xs text-white mt-2">Chart Placeholder</p>
-                </div>
-            </div>
-            <div className="mt-4 flex items-center justify-between text-sm">
-                <span className="text-white">Monthly average</span>
-                <span className="font-semibold text-green-400">$1.52M</span>
-            </div>
+const ExpenseTrend = () => (
+    <div className="bg-[#242424] rounded-xl shadow-sm p-6 h-full flex flex-col">
+        <div className="flex items-center gap-2 mb-4">
+            <FaChartLine className="w-5 h-5 text-green-400" />
+            <h3 className="text-sm font-semibold text-white">Expense Trend</h3>
         </div>
-    );
-};
+        <div className="flex-1 min-h-48">
+            <ResponsiveContainer width="100%" height={180}>
+                <LineChart data={CHART_EXPENSE_TREND}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                    <XAxis dataKey="month" {...axisStyle} />
+                    <YAxis {...axisStyle} />
+                    <Tooltip contentStyle={tooltipStyle}
+                        formatter={(v) => [`रू ${v} करोड`, 'Expense']} />
+                    <Line type="monotone" dataKey="value" stroke="#ef4444" strokeWidth={2}
+                        dot={{ fill: '#ef4444', r: 4 }} />
+                </LineChart>
+            </ResponsiveContainer>
+        </div>
+        <div className="mt-4 flex items-center justify-between text-sm">
+            <span className="text-white">Monthly average</span>
+            <span className="font-semibold text-green-400">रू 1.52 करोड</span>
+        </div>
+    </div>
+);
 
 export default ExpenseTrend;
