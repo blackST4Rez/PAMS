@@ -1,7 +1,5 @@
-// ============================================================
 // src/mock/dashboardData.js
-// Complete mock data for PMS dashboard widgets — NPR / BS dates
-// ============================================================
+// Dashboard widget mock data — assets, transactions, charts, feeds, NPR values
 
 /* ============================================================
    1. ASSETS — values in NPR
@@ -18,21 +16,7 @@ export const MOCK_ASSETS = [
 ];
 
 /* ============================================================
-   2. USERS
-   ============================================================ */
-export const MOCK_USERS_LIST = [
-    { id: 'u-001', username: 'prem.thapa', fullName: 'Prem Thapa', role: 'SYS_ADMIN', designation: 'System Administrator', status: 'Active' },
-    { id: 'u-002', username: 'sita.devkota', fullName: 'Sita Devkota', role: 'ASSET_MANAGER', designation: 'Asset Manager', status: 'Active' },
-    { id: 'u-003', username: 'narayan.kafle', fullName: 'Narayan Kafle', role: 'FINANCE_OFFICER', designation: 'Finance Officer', status: 'Active' },
-    { id: 'u-004', username: 'ram.basnet', fullName: 'Ram Basnet', role: 'FIELD_OFFICER', designation: 'Field Officer', status: 'Active' },
-    { id: 'u-005', username: 'saraswoti.l', fullName: 'Saraswoti Lama', role: 'AUDITOR', designation: 'Auditor', status: 'Active' },
-    { id: 'u-006', username: 'public.user', fullName: 'Public Visitor', role: 'PUBLIC_USER', designation: 'Citizen', status: 'Active' },
-    { id: 'u-007', username: 'david.miller', fullName: 'David Miller', role: 'FIELD_OFFICER', designation: 'Field Officer', status: 'Inactive' },
-    { id: 'u-008', username: 'emily.davis', fullName: 'Emily Davis', role: 'ASSET_MANAGER', designation: 'Asset Manager', status: 'Inactive' },
-];
-
-/* ============================================================
-   3. ACTIVITY FEEDS
+   2. ACTIVITY FEEDS — per role
    ============================================================ */
 export const MOCK_ACTIVITY_ASSET = [
     { icon: 'FaPlus', color: 'text-green-400', title: 'Added new asset', detail: 'Fire Truck #2', time: '10 min ago' },
@@ -69,7 +53,7 @@ export const MOCK_ACTIVITY_SYSADMIN = [
 ];
 
 /* ============================================================
-   4. AUDIT TRAILS
+   3. AUDIT TRAILS
    ============================================================ */
 export const MOCK_AUDIT_TRAIL = [
     { action: 'Asset value updated', user: 'admin@system.com', severity: 'high', time: '2 min ago' },
@@ -91,7 +75,7 @@ export const MOCK_AUDIT_FEED = [
 ];
 
 /* ============================================================
-   5. TRANSACTIONS — NPR
+   4. TRANSACTIONS — NPR
    ============================================================ */
 export const MOCK_TRANSACTIONS = [
     { id: 'TXN-001', description: 'Road Construction Payment', category: 'Infrastructure', type: 'Expense', amount: '-रू 2.45 करोड', date: '2081-01-15' },
@@ -102,7 +86,7 @@ export const MOCK_TRANSACTIONS = [
 ];
 
 /* ============================================================
-   6. FIELD TASKS
+   5. FIELD TASKS
    ============================================================ */
 export const MOCK_FIELD_TASKS = [
     { id: 'TSK-001', task: 'Building Inspection', location: 'Town Hall', priority: 'High', status: 'In Progress', due: '2081-01-20' },
@@ -113,7 +97,7 @@ export const MOCK_FIELD_TASKS = [
 ];
 
 /* ============================================================
-   7. TOP ACTIVE USERS
+   6. TOP ACTIVE USERS
    ============================================================ */
 export const MOCK_TOP_USERS = [
     { name: 'John Doe', role: 'Admin', actions: 245, trend: '+12%' },
@@ -124,7 +108,7 @@ export const MOCK_TOP_USERS = [
 ];
 
 /* ============================================================
-   8. USERS BY ROLE
+   7. USERS BY ROLE
    ============================================================ */
 export const MOCK_USERS_BY_ROLE = [
     { label: 'Administrators', value: '12 (8%)' },
@@ -136,7 +120,7 @@ export const MOCK_USERS_BY_ROLE = [
 ];
 
 /* ============================================================
-   9. ACTIVITY BY ROLE
+   8. ACTIVITY BY ROLE
    ============================================================ */
 export const MOCK_ACTIVITY_BY_ROLE = [
     { label: 'Administrators', value: 245, color: 'bg-blue-500' },
@@ -147,7 +131,7 @@ export const MOCK_ACTIVITY_BY_ROLE = [
 ];
 
 /* ============================================================
-   10. INACTIVE USERS
+   9. INACTIVE USERS
    ============================================================ */
 export const MOCK_INACTIVE_USERS = [
     { name: 'David Miller', role: 'Field Officer', lastActive: '45 days ago' },
@@ -157,7 +141,7 @@ export const MOCK_INACTIVE_USERS = [
 ];
 
 /* ============================================================
-   11. FLAGGED ITEMS
+   10. FLAGGED ITEMS
    ============================================================ */
 export const MOCK_FLAGGED_ITEMS = [
     { title: 'Missing documentation', count: 12, severity: 'high' },
@@ -167,7 +151,7 @@ export const MOCK_FLAGGED_ITEMS = [
 ];
 
 /* ============================================================
-   12. SUSPICIOUS ACTIVITIES
+   11. SUSPICIOUS ACTIVITIES
    ============================================================ */
 export const MOCK_SUSPICIOUS = [
     { icon: 'FaLock', title: 'Multiple failed logins', detail: '3 accounts - 10 attempts', color: 'red' },
@@ -176,7 +160,7 @@ export const MOCK_SUSPICIOUS = [
 ];
 
 /* ============================================================
-   13. COMPLIANCE
+   12. COMPLIANCE
    ============================================================ */
 export const MOCK_COMPLIANCE_STATUS = [
     { label: 'Documentation', value: 92, color: 'bg-green-500' },
@@ -193,7 +177,7 @@ export const MOCK_COMPLIANCE_EVENTS = [
 ];
 
 /* ============================================================
-   14. SYSTEM ALERTS
+   13. SYSTEM ALERTS
    ============================================================ */
 export const MOCK_SYSTEM_ALERTS = [
     { icon: 'FaServer', title: 'Storage 85% used', detail: '85.6 GB of 100 GB', color: 'yellow' },
@@ -202,7 +186,7 @@ export const MOCK_SYSTEM_ALERTS = [
 ];
 
 /* ============================================================
-   15. PUBLIC WARD BREAKDOWN
+   14. PUBLIC WARD BREAKDOWN
    ============================================================ */
 export const MOCK_WARD_BREAKDOWN = [
     { ward: 'Ward 1', count: 186, percent: 15 },
@@ -217,7 +201,7 @@ export const MOCK_WARD_BREAKDOWN = [
 ];
 
 /* ============================================================
-   16. LATEST PUBLIC ASSETS — NPR
+   15. LATEST PUBLIC ASSETS — NPR
    ============================================================ */
 export const MOCK_LATEST_PUBLIC = [
     { id: 'AST-001', name: 'Ward 3 Community Hall', category: 'Building', ward: 'Ward 3', value: 'रू 1.2 करोड', date: '2081-01-15' },
@@ -228,7 +212,7 @@ export const MOCK_LATEST_PUBLIC = [
 ];
 
 /* ============================================================
-   17. PUBLIC NOTICES — BS dates
+   16. PUBLIC NOTICES — BS dates
    ============================================================ */
 export const MOCK_PUBLIC_NOTICES = [
     { title: 'System Update', detail: 'New GIS features added', date: '2081-01-15' },
@@ -237,7 +221,7 @@ export const MOCK_PUBLIC_NOTICES = [
 ];
 
 /* ============================================================
-   18. CATEGORIES
+   17. CATEGORIES
    ============================================================ */
 export const MOCK_CATEGORIES = [
     { label: 'Land', count: 245 },
@@ -249,10 +233,9 @@ export const MOCK_CATEGORIES = [
 ];
 
 /* ============================================================
-   19. CHART DATA (Recharts-ready) — all values in NPR करोड
+   18. CHART DATA (Recharts-ready) — values in NPR करोड
    ============================================================ */
 
-// Pie — percentages
 export const CHART_ASSET_DISTRIBUTION = [
     { name: 'Buildings', value: 35, color: '#3b82f6' },
     { name: 'Vehicles', value: 25, color: '#22c55e' },
@@ -260,7 +243,6 @@ export const CHART_ASSET_DISTRIBUTION = [
     { name: 'Others', value: 20, color: '#a855f7' },
 ];
 
-// Line — value in करोड NPR, Nepali months
 export const CHART_ASSET_VALUE_TREND = [
     { month: 'Shrawan', value: 10.2 },
     { month: 'Bhadra', value: 10.8 },
@@ -270,13 +252,11 @@ export const CHART_ASSET_VALUE_TREND = [
     { month: 'Poush', value: 12.4 },
 ];
 
-// Bar
 export const CHART_MAINTENANCE = [
     { name: 'Upcoming', value: 7, color: '#22c55e' },
     { name: 'Overdue', value: 3, color: '#ef4444' },
 ];
 
-// Pie — percentages
 export const CHART_BUDGET_DISTRIBUTION = [
     { name: 'Infrastructure', value: 34, color: '#3b82f6' },
     { name: 'Education', value: 25, color: '#22c55e' },
@@ -284,7 +264,6 @@ export const CHART_BUDGET_DISTRIBUTION = [
     { name: 'Others', value: 21, color: '#a855f7' },
 ];
 
-// Line — expense in करोड NPR
 export const CHART_EXPENSE_TREND = [
     { month: 'Shrawan', value: 1.2 },
     { month: 'Bhadra', value: 1.4 },
@@ -294,13 +273,11 @@ export const CHART_EXPENSE_TREND = [
     { month: 'Poush', value: 1.8 },
 ];
 
-// Bar — revenue vs expense in करोड NPR
 export const CHART_REVENUE_VS_EXPENSE = [
     { name: 'Revenue', value: 24.8, color: '#22c55e' },
     { name: 'Expense', value: 18.2, color: '#ef4444' },
 ];
 
-// Line — inspection count
 export const CHART_INSPECTION_TREND = [
     { month: 'Shrawan', value: 72 },
     { month: 'Bhadra', value: 80 },
@@ -310,7 +287,6 @@ export const CHART_INSPECTION_TREND = [
     { month: 'Poush', value: 88 },
 ];
 
-// Pie
 export const CHART_ASSET_CONDITION = [
     { name: 'Excellent', value: 42, color: '#22c55e' },
     { name: 'Good', value: 35, color: '#3b82f6' },
@@ -318,13 +294,11 @@ export const CHART_ASSET_CONDITION = [
     { name: 'Poor', value: 5, color: '#ef4444' },
 ];
 
-// Bar
 export const CHART_TASK_COMPLETION = [
     { name: 'Completed', value: 88.5, color: '#22c55e' },
     { name: 'Pending', value: 11.5, color: '#eab308' },
 ];
 
-// Pie
 export const CHART_ASSET_STATUS = [
     { name: 'Active', value: 73, color: '#22c55e' },
     { name: 'Pending', value: 12, color: '#eab308' },
@@ -332,7 +306,6 @@ export const CHART_ASSET_STATUS = [
     { name: 'Cancelled', value: 5, color: '#6b7280' },
 ];
 
-// Bar
 export const CHART_CHANGES_BY_ENTITY = [
     { name: 'Assets', value: 124, color: '#3b82f6' },
     { name: 'Users', value: 52, color: '#22c55e' },
@@ -341,7 +314,6 @@ export const CHART_CHANGES_BY_ENTITY = [
     { name: 'Disposals', value: 22, color: '#ef4444' },
 ];
 
-// Bar (as heatmap substitute — Recharts has no true heatmap)
 export const CHART_USER_ACTIVITY = [
     { day: 'Sun', value: 45 },
     { day: 'Mon', value: 180 },
@@ -352,7 +324,6 @@ export const CHART_USER_ACTIVITY = [
     { day: 'Sat', value: 80 },
 ];
 
-// Area
 export const CHART_SYSTEM_USAGE = [
     { time: '00:00', value: 120 },
     { time: '04:00', value: 85 },
@@ -362,7 +333,6 @@ export const CHART_SYSTEM_USAGE = [
     { time: '20:00', value: 240 },
 ];
 
-// Pie
 export const CHART_USERS_BY_ROLE = [
     { name: 'Administrators', value: 12, color: '#3b82f6' },
     { name: 'Asset Managers', value: 45, color: '#22c55e' },
@@ -372,7 +342,6 @@ export const CHART_USERS_BY_ROLE = [
     { name: 'Public Users', value: 14, color: '#6b7280' },
 ];
 
-// Line — asset count
 export const CHART_ASSET_GROWTH = [
     { month: 'Shrawan', value: 8100 },
     { month: 'Bhadra', value: 8200 },
@@ -382,7 +351,6 @@ export const CHART_ASSET_GROWTH = [
     { month: 'Poush', value: 8492 },
 ];
 
-// Line — depreciation over months (करोड NPR)
 export const CHART_DEPRECIATION_TREND = [
     { month: 'Shrawan', value: 0.4 },
     { month: 'Bhadra', value: 0.5 },
