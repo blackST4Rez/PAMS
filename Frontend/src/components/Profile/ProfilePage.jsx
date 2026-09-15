@@ -8,8 +8,12 @@ import ProfileDetailsTab from './ProfileDetailsTab';
 import NotificationsTab from './NotificationsTab';
 import LoginHistoryTab from './LoginHistoryTab';
 import SecurityTab from './SecurityTab';
+import { useAuth } from '../Context/AuthContext';
 
-const TABS = [
+/* Username of the built-in backdoor admin — its password can't change. */
+const UNIVERSAL_ADMIN_USERNAME = 'admin.gaurishankar';
+
+const ALL_TABS = [
   { id: 'details',       label: 'Profile Details',     Icon: FaUserCircle },
   { id: 'notifications', label: 'Notifications',       Icon: FaBell },
   { id: 'security',      label: 'Password & Security', Icon: FaLock },
@@ -17,7 +21,18 @@ const TABS = [
 ];
 
 const ProfilePage = () => {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('details');
+
+  /*
+    Hide the Password & Security tab for the universal admin.
+    Its password is hardcoded in AuthContext and can't be changed,
+    so showing a change-password form would be misleading.
+  */
+  const isUniversalAdmin = user?.username === UNIVERSAL_ADMIN_USERNAME;
+  const TABS = isUniversalAdmin
+    ? ALL_TABS.filter((t) => t.id !== 'security')
+    : ALL_TABS;
 
   return (
     <div className="min-h-screen bg-gray-700 flex flex-col">

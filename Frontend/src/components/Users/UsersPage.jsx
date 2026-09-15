@@ -8,8 +8,24 @@ import RegisterUserModal from './RegisterUserModal';
 import { useAuth } from '../Context/AuthContext';
 
 const UsersPage = () => {
-    const { hasPermission } = useAuth();
+    const { hasPermission, loading } = useAuth();
     const [showRegister, setShowRegister] = useState(false);
+
+    /* While auth is still hydrating from localStorage, don't judge permissions */
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-gray-700 flex flex-col">
+                <Header />
+                <div className="flex-1 flex">
+                    <UnifiedSidebar />
+                    <div className="flex-1 p-6 lg:p-8 bg-[#1a1a1a] flex items-center justify-center">
+                        <p className="text-white/50 text-sm">Loading…</p>
+                    </div>
+                </div>
+                <Footer />
+            </div>
+        );
+    }
 
     /* Access guard */
     if (!hasPermission('admin.users')) {

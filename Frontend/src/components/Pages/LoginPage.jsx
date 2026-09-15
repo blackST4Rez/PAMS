@@ -1,9 +1,12 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { BiUser, BiLock, BiArrowFromLeft } from 'react-icons/bi';
+import { BiUser, BiLock, BiArrowFromLeft, BiArrowBack } from 'react-icons/bi';
+import { FaExclamationTriangle } from 'react-icons/fa';
 import Header from '../Common/Header';
 import Footer from '../Common/Footer';
 import { useAuth } from '../Context/AuthContext';
+
+const isDeactivated = (msg) => /deactivat/i.test(msg);
 
 const LoginPage = () => {
     const { login } = useAuth();
@@ -27,12 +30,55 @@ const LoginPage = () => {
         }
     };
 
+    const clearError = () => {
+        setError('');
+        setPassword('');
+    };
+
     /* Quick-fill buttons for testing */
     const quickFill = (u) => {
         setUsername(u);
         setPassword('ChangeMe123!');
     };
 
+    /* ---------- Deactivated account screen ---------- */
+    if (error && isDeactivated(error)) {
+        return (
+            <div className="min-h-screen bg-[#1a1a1a] flex flex-col">
+                <Header />
+
+                <div className="flex-1 flex items-center justify-center px-8 py-20">
+                    <div className="max-w-lg w-full bg-[#1a1a1a] rounded-2xl p-12">
+                        {/* Icon + Title + Message */}
+                        <div className="flex flex-col items-center text-center mb-5">
+                            <div className="w-16 h-16 flex items-center justify-center mb-4">
+                                <FaExclamationTriangle className="w-7 h-7 text-red-500" />
+                            </div>
+                            <h2 className="text-3xl font-bold text-red-500 mb-2">Account Deactivated</h2>
+                            <p className="text-white/60 text-base">
+                                {error}
+                            </p>
+                        </div>
+
+                        {/* Back — centered below the message */}
+                        <div className="flex justify-center">
+                            <button
+                                onClick={clearError}
+                                className="inline-flex items-center gap-2 text-sm font-medium text-[#607dff] hover:text-[#7c8cff] transition-colors"
+                            >
+                                <BiArrowBack className="w-4 h-4" />
+                                Back
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <Footer />
+            </div>
+        );
+    }
+
+    /* ---------- Normal login screen ---------- */
     return (
         <div className="min-h-screen bg-[#1a1a1a] flex flex-col">
             <Header />
@@ -70,10 +116,15 @@ const LoginPage = () => {
                             </div>
                         </div>
 
+                        {/* Non-deactivation errors still show as a small inline banner */}
                         {error && (
-                            <p className="text-sm text-red-400">
-                                {error}
-                            </p>
+                            <div
+                                role="alert"
+                                className="flex items-start gap-3 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-300 text-sm"
+                            >
+                                <FaExclamationTriangle className="w-4 h-4 mt-0.5 shrink-0" />
+                                <span>{error}</span>
+                            </div>
                         )}
 
                         <button

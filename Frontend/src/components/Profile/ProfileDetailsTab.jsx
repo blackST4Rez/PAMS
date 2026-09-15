@@ -12,9 +12,9 @@ import { useAuth } from '../Context/AuthContext';
   - disabled → optional, locks the field (e.g. Username, Municipality)
 */
 const PROFILE_FIELDS = [
-  { name: 'fullName',     label: 'Full Name',    type: 'text',  fallback: '' },
+  { name: 'fullName',     label: 'Full Name',    type: 'text',  fallback: '', disabled: true },
   { name: 'username',     label: 'Username',     type: 'text',  fallback: '', disabled: true },
-  { name: 'email',        label: 'Email',        type: 'email', fallback: '' },
+  { name: 'email',        label: 'Email',        type: 'email', fallback: '', disabled: true },
   { name: 'phone',        label: 'Phone',        type: 'tel',   fallback: '+977-98XXXXXXXX' },
   { name: 'municipality', label: 'Municipality', type: 'text',  fallback: 'Gaurishankar Rural Municipality', disabled: true },
   { name: 'ward',         label: 'Ward',         type: 'text',  fallback: 'Ward 3' },

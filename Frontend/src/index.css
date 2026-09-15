@@ -1,18 +1,26 @@
 @import "tailwindcss";
 
-*{
+* {
     font-family: 'Google Sans Flex', sans-serif;
 }
 
-.hide-scrollbar::-webkit-scrollbar {
+/* Hide scrollbars for the whole page — Chrome, Safari, Edge */
+::-webkit-scrollbar {
     display: none;
 }
 
-.hide-scrollbar {
-    -ms-overflow-style: none; 
+/* Hide scrollbars for the whole page — Firefox */
+html {
+    scrollbar-width: none;
+    -ms-overflow-style: none; /* old Edge / IE */
+}
+
+/* Optional: kill horizontal overflow scrollbar indicators on <body> too */
+body {
+    -ms-overflow-style: none;
     scrollbar-width: none;
 }
 
-.italic{
+.italic {
     font-style: italic;
 }
