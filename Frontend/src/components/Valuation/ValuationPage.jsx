@@ -1,0 +1,176 @@
+import { useMemo, useState } from 'react';
+import Header from '../Common/Header';
+import Footer from '../Common/Footer';
+import UnifiedSidebar from '../Sidebars/UnifiedSidebar';
+import DepreciationRunPanel from './DepreciationRunPanel';
+import AssetsValuationTable from './AssetsValuationTable';
+import RevalueModal from './RevalueModal';
+import { useAuth } from '../Context/AuthContext';
+import { useAssets } from '../Context/AssetsContext';
+import { useValuation } from '../Context/ValuationContext';
+import { formatNprShort } from '../mock/mockValuation';
+
+const ValuationPage = () => {
+    const { hasPermission, loading: authLoading } = useAuth();
+    const { allAssets, loading: assetsLoading } = useAssets();
+    const { latestRun, loading: valuationLoading } = useValuation();
+
+    const [revalueAssetId, setRevalueAssetId] = useState(null);
+
+    /* Filter state for the table */
+    const [filters, setFilters] = useState({
+        search: '',
+        categoryId: '',
+        method: '',
+    });
+
+    /* Filtered assets — same shape as Assets page but simpler */
+    const filteredAssets = useMemo(() => {
+        const rows = allAssets();
+        const q = filters.search.trim().toLowerCase();
+
+        return rows.filter((a) => {
+            if (filters.categoryId && a.categoryId !== filters.categoryId) return false;
+            if (filters.method && a.depreciationMethod !== filters.method) return false;
+
+            if (q) {
+                const haystack = [a.assetCode, a.title, a.categoryName]
+                    .filter(Boolean)
+                    .join(' ')
+                    .toLowerCase();
+                if (!haystack.includes(q)) return false;
+            }
+            return true;
+        });
+    }, [allAssets, filters]);
+
+    /* Header totals — across all non-deleted assets */
+    const totals = useMemo(() => {
+        const rows = allAssets();
+        let cost = 0;
+        let book = 0;
+        for (const a of rows) {
+            cost += Number(a.acquisitionCost) || 0;
+            book += Number(a.currentBookValue) || 0;
+        }
+        return {
+            count: rows.length,
+            cost,
+            book,
+            depreciation: cost - book,
+        };
+    }, [allAssets]);
+
+    /* ----- Loading ----- */
+    if (authLoading || assetsLoading || valuationLoading) {
+        return (
+            <div className="min-h-screen bg-gray-700 flex flex-col">
+                <Header />
+                <div className="flex-1 flex">
+                    <UnifiedSidebar />
+                    <div className="flex-1 p-6 lg:p-8 bg-[#1a1a1a] flex items-center justify-center">
+                        <p className="text-white/50 text-sm">Loading…</p>
+                    </div>
+                </div>
+                <Footer />
+            </div>
+        );
+    }
+
+    /* ----- Access guard ----- */
+    if (!hasPermission('valuation.view')) {
+        return (
+            <div className="min-h-screen bg-gray-700 flex flex-col">
+                <Header />
+                <div className="flex-1 flex">
+                    <UnifiedSidebar />
+                    <div className="flex-1 p-6 lg:p-8 bg-[#1a1a1a]">
+                        <div className="bg-[#242424] rounded-xl p-8 max-w-xl">
+                            <h2 className="text-lg font-semibold text-white mb-2">
+                                Access Denied
+                            </h2>
+                            <p className="text-white/60 text-sm">
+                                You do not have permission to view valuation data.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <Footer />
+            </div>
+        );
+    }
+
+    const canRun = hasPermission('valuation.edit');
+
+    return (
+        <div className="min-h-screen bg-gray-700 flex flex-col">
+            <Header />
+
+            <div className="flex-1 flex flex-col lg:flex-row w-full">
+                <UnifiedSidebar />
+
+                <div className="flex-1 p-6 lg:p-8 overflow-y-auto bg-[#1a1a1a]">
+                    {/* Page header */}
+                    <div className="mb-6">
+                        <div className="flex items-center gap-3">
+                            <h1 className="text-3xl font-bold text-white">Valuation</h1>
+                            <span className="inline-flex items-center justify-center min-w-7 h-7 px-2 text-sm font-semibold rounded-full bg-[#173ef0] text-white">
+                                {filteredAssets.length}
+                            </span>
+                        </div>
+                        <p className="text-white/60 text-lg mt-1">
+                            Run depreciation and revalue individual assets
+                        </p>
+                    </div>
+
+                    {/* Totals strip */}
+                    <div className="bg-[#242424] rounded-xl p-6 mb-6 grid grid-cols-2 lg:grid-cols-4 gap-6">
+                        <Stat label="Assets" value={totals.count} mono={false} />
+                        <Stat label="Total Acquisition Cost" value={formatNprShort(totals.cost)} />
+                        <Stat label="Current Book Value" value={formatNprShort(totals.book)} accent="text-green-300" />
+                        <Stat label="Cumulative Depreciation" value={formatNprShort(totals.depreciation)} accent="text-red-300" />
+                    </div>
+
+                    {/* Depreciation run panel */}
+                    <DepreciationRunPanel
+                        canRun={canRun}
+                        latestRun={latestRun()}
+                    />
+
+                    {/* Assets valuation table */}
+                    <AssetsValuationTable
+                        assets={filteredAssets}
+                        filters={filters}
+                        onFiltersChange={setFilters}
+                        canRevalue={canRun}
+                        onRevalue={(id) => setRevalueAssetId(id)}
+                    />
+                </div>
+            </div>
+
+            {/* Revalue modal */}
+            {revalueAssetId && (
+                <RevalueModal
+                    assetId={revalueAssetId}
+                    onClose={() => setRevalueAssetId(null)}
+                    onSaved={() => setRevalueAssetId(null)}
+                />
+            )}
+
+            <Footer />
+        </div>
+    );
+};
+
+const Stat = ({ label, value, accent = 'text-white', mono = false }) => (
+    <div>
+        <p className="text-xs font-medium text-white/50 uppercase tracking-wider mb-1">
+            {label}
+        </p>
+        <p className={`text-xl font-bold ${accent} ${mono ? 'font-mono' : ''}`}>
+            {value}
+        </p>
+    </div>
+);
+
+export default ValuationPage;
