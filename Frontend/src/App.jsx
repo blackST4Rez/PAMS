@@ -20,6 +20,7 @@ import ValuationPage from './components/Valuation/ValuationPage';
 import ReportsPage from './components/Reports/ReportsPage';
 import AuditPage from './components/Audit/AuditPage';
 import GisPage from './components/Gis/GisPage';
+import { UiProvider } from './components/Context/UiContext';
 
 const App = () => (
   <AuthProvider>
@@ -29,6 +30,7 @@ const App = () => (
           <ValuationProvider>
             <AuditProvider>
               <Router>
+                <UiProvider>
                 <Routes>
                   <Route path="/" element={<HomePage />} />
                   <Route path="/login" element={<LoginPage />} />
@@ -70,6 +72,7 @@ const App = () => (
                     error:   { iconTheme: { primary: '#ef4444', secondary: '#242424' } },
                   }}
                 />
+                </UiProvider>
               </Router>
             </AuditProvider>
           </ValuationProvider>

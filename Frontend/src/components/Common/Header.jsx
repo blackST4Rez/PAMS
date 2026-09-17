@@ -1,40 +1,57 @@
 import { Link } from "react-router-dom";
+import { FaBars } from "react-icons/fa";
 import LogoImage from "../../assets/Logo.svg";
+import { useUi } from "../Context/UiContext";
+import { useAuth } from "../Context/AuthContext";
 
 const Header = () => {
+    const { toggleMenu } = useUi();
+    const { user } = useAuth();
+
+    /* Only show the hamburger when there's a menu to open */
+    const showHamburger = Boolean(user);
+
     return (
-        <div>
-            <div className="bg-[#111112]">
-                <div className="flex max-w-10xl h-25 bg-[#111112] items-center justify-between mx-auto px-4">
-                    {/* Logo - Click to go to Home */}
-                    <Link to="/" className="flex gap-4 items-center">
+        <div className="bg-[#111112] sticky top-0 z-40">
+            <div className="flex max-w-7xl h-20 bg-[#111112] items-center justify-between mx-auto px-4">
+                {/* Left — hamburger (mobile, logged-in only) + logo */}
+                <div className="flex items-center gap-3">
+                    {showHamburger && (
+                        <button
+                            type="button"
+                            onClick={toggleMenu}
+                            className="lg:hidden flex items-center justify-center w-10 h-10 rounded-lg text-white hover:bg-white/10 transition-colors"
+                            aria-label="Toggle menu"
+                        >
+                            <FaBars className="w-5 h-5" />
+                        </button>
+                    )}
+
+                    <Link to="/" className="flex gap-3 items-center">
                         <img
                             src={LogoImage}
-                            alt="LogoImage"
-                            className="w-15 h-15"
+                            alt="Logo"
+                            className="w-12 h-12"
                         />
-                        <div className="h-15 flex-row items-center">
-                            <span className="font-bold text-2xl text-[#173ef0]">PMS</span>
-                            <p className="text-white">Asset Management</p>
+                        <div className="flex flex-col leading-tight">
+                            <span className="font-bold text-xl text-[#173ef0]">PMS</span>
+                            <p className="text-white text-xs">Asset Management</p>
                         </div>
                     </Link>
-                    
-                    <div className="flex items-center gap-3">
-                        <Link to="/login">
-                            <button
-                                className="flex w-45 h-15 gap-2 rounded-4xl items-center justify-center bg-[#173ef0] text-white px-6 font-semibold text-xl hover:bg-[#0020ad] transition-colors ease-in-out duration-300 cursor-pointer"
-                            >
-                                <span>Log In</span>
-                            </button>
-                        </Link>
-                        <Link to="/register">
-                            <button
-                                className="flex w-45 h-15 gap-2 rounded-4xl items-center justify-center bg-[#173ef0] text-white px-6 font-semibold text-xl hover:bg-[#0020ad] transition-colors ease-in-out duration-300 cursor-pointer"
-                            >
-                                <span>Register</span>
-                            </button>
-                        </Link>
-                    </div>
+                </div>
+
+                {/* Right — auth actions */}
+                <div className="flex items-center gap-2 sm:gap-3">
+                    <Link to="/login">
+                        <button className="flex items-center justify-center bg-[#173ef0] text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-full font-semibold text-sm sm:text-base hover:bg-[#0020ad] transition-colors cursor-pointer">
+                            Log In
+                        </button>
+                    </Link>
+                    <Link to="/register" className="hidden sm:block">
+                        <button className="flex items-center justify-center bg-[#173ef0] text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-full font-semibold text-sm sm:text-base hover:bg-[#0020ad] transition-colors cursor-pointer">
+                            Register
+                        </button>
+                    </Link>
                 </div>
             </div>
         </div>
