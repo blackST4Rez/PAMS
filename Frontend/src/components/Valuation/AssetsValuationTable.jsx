@@ -42,11 +42,11 @@ const AssetsValuationTable = ({
         onFiltersChange({ search: '', categoryId: '', method: '' });
 
     return (
-        <div className="bg-[#242424] rounded-xl p-6">
+        <div className="p-2">
             {/* Filter row */}
             <div className="flex flex-col lg:flex-row gap-3 mb-6">
                 <div className="relative flex-1 min-w-50">
-                    <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40 pointer-events-none" />
+                    <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white pointer-events-none" />
                     <input
                         type="text"
                         value={filters.search}
@@ -185,7 +185,7 @@ const AssetsValuationTable = ({
                                                 {formatNprShort(book)}
                                             </p>
                                             {isDepreciable && deprecated > 0 && (
-                                                <p className="text-xs text-red-300 mt-0.5">
+                                                <p className="text-xs text-red-400 mt-0.5">
                                                     −{formatNprShort(deprecated)} depreciated
                                                 </p>
                                             )}

@@ -16,6 +16,7 @@ import AssetsPage from './components/Assets/AssetsPage';
 import ApprovalsPage from './components/Approvals/ApprovalsPage';
 import MaintenancePage from './components/Maintainence/MaintenancePage';
 import ValuationPage from './components/Valuation/ValuationPage';
+import ReportsPage from './components/Reports/ReportsPage';
 
 const App = () => (
   <AuthProvider>
@@ -36,6 +37,7 @@ const App = () => (
                 <Route path="/approvals"   element={<ProtectedRoute><ApprovalsPage /></ProtectedRoute>} />
                 <Route path="/maintenance" element={<ProtectedRoute><MaintenancePage /></ProtectedRoute>} />
                 <Route path="/valuation"   element={<ProtectedRoute><ValuationPage /></ProtectedRoute>} />
+                <Route path="/reports"     element={<ProtectedRoute><ReportsPage /></ProtectedRoute>} />
 
                 <Route path="/sysAdmin"        element={<Navigate to="/dashboard" replace />} />
                 <Route path="/asset-manager"   element={<Navigate to="/dashboard" replace />} />

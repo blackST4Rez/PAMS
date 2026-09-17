@@ -124,11 +124,35 @@ const ValuationPage = () => {
                     </div>
 
                     {/* Totals strip */}
-                    <div className="bg-[#242424] rounded-xl p-6 mb-6 grid grid-cols-2 lg:grid-cols-4 gap-6">
-                        <Stat label="Assets" value={totals.count} mono={false} />
-                        <Stat label="Total Acquisition Cost" value={formatNprShort(totals.cost)} />
-                        <Stat label="Current Book Value" value={formatNprShort(totals.book)} accent="text-green-300" />
-                        <Stat label="Cumulative Depreciation" value={formatNprShort(totals.depreciation)} accent="text-red-300" />
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                        <Stat
+                            label="Assets"
+                            value={totals.count}
+                            accent="text-white"
+                            bg="bg-[#1c1c1c]"
+                            border="border-[#1c1c1c]"
+                        />
+                        <Stat
+                            label="Total Acquisition Cost"
+                            value={formatNprShort(totals.cost)}
+                            accent="text-white"
+                            bg="bg-[#1c1c1c]"
+                            border="border-[#1c1c1c]"
+                        />
+                        <Stat
+                            label="Current Book Value"
+                            value={formatNprShort(totals.book)}
+                            accent="text-green-300"
+                            bg="bg-[#1c1c1c]"
+                            border="border-[#1c1c1c]"
+                        />
+                        <Stat
+                            label="Cumulative Depreciation"
+                            value={formatNprShort(totals.depreciation)}
+                            accent="text-red-400"
+                            bg="bg-[#1c1c1c]"
+                            border="border-[#1c1c1c]"
+                        />
                     </div>
 
                     {/* Depreciation run panel */}
@@ -162,12 +186,12 @@ const ValuationPage = () => {
     );
 };
 
-const Stat = ({ label, value, accent = 'text-white', mono = false }) => (
-    <div>
-        <p className="text-xs font-medium text-white/50 uppercase tracking-wider mb-1">
+const Stat = ({ label, value, accent = 'text-white', bg = 'bg-[#242424]', border = 'border-white/10' }) => (
+    <div className={`${bg} border ${border} rounded-xl p-5`}>
+        <p className="text-xs font-medium text-white/50 uppercase tracking-wider mb-1.5">
             {label}
         </p>
-        <p className={`text-xl font-bold ${accent} ${mono ? 'font-mono' : ''}`}>
+        <p className={`text-xl font-bold ${accent}`}>
             {value}
         </p>
     </div>

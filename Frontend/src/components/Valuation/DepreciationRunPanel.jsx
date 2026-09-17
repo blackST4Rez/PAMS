@@ -4,6 +4,7 @@ import {
     FaPlay,
     FaCheckCircle,
     FaExclamationTriangle,
+    FaLevelDownAlt,
 } from 'react-icons/fa';
 import { useAuth } from '../Context/AuthContext';
 import { useAssets } from '../Context/AssetsContext';
@@ -30,7 +31,7 @@ const fmtDateTime = (iso) => {
 
 const DepreciationRunPanel = ({ canRun, latestRun }) => {
     const { user } = useAuth();
-    const { allAssets } = useAssets();
+    const { allAssets, updateAssetValues } = useAssets();
     const { runDepreciation } = useValuation();
 
     const [busy, setBusy] = useState(false);
@@ -57,86 +58,94 @@ const DepreciationRunPanel = ({ canRun, latestRun }) => {
         }
     };
 
-    /*
-      Pull the asset update function once, outside the JSX so we can pass
-      it through cleanly.
-    */
-    const { updateAssetValues } = useAssets();
-
     return (
-        <div className="bg-[#242424] rounded-xl p-6 mb-6">
-            <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
-                {/* Left — latest run summary */}
-                <div className="flex-1 min-w-0">
-                    <h2 className="text-lg font-semibold text-white flex items-center gap-2 mb-3">
-                        <FaCheckCircle className="text-green-400" />
-                        Depreciation
-                    </h2>
+        <div className="p-6 mb-6">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+                <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+                    <FaLevelDownAlt className="text-red-400" />
+                    Depreciation
+                </h2>
+                <span className="text-xs font-medium text-white/60">
+                    Current FY: <span className="text-white">{currentFYLabel()}</span>
+                </span>
+            </div>
 
+            {/* Body — two columns */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Latest run summary — 2 columns wide */}
+                <div className="lg:col-span-2">
                     {latestRun ? (
-                        <div className="space-y-2">
-                            <p className="text-sm text-white/70">
-                                Last run:{' '}
-                                <span className="text-white font-medium">
-                                    {latestRun.fiscalYear}
-                                </span>{' '}
-                                on {fmtDateTime(latestRun.runAt)} by{' '}
-                                <span className="text-white/80">
-                                    {latestRun.runBy}
-                                </span>
-                            </p>
-                            <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm">
-                                <span className="text-white/60">
-                                    Assets affected:{' '}
-                                    <span className="text-white">
-                                        {latestRun.assetsAffected}
-                                    </span>
-                                </span>
-                                <span className="text-white/60">
-                                    Total depreciation:{' '}
-                                    <span className="text-red-300">
-                                        {formatNprShort(latestRun.totalDepreciation)}
-                                    </span>
-                                </span>
+                        <>
+                            <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+                                <Row
+                                    label="Fiscal Year"
+                                    value={latestRun.fiscalYear}
+                                />
+                                <Row
+                                    label="Ran At"
+                                    value={fmtDateTime(latestRun.runAt)}
+                                />
+                                <Row
+                                    label="Ran By"
+                                    value={latestRun.runBy}
+                                />
+                                <Row
+                                    label="Assets Affected"
+                                    value={latestRun.assetsAffected}
+                                />
                             </div>
+
+                            <div className="mt-5 pt-5 border-t border-white/5">
+                                <p className="text-xs font-medium text-white/50 uppercase tracking-wider mb-1">
+                                    Total Depreciation Applied
+                                </p>
+                                <p className="text-2xl font-bold text-red-400">
+                                    {formatNprShort(latestRun.totalDepreciation)}
+                                </p>
+                            </div>
+
                             {latestRun.notes && (
-                                <p className="text-xs text-white/50 italic">
-                                    {latestRun.notes}
+                                <p className="text-xs text-white/50 italic mt-3">
+                                    "{latestRun.notes}"
                                 </p>
                             )}
-                        </div>
+                        </>
                     ) : (
-                        <p className="text-sm text-white/60">
-                            No depreciation runs have been recorded yet.
-                        </p>
+                        <div className="flex items-center gap-3 text-white/60">
+                            <FaCheckCircle className="text-white/30 w-5 h-5 shrink-0" />
+                            <p className="text-sm">
+                                No depreciation runs have been recorded yet. Run one
+                                to apply a year of depreciation across the register.
+                            </p>
+                        </div>
                     )}
-
-                    <p className="text-xs text-white/40 mt-4">
-                        Current fiscal year: {currentFYLabel()}
-                    </p>
                 </div>
 
-                {/* Right — action */}
+                {/* Action column */}
                 {canRun && (
-                    <div className="lg:shrink-0 lg:w-64">
+                    <div className="lg:col-span-1 flex items-start justify-end">
                         {!confirming ? (
                             <button
                                 onClick={() => setConfirming(true)}
-                                className="w-full flex items-center justify-center gap-2 px-5 py-2.5 bg-[#173ef0] text-white font-medium rounded-lg hover:bg-[#0020ad] transition-colors"
+                                className="w-full lg:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#173ef0] text-white font-medium rounded-lg hover:bg-[#0020ad] transition-colors"
                             >
                                 <FaPlay className="w-3.5 h-3.5" />
                                 Run Depreciation
                             </button>
                         ) : (
-                            <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/5 p-4">
-                                <div className="flex items-start gap-3 mb-3">
+                            <div className="w-full rounded-lg border border-yellow-500/30 bg-yellow-500/5 p-5">
+                                <div className="flex items-start gap-3 mb-4">
                                     <FaExclamationTriangle className="text-yellow-400 w-4 h-4 mt-0.5 shrink-0" />
                                     <div>
-                                        <p className="text-sm font-medium text-white">
+                                        <p className="text-sm font-semibold text-white">
                                             Run depreciation for {currentFYLabel()}?
                                         </p>
-                                        <p className="text-xs text-white/60 mt-1">
-                                            This will apply one year of depreciation to every eligible asset. Book values will be reduced.
+                                        <p className="text-xs text-white/60 mt-1 leading-relaxed">
+                                            This applies one year of depreciation to
+                                            every eligible asset. Book values will be
+                                            reduced and a permanent run record will be
+                                            created.
                                         </p>
                                     </div>
                                 </div>
@@ -144,14 +153,14 @@ const DepreciationRunPanel = ({ canRun, latestRun }) => {
                                     <button
                                         onClick={() => setConfirming(false)}
                                         disabled={busy}
-                                        className="px-3 py-1.5 text-xs font-medium text-white/70 rounded-md hover:bg-white/5 transition-colors disabled:opacity-50"
+                                        className="px-3.5 py-2 text-xs font-medium text-white/70 rounded-md hover:bg-white/5 transition-colors disabled:opacity-50"
                                     >
                                         Cancel
                                     </button>
                                     <button
                                         onClick={runNow}
                                         disabled={busy}
-                                        className="px-3 py-1.5 text-xs font-medium bg-[#173ef0] text-white rounded-md hover:bg-[#0020ad] transition-colors disabled:opacity-50"
+                                        className="px-3.5 py-2 text-xs font-medium bg-[#173ef0] text-white rounded-md hover:bg-[#0020ad] transition-colors disabled:opacity-50"
                                     >
                                         {busy ? 'Running…' : 'Confirm'}
                                     </button>
@@ -164,5 +173,12 @@ const DepreciationRunPanel = ({ canRun, latestRun }) => {
         </div>
     );
 };
+
+const Row = ({ label, value }) => (
+    <div>
+        <p className="text-xs text-white/50 mb-0.5">{label}</p>
+        <p className="text-sm text-white wrap-break-word">{value}</p>
+    </div>
+);
 
 export default DepreciationRunPanel;
