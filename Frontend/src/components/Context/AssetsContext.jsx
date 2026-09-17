@@ -10,6 +10,7 @@ import {
   getWardById,
   getStatusMeta,
 } from '../mock/mockAssets';
+import { logAuditEvent } from './AuditContext';
 
 /* Create the assets context */
 const AssetsContext = createContext(null);
@@ -47,11 +48,6 @@ export const AssetsProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [version, setVersion] = useState(0);
 
-  /*
-    Boot effect: hydrate assets + lifecycle from localStorage.
-    If localStorage is empty (first ever load), seed from the mock file
-    and immediately persist so subsequent loads read from storage.
-  */
   useEffect(() => {
     const storedAssets = readJSON(LS.assets(), null);
     const storedLifecycle = readJSON(LS.lifecycle(), null);
@@ -69,10 +65,6 @@ export const AssetsProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  /*
-    Cross-tab sync — when another tab writes to our keys, refresh here.
-    Matches the pattern in AuthContext.
-  */
   useEffect(() => {
     const onStorage = (e) => {
       if (!e.key) return;
@@ -90,7 +82,6 @@ export const AssetsProvider = ({ children }) => {
     return () => window.removeEventListener('storage', onStorage);
   }, []);
 
-  /* Persist both arrays together, keeping state and storage in sync */
   const persist = (nextAssets, nextLifecycle) => {
     setAssets(nextAssets);
     setLifecycle(nextLifecycle);
@@ -99,13 +90,8 @@ export const AssetsProvider = ({ children }) => {
     setVersion((v) => v + 1);
   };
 
-  /* Append a lifecycle event to the array + persist */
   const appendLifecycle = (list, entry) => [entry, ...list];
 
-  /*
-    Build a lifecycle entry object.
-    type: CREATED | UPDATED | APPROVED | REJECTED | DELETED
-  */
   const makeLifecycleEntry = (assetId, type, by, note) => ({
     id: makeId('lc'),
     assetId,
@@ -117,10 +103,6 @@ export const AssetsProvider = ({ children }) => {
 
   /* ===== READ ===== */
 
-  /*
-    allAssets() — every asset, newest first, with category/ward joined in
-    for display. Includes deleted ones unless `includeDeleted` is false.
-  */
   const allAssets = ({ includeDeleted = false } = {}) => {
     /* eslint-disable-next-line no-unused-vars */
     const _v = version;
@@ -139,13 +121,11 @@ export const AssetsProvider = ({ children }) => {
         };
       });
 
-    /* Newest first — by createdAt desc */
     return rows.sort(
       (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
     );
   };
 
-  /* getAsset(id) — one asset, joined with its lifecycle */
   const getAsset = (id) => {
     /* eslint-disable-next-line no-unused-vars */
     const _v = version;
@@ -172,11 +152,6 @@ export const AssetsProvider = ({ children }) => {
 
   /* ===== WRITE ===== */
 
-  /*
-    addAsset(payload) — creates a new asset in AWAITING_REVIEW status.
-    Generates the assetCode from the category code + existing assets.
-    Appends a CREATED lifecycle event.
-  */
   const addAsset = (payload) => {
     const category = getCategoryById(payload.categoryId);
     if (!category) throw new Error('Category not found');
@@ -216,20 +191,31 @@ export const AssetsProvider = ({ children }) => {
       appendLifecycle(lifecycle, entry)
     );
 
+    logAuditEvent({
+      entityType: 'asset',
+      entityId: newAsset.id,
+      action: 'CREATE',
+      actor: newAsset.createdBy,
+      summary: `Registered new asset "${newAsset.title}" (${newAsset.assetCode})`,
+      before: null,
+      after: {
+        assetCode: newAsset.assetCode,
+        title: newAsset.title,
+        categoryId: newAsset.categoryId,
+        acquisitionCost: newAsset.acquisitionCost,
+        status: newAsset.status,
+      },
+    });
+
     return newAsset;
   };
 
-  /*
-    updateAsset(id, patch) — merges patch into the existing asset.
-    Appends an UPDATED lifecycle event with a short summary of what changed.
-  */
   const updateAsset = (id, patch) => {
     const existing = assets.find((a) => a.id === id);
     if (!existing) throw new Error('Asset not found');
 
     const updated = { ...existing, ...patch };
 
-    /* Build a human-readable note: which fields changed */
     const changed = Object.keys(patch).filter(
       (k) => patch[k] !== existing[k]
     );
@@ -249,20 +235,31 @@ export const AssetsProvider = ({ children }) => {
       appendLifecycle(lifecycle, entry)
     );
 
+    /*
+      Build before/after snapshots from only the changed keys.
+    */
+    const before = {};
+    const after = {};
+    for (const k of changed) {
+      before[k] = existing[k];
+      after[k] = patch[k];
+    }
+
+    if (changed.length > 0) {
+      logAuditEvent({
+        entityType: 'asset',
+        entityId: id,
+        action: 'UPDATE',
+        actor: patch.updatedBy ?? 'unknown',
+        summary: `Updated asset "${existing.title}" — ${changed.join(', ')}`,
+        before,
+        after,
+      });
+    }
+
     return updated;
   };
 
-  /*
-    updateAssetValues(pairs) — bulk update book values for many assets
-    in one write. Used by the Valuation module when running depreciation
-    across the register.
-
-    `pairs` is an array of { id, currentBookValue }.
-    Assets not present in the array are left untouched.
-
-    No lifecycle events are appended for value updates — the depreciation
-    run or revaluation record in ValuationContext is the audit trail.
-  */
   const updateAssetValues = (pairs) => {
     if (!Array.isArray(pairs) || pairs.length === 0) return;
 
@@ -274,12 +271,12 @@ export const AssetsProvider = ({ children }) => {
     });
 
     persist(next, lifecycle);
+    /*
+      Note: no audit event per asset here.
+      The Valuation module logs a single RUN event covering the whole batch.
+    */
   };
 
-  /*
-    softDeleteAsset(id, by) — sets deletedAt, appends a DELETED event.
-    The asset stays in storage but is filtered out of normal lists.
-  */
   const softDeleteAsset = (id, by) => {
     const existing = assets.find((a) => a.id === id);
     if (!existing) throw new Error('Asset not found');
@@ -298,13 +295,19 @@ export const AssetsProvider = ({ children }) => {
       appendLifecycle(lifecycle, entry)
     );
 
+    logAuditEvent({
+      entityType: 'asset',
+      entityId: id,
+      action: 'DELETE',
+      actor: by ?? 'unknown',
+      summary: `Soft-deleted asset "${existing.title}" (${existing.assetCode})`,
+      before: { deletedAt: null, status: existing.status },
+      after: { deletedAt },
+    });
+
     return { ...existing, deletedAt };
   };
 
-  /*
-    approveAsset(id, by) — AWAITING_REVIEW → ACTIVE.
-    Appends an APPROVED event.
-  */
   const approveAsset = (id, by) => {
     const existing = assets.find((a) => a.id === id);
     if (!existing) throw new Error('Asset not found');
@@ -324,13 +327,19 @@ export const AssetsProvider = ({ children }) => {
       appendLifecycle(lifecycle, entry)
     );
 
+    logAuditEvent({
+      entityType: 'asset',
+      entityId: id,
+      action: 'APPROVE',
+      actor: by ?? 'unknown',
+      summary: `Approved asset "${existing.title}" (${existing.assetCode})`,
+      before: { status: 'AWAITING_REVIEW' },
+      after: { status: 'ACTIVE' },
+    });
+
     return { ...existing, status: 'ACTIVE' };
   };
 
-  /*
-    rejectAsset(id, reason, by) — AWAITING_REVIEW → CANCELLED.
-    Appends a REJECTED event with the reason as the note.
-  */
   const rejectAsset = (id, reason, by) => {
     const existing = assets.find((a) => a.id === id);
     if (!existing) throw new Error('Asset not found');
@@ -350,6 +359,16 @@ export const AssetsProvider = ({ children }) => {
       appendLifecycle(lifecycle, entry)
     );
 
+    logAuditEvent({
+      entityType: 'asset',
+      entityId: id,
+      action: 'REJECT',
+      actor: by ?? 'unknown',
+      summary: `Rejected asset "${existing.title}" (${existing.assetCode}) — ${reason ?? 'no reason'}`,
+      before: { status: 'AWAITING_REVIEW' },
+      after: { status: 'CANCELLED', reason: reason ?? '' },
+    });
+
     return { ...existing, status: 'CANCELLED' };
   };
 
@@ -364,11 +383,9 @@ export const AssetsProvider = ({ children }) => {
       value={{
         loading,
 
-        /* reads */
         allAssets,
         getAsset,
 
-        /* writes */
         addAsset,
         updateAsset,
         updateAssetValues,
@@ -376,7 +393,6 @@ export const AssetsProvider = ({ children }) => {
         approveAsset,
         rejectAsset,
 
-        /* reference data */
         allCategories,
         allWards,
         municipality,

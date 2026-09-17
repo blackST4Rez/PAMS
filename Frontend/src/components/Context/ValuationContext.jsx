@@ -8,6 +8,7 @@ import {
     makeRunId,
     makeRevaluationId,
 } from '../mock/mockValuation';
+import { logAuditEvent } from './AuditContext';
 
 const ValuationContext = createContext(null);
 
@@ -33,22 +34,12 @@ const writeJSON = (key, value) => {
     }
 };
 
-/*
-  ValuationProvider takes a snapshot of "what the assets look like right now"
-  through a callback prop, and writes updated values back through another.
-  This keeps ValuationContext decoupled from AssetsContext internals —
-  the page passes in the current asset list and the update function.
-*/
 export const ValuationProvider = ({ children }) => {
     const [runs, setRuns] = useState([]);
     const [revaluations, setRevaluations] = useState([]);
     const [loading, setLoading] = useState(true);
     const [version, setVersion] = useState(0);
 
-    /*
-      Boot: hydrate runs and revaluations from localStorage.
-      Seed on first load.
-    */
     useEffect(() => {
         const storedRuns = readJSON(LS.runs(), null);
         const storedRevs = readJSON(LS.revaluations(), null);
@@ -70,7 +61,6 @@ export const ValuationProvider = ({ children }) => {
         setLoading(false);
     }, []);
 
-    /* Cross-tab sync */
     useEffect(() => {
         const onStorage = (e) => {
             if (!e.key) return;
@@ -134,15 +124,6 @@ export const ValuationProvider = ({ children }) => {
 
     /* ============ WRITES ============ */
 
-    /*
-      Run one year of depreciation across all eligible assets.
-      `assets` is the current asset list (passed in from the page so this
-      context doesn't need to import AssetsContext).
-      `updateAssetValues` is a function that takes an array of
-      { id, currentBookValue } and writes them into the assets store.
-  
-      Returns a summary object: { runId, assetsAffected, totalDepreciation }.
-    */
     const runDepreciation = async ({
         assets,
         runBy,
@@ -179,12 +160,10 @@ export const ValuationProvider = ({ children }) => {
             throw new Error('No asset values changed — nothing to record');
         }
 
-        /* Write new book values into the assets store */
         updateAssetValues(
             changes.map((c) => ({ id: c.assetId, currentBookValue: c.after }))
         );
 
-        /* Record the run */
         const fy = fiscalYearOf();
         const run = {
             id: makeRunId(),
@@ -198,14 +177,24 @@ export const ValuationProvider = ({ children }) => {
         };
 
         persist([run, ...runs]);
+
+        logAuditEvent({
+            entityType: 'valuation',
+            entityId: run.id,
+            action: 'RUN',
+            actor: run.runBy,
+            summary: `Ran depreciation for ${run.fiscalYear} — ${run.assetsAffected} assets affected, total ${run.totalDepreciation}`,
+            before: null,
+            after: {
+                fiscalYear: run.fiscalYear,
+                assetsAffected: run.assetsAffected,
+                totalDepreciation: run.totalDepreciation,
+            },
+        });
+
         return run;
     };
 
-    /*
-      Revalue a single asset.
-      `updateAssetValues` again — writes the new book value into the assets store.
-      `assets` isn't needed because we already know which asset we're changing.
-    */
     const revalueAsset = async ({
         asset,
         newValue,
@@ -244,6 +233,17 @@ export const ValuationProvider = ({ children }) => {
         };
 
         persist(runs, [record, ...revaluations]);
+
+        logAuditEvent({
+            entityType: 'valuation',
+            entityId: record.id,
+            action: 'UPDATE',
+            actor: record.by,
+            summary: `Revalued asset "${asset.title}" (${asset.assetCode}) from ${previousValue} to ${numeric}`,
+            before: { currentBookValue: previousValue },
+            after: { currentBookValue: numeric, reason: record.reason },
+        });
+
         return record;
     };
 
@@ -252,13 +252,11 @@ export const ValuationProvider = ({ children }) => {
             value={{
                 loading,
 
-                /* reads */
                 allRuns,
                 latestRun,
                 allRevaluations,
                 revaluationsForAsset,
 
-                /* writes */
                 runDepreciation,
                 revalueAsset,
             }}

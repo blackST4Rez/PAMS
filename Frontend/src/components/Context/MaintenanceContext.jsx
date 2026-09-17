@@ -8,6 +8,7 @@ import {
     daysUntil,
     scheduleBucket,
 } from '../mock/mockMaintenance';
+import { logAuditEvent } from './AuditContext';
 
 const MaintenanceContext = createContext(null);
 
@@ -39,9 +40,6 @@ export const MaintenanceProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const [version, setVersion] = useState(0);
 
-    /*
-      Boot: hydrate from localStorage. Seed on first load.
-    */
     useEffect(() => {
         const storedSchedules = readJSON(LS.schedules(), null);
         const storedLogs = readJSON(LS.logs(), null);
@@ -63,7 +61,6 @@ export const MaintenanceProvider = ({ children }) => {
         setLoading(false);
     }, []);
 
-    /* Cross-tab sync */
     useEffect(() => {
         const onStorage = (e) => {
             if (!e.key) return;
@@ -91,10 +88,6 @@ export const MaintenanceProvider = ({ children }) => {
 
     /* ============ READS ============ */
 
-    /*
-      All schedules, sorted by next due date (soonest first).
-      Overdue come first because their nextDueAt is in the past.
-    */
     const allSchedules = () => {
         /* eslint-disable-next-line no-unused-vars */
         const _v = version;
@@ -104,9 +97,6 @@ export const MaintenanceProvider = ({ children }) => {
         );
     };
 
-    /*
-      Schedules for a specific asset.
-    */
     const schedulesForAsset = (assetId) => {
         /* eslint-disable-next-line no-unused-vars */
         const _v = version;
@@ -116,10 +106,6 @@ export const MaintenanceProvider = ({ children }) => {
             .sort((a, b) => new Date(a.nextDueAt) - new Date(b.nextDueAt));
     };
 
-    /*
-      Schedules that are due or overdue within N days.
-      Overdue (negative days) always included.
-    */
     const dueSoonSchedules = (withinDays = 30) => {
         /* eslint-disable-next-line no-unused-vars */
         const _v = version;
@@ -128,14 +114,11 @@ export const MaintenanceProvider = ({ children }) => {
             .filter((s) => {
                 if (!s.active) return false;
                 const days = daysUntil(s.nextDueAt);
-                return days <= withinDays; // negative (overdue) also passes
+                return days <= withinDays;
             })
             .sort((a, b) => new Date(a.nextDueAt) - new Date(b.nextDueAt));
     };
 
-    /*
-      One schedule by id, with its bucket computed.
-    */
     const getSchedule = (id) => {
         /* eslint-disable-next-line no-unused-vars */
         const _v = version;
@@ -149,9 +132,6 @@ export const MaintenanceProvider = ({ children }) => {
         };
     };
 
-    /*
-      Log entries for a schedule, newest first.
-    */
     const logsForSchedule = (scheduleId) => {
         /* eslint-disable-next-line no-unused-vars */
         const _v = version;
@@ -161,9 +141,6 @@ export const MaintenanceProvider = ({ children }) => {
             .sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt));
     };
 
-    /*
-      Log entries for an asset, across all its schedules.
-    */
     const logsForAsset = (assetId) => {
         /* eslint-disable-next-line no-unused-vars */
         const _v = version;
@@ -173,9 +150,6 @@ export const MaintenanceProvider = ({ children }) => {
             .sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt));
     };
 
-    /*
-      Every log entry, newest first — used on a future maintenance history view.
-    */
     const allLogs = () => {
         /* eslint-disable-next-line no-unused-vars */
         const _v = version;
@@ -187,10 +161,6 @@ export const MaintenanceProvider = ({ children }) => {
 
     /* ============ WRITES ============ */
 
-    /*
-      Create a new schedule for an asset.
-      `lastDoneAt` is optional — if omitted, nextDueAt is computed from today.
-    */
     const createSchedule = (payload) => {
         if (!payload.assetId) throw new Error('Asset is required');
         if (!payload.title?.trim()) throw new Error('Title is required');
@@ -215,14 +185,24 @@ export const MaintenanceProvider = ({ children }) => {
         };
 
         persist([schedule, ...schedules]);
+
+        logAuditEvent({
+            entityType: 'maintenance',
+            entityId: schedule.id,
+            action: 'CREATE',
+            actor: schedule.createdBy,
+            summary: `Created maintenance schedule "${schedule.title}"`,
+            before: null,
+            after: {
+                assetId: schedule.assetId,
+                frequencyDays: schedule.frequencyDays,
+                nextDueAt: schedule.nextDueAt,
+            },
+        });
+
         return schedule;
     };
 
-    /*
-      Update a schedule (title, description, frequency, lastDoneAt).
-      Recomputes nextDueAt when either lastDoneAt or frequencyDays changes,
-      since nextDueAt is derived from those two fields.
-    */
     const updateSchedule = (id, patch) => {
         const existing = schedules.find((s) => s.id === id);
         if (!existing) throw new Error('Schedule not found');
@@ -244,55 +224,103 @@ export const MaintenanceProvider = ({ children }) => {
         }
 
         persist(schedules.map((s) => (s.id === id ? updated : s)));
+
+        /* Build the before/after from only the changed fields */
+        const changedKeys = Object.keys(patch).filter(
+            (k) => patch[k] !== existing[k]
+        );
+        const before = {};
+        const after = {};
+        for (const k of changedKeys) {
+            before[k] = existing[k];
+            after[k] = patch[k];
+        }
+        if (frequencyChanged || lastDoneChanged) {
+            before.nextDueAt = existing.nextDueAt;
+            after.nextDueAt = updated.nextDueAt;
+        }
+
+        if (changedKeys.length > 0) {
+            logAuditEvent({
+                entityType: 'maintenance',
+                entityId: id,
+                action: 'UPDATE',
+                actor: patch.updatedBy ?? 'unknown',
+                summary: `Updated maintenance schedule "${existing.title}" — ${changedKeys.join(', ')}`,
+                before,
+                after,
+            });
+        }
+
         return updated;
     };
 
-    /*
-      Deactivate a schedule. It stays in storage but is marked inactive and
-      filtered out of "due soon" queries.
-    */
     const deactivateSchedule = (id) => {
         const existing = schedules.find((s) => s.id === id);
         if (!existing) throw new Error('Schedule not found');
 
         const updated = { ...existing, active: false };
         persist(schedules.map((s) => (s.id === id ? updated : s)));
+
+        logAuditEvent({
+            entityType: 'maintenance',
+            entityId: id,
+            action: 'UPDATE',
+            actor: 'unknown',
+            summary: `Deactivated maintenance schedule "${existing.title}"`,
+            before: { active: true },
+            after: { active: false },
+        });
+
         return updated;
     };
 
-    /* Reactivate a deactivated schedule */
     const activateSchedule = (id) => {
         const existing = schedules.find((s) => s.id === id);
         if (!existing) throw new Error('Schedule not found');
 
         const updated = { ...existing, active: true };
         persist(schedules.map((s) => (s.id === id ? updated : s)));
+
+        logAuditEvent({
+            entityType: 'maintenance',
+            entityId: id,
+            action: 'UPDATE',
+            actor: 'unknown',
+            summary: `Reactivated maintenance schedule "${existing.title}"`,
+            before: { active: false },
+            after: { active: true },
+        });
+
         return updated;
     };
 
-    /*
-      Hard-delete a schedule AND its associated logs.
-      Prefer deactivateSchedule unless you really want it gone.
-    */
     const deleteSchedule = (id) => {
+        const existing = schedules.find((s) => s.id === id);
+
         persist(
             schedules.filter((s) => s.id !== id),
             logs.filter((l) => l.scheduleId !== id)
         );
+
+        if (existing) {
+            logAuditEvent({
+                entityType: 'maintenance',
+                entityId: id,
+                action: 'DELETE',
+                actor: 'unknown',
+                summary: `Deleted maintenance schedule "${existing.title}"`,
+                before: { title: existing.title, assetId: existing.assetId },
+                after: null,
+            });
+        }
     };
 
-    /*
-      Log a completed maintenance event against a schedule.
-      - Creates a log entry
-      - Advances the schedule's lastDoneAt to the completed date
-      - Advances nextDueAt by frequencyDays from the completed date
-    */
     const logMaintenance = (scheduleId, payload) => {
         const schedule = schedules.find((s) => s.id === scheduleId);
         if (!schedule) throw new Error('Schedule not found');
 
-        const completedAt =
-            payload.completedAt || new Date().toISOString();
+        const completedAt = payload.completedAt || new Date().toISOString();
         const completedDateOnly = completedAt.slice(0, 10);
 
         const nextDueAt = computeNextDue(
@@ -325,6 +353,24 @@ export const MaintenanceProvider = ({ children }) => {
             [logEntry, ...logs]
         );
 
+        logAuditEvent({
+            entityType: 'maintenance',
+            entityId: logEntry.id,
+            action: 'LOG',
+            actor: logEntry.loggedBy,
+            summary: `Logged maintenance for "${schedule.title}"${logEntry.cost ? ` — cost ${logEntry.cost}` : ''}`,
+            before: {
+                lastDoneAt: schedule.lastDoneAt,
+                nextDueAt: schedule.nextDueAt,
+            },
+            after: {
+                lastDoneAt: completedDateOnly,
+                nextDueAt,
+                cost: logEntry.cost,
+                vendor: logEntry.vendor,
+            },
+        });
+
         return logEntry;
     };
 
@@ -333,7 +379,6 @@ export const MaintenanceProvider = ({ children }) => {
             value={{
                 loading,
 
-                /* reads */
                 allSchedules,
                 schedulesForAsset,
                 dueSoonSchedules,
@@ -342,7 +387,6 @@ export const MaintenanceProvider = ({ children }) => {
                 logsForAsset,
                 allLogs,
 
-                /* writes */
                 createSchedule,
                 updateSchedule,
                 deactivateSchedule,

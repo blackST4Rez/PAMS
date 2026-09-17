@@ -6,6 +6,7 @@ import {
   ownsCurrentLevel,
   isActionable,
 } from '../mock/mockApprovals';
+import { logAuditEvent } from './AuditContext';
 
 const ApprovalsContext = createContext(null);
 
@@ -112,11 +113,6 @@ export const ApprovalsProvider = ({ children }) => {
 
   const getChain = (entityName) => chains[entityName] ?? [];
 
-  /*
-    Does any of the given roles appear in any approval chain?
-    Used to gate entry to the approvals page — approval authority comes
-    from chain membership, not from a permission string.
-  */
   const isChainMember = (userRoles = []) => {
     /* eslint-disable-next-line no-unused-vars */
     const _v = version;
@@ -139,6 +135,22 @@ export const ApprovalsProvider = ({ children }) => {
     });
 
     persist([req, ...requests]);
+
+    logAuditEvent({
+      entityType: 'approval',
+      entityId: req.id,
+      action: 'CREATE',
+      actor: requestedBy,
+      summary: `Created ${entityName.replace(/_/g, ' ')} request "${title}"`,
+      before: null,
+      after: {
+        entityName,
+        currentLevel: 1,
+        totalLevels: req.totalLevels,
+        status: 'Pending',
+      },
+    });
+
     return req;
   };
 
@@ -194,6 +206,33 @@ export const ApprovalsProvider = ({ children }) => {
     };
 
     persist(requests.map((r) => (r.id === requestId ? updated : r)));
+
+    const isApprove = decision === 'approve';
+    const isFinal = isApprove && req.currentLevel >= req.totalLevels;
+
+    logAuditEvent({
+      entityType: 'approval',
+      entityId: requestId,
+      action: isApprove ? 'APPROVE' : 'REJECT',
+      actor: actedBy,
+      summary: isApprove
+        ? isFinal
+          ? `Gave final approval on "${req.title}"`
+          : `Approved level ${req.currentLevel} of "${req.title}"`
+        : `Rejected level ${req.currentLevel} of "${req.title}"${remarks ? ` — ${remarks}` : ''}`,
+      before: {
+        currentLevel: req.currentLevel,
+        status: req.status,
+        stepStatus: req.steps[currentStepIndex].status,
+      },
+      after: {
+        currentLevel: nextLevel,
+        status: nextStatus,
+        stepStatus: decision === 'approve' ? 'Approved' : 'Rejected',
+        remarks: remarks || '',
+      },
+    });
+
     return updated;
   };
 
@@ -222,6 +261,17 @@ export const ApprovalsProvider = ({ children }) => {
     };
 
     persist(requests.map((r) => (r.id === requestId ? updated : r)));
+
+    logAuditEvent({
+      entityType: 'approval',
+      entityId: requestId,
+      action: 'CANCEL',
+      actor: cancelledBy,
+      summary: `Cancelled request "${req.title}"`,
+      before: { status: req.status, currentLevel: req.currentLevel },
+      after: { status: 'Cancelled' },
+    });
+
     return updated;
   };
 
@@ -231,8 +281,20 @@ export const ApprovalsProvider = ({ children }) => {
     if (!Array.isArray(roleCodes) || roleCodes.length === 0) {
       throw new Error('Chain must contain at least one role');
     }
+
+    const previous = chains[entityName] ?? [];
     const nextChains = { ...chains, [entityName]: roleCodes };
     persist(requests, nextChains);
+
+    logAuditEvent({
+      entityType: 'approval',
+      entityId: entityName,
+      action: 'UPDATE',
+      actor: 'unknown',
+      summary: `Updated approval chain for "${entityName}"`,
+      before: { chain: previous },
+      after: { chain: roleCodes },
+    });
   };
 
   /* ============ HELPERS ============ */
@@ -248,7 +310,6 @@ export const ApprovalsProvider = ({ children }) => {
       value={{
         loading,
 
-        /* reads */
         pendingForRoles,
         allRequests,
         getRequest,
@@ -256,12 +317,10 @@ export const ApprovalsProvider = ({ children }) => {
         currentLevelRole,
         isChainMember,
 
-        /* writes */
         createRequest,
         actOnCurrentLevel,
         cancelRequest,
 
-        /* chain config */
         setChain,
       }}
     >

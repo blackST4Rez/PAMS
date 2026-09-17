@@ -4,21 +4,19 @@ import { useAuth } from '../Context/AuthContext';
 
 /*
   Field schema — the modal's input fields.
-  Add a field here and it renders + submits automatically.
+  First/Last Name are separate so the modal matches the public
+  registration form.
 */
-const USER_FIELDS = [
-    { name: 'fullName', label: 'Full Name', type: 'text', fallback: '', required: true },
+const TEXT_FIELDS = [
+    { name: 'firstName', label: 'First Name', type: 'text', fallback: '', required: true },
+    { name: 'lastName', label: 'Last Name', type: 'text', fallback: '', required: true },
     { name: 'username', label: 'Username', type: 'text', fallback: '', required: true },
     { name: 'email', label: 'Email', type: 'email', fallback: '', required: true },
     { name: 'phone', label: 'Phone', type: 'tel', fallback: '' },
-    { name: 'password', label: 'Password', type: 'password', fallback: 'ChangeMe123!', required: true },
-    { name: 'municipality', label: 'Municipality', type: 'text', fallback: 'Gaurishankar Rural Municipality' },
-    { name: 'ward', label: 'Ward', type: 'text', fallback: '' },
+    { name: 'password', label: 'Password', type: 'password', fallback: '', required: true },
+    { name: 'confirmPassword', label: 'Confirm Password', type: 'password', fallback: '', required: true },
 ];
 
-/*
-  Role options for the dropdown — matches ROLE_PERMISSIONS in AuthContext.
-*/
 const ROLE_OPTIONS = [
     { code: 'SYS_ADMIN', label: 'System Admin' },
     { code: 'ASSET_MANAGER', label: 'Asset Manager' },
@@ -28,8 +26,20 @@ const ROLE_OPTIONS = [
     { code: 'PUBLIC_USER', label: 'Public User' },
 ];
 
-const buildInitialForm = () =>
-    Object.fromEntries(USER_FIELDS.map((f) => [f.name, f.fallback]));
+const WARD_OPTIONS = [
+    'Ward 1', 'Ward 2', 'Ward 3', 'Ward 4', 'Ward 5',
+    'Ward 6', 'Ward 7', 'Ward 8', 'Ward 9',
+];
+
+const MUNICIPALITY = 'Gaurishankar Rural Municipality';
+
+const buildInitialForm = () => {
+    const form = {};
+    for (const f of TEXT_FIELDS) form[f.name] = f.fallback;
+    form.municipality = MUNICIPALITY;
+    form.ward = 'Ward 3';
+    return form;
+};
 
 const RegisterUserModal = ({ onClose }) => {
     const { addUser } = useAuth();
@@ -43,17 +53,38 @@ const RegisterUserModal = ({ onClose }) => {
     const onSubmit = async (e) => {
         e.preventDefault();
 
-        /* Validate required fields */
-        for (const field of USER_FIELDS) {
+        /* Required field validation */
+        for (const field of TEXT_FIELDS) {
             if (field.required && !form[field.name]?.trim()) {
                 toast.error(`${field.label} is required`);
                 return;
             }
         }
 
+        /* Password length */
+        if (form.password.length < 8) {
+            toast.error('Password must be at least 8 characters');
+            return;
+        }
+
+        /* Password confirmation */
+        if (form.password !== form.confirmPassword) {
+            toast.error('Passwords do not match');
+            return;
+        }
+
         setBusy(true);
         try {
-            addUser({ ...form, role });
+            addUser({
+                username: form.username.trim(),
+                fullName: `${form.firstName.trim()} ${form.lastName.trim()}`,
+                email: form.email.trim(),
+                phone: form.phone.trim(),
+                password: form.password,
+                municipality: form.municipality,
+                ward: form.ward,
+                role,
+            });
             toast.success('User registered successfully');
             onClose();
         } catch (err) {
@@ -81,7 +112,8 @@ const RegisterUserModal = ({ onClose }) => {
                 {/* Form */}
                 <form onSubmit={onSubmit} className="p-6 space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {USER_FIELDS.map((field) => (
+                        {/* Text fields */}
+                        {TEXT_FIELDS.map((field) => (
                             <Field
                                 key={field.name}
                                 label={field.label}
@@ -93,8 +125,40 @@ const RegisterUserModal = ({ onClose }) => {
                             />
                         ))}
 
-                        {/* Role selector */}
+                        {/* Municipality — read-only */}
                         <div>
+                            <label className="block text-xs font-medium text-white/60 mb-1.5 uppercase tracking-wider">
+                                Municipality
+                            </label>
+                            <input
+                                type="text"
+                                value={form.municipality}
+                                disabled
+                                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white/60 text-sm focus:outline-none disabled:opacity-60"
+                            />
+                        </div>
+
+                        {/* Ward — dropdown */}
+                        <div>
+                            <label className="block text-xs font-medium text-white/60 mb-1.5 uppercase tracking-wider">
+                                Ward
+                            </label>
+                            <select
+                                name="ward"
+                                value={form.ward}
+                                onChange={onChange}
+                                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
+                            >
+                                {WARD_OPTIONS.map((w) => (
+                                    <option key={w} value={w} className="bg-[#242424]">
+                                        {w}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {/* Role — dropdown */}
+                        <div className="sm:col-span-2">
                             <label className="block text-xs font-medium text-white/60 mb-1.5 uppercase tracking-wider">
                                 Role
                             </label>
@@ -135,7 +199,7 @@ const RegisterUserModal = ({ onClose }) => {
     );
 };
 
-/* Reusable field — same pattern as the profile form */
+/* Reusable field */
 const Field = ({ label, ...props }) => (
     <div>
         <label className="block text-xs font-medium text-white/60 mb-1.5 uppercase tracking-wider">
@@ -143,7 +207,7 @@ const Field = ({ label, ...props }) => (
         </label>
         <input
             {...props}
-            className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0]"
+            className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0]"
         />
     </div>
 );
