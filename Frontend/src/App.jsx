@@ -19,6 +19,7 @@ import MaintenancePage from './components/Maintainence/MaintenancePage';
 import ValuationPage from './components/Valuation/ValuationPage';
 import ReportsPage from './components/Reports/ReportsPage';
 import AuditPage from './components/Audit/AuditPage';
+import GisPage from './components/Gis/GisPage';
 
 const App = () => (
   <AuthProvider>
@@ -42,6 +43,7 @@ const App = () => (
                   <Route path="/valuation"   element={<ProtectedRoute><ValuationPage /></ProtectedRoute>} />
                   <Route path="/reports"     element={<ProtectedRoute><ReportsPage /></ProtectedRoute>} />
                   <Route path="/audit"       element={<ProtectedRoute><AuditPage /></ProtectedRoute>} />
+                  <Route path="/gis"         element={<ProtectedRoute><GisPage /></ProtectedRoute>} />
 
                   <Route path="/sysAdmin"        element={<Navigate to="/dashboard" replace />} />
                   <Route path="/asset-manager"   element={<Navigate to="/dashboard" replace />} />
@@ -76,6 +78,5 @@ const App = () => (
     </AssetsProvider>
   </AuthProvider>
 );
-
 
 export default App;
