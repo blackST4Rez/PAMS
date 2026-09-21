@@ -162,7 +162,7 @@ const LogMaintenanceModal = ({ scheduleId, onClose, onSaved }) => {
                     </div>
 
                     {/* Preview of the resulting next-due date */}
-                    <div className="rounded-lg border border-white/10 bg-white/[0.02] px-4 py-3">
+                    <div className="rounded-lg border border-white/10 bg-white/2 px-4 py-3">
                         <p className="text-xs font-medium text-white/60 uppercase tracking-wider mb-1">
                             After logging, next due becomes
                         </p>
