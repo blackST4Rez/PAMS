@@ -108,7 +108,7 @@ const SchedulesTable = ({
     };
 
     return (
-        <div className="bg-[#242424] rounded-xl p-4 sm:p-6">
+        <div className="rounded-xl p-4 sm:p-6">
             {/* Filter row */}
             <div className="flex flex-col lg:flex-row gap-3 mb-6">
                 <div className="relative flex-1 min-w-50">
@@ -118,18 +118,18 @@ const SchedulesTable = ({
                         value={filters.search}
                         onChange={(e) => setField('search', e.target.value)}
                         placeholder="Search schedules…"
-                        className="w-full pl-10 pr-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] transition"
+                        className="w-full pl-10 pr-3 py-2.5 bg-[#1c1c1c] border border-white/10 rounded-lg text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] transition"
                     />
                 </div>
 
                 <select
                     value={filters.assetId}
                     onChange={(e) => setField('assetId', e.target.value)}
-                    className="w-full lg:w-64 px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
+                    className="w-full lg:w-64 px-3 py-2.5 bg-[#1c1c1c] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
                 >
                     <option value="" className="bg-[#242424]">All Assets</option>
                     {allAssets().map((a) => (
-                        <option key={a.id} value={a.id} className="bg-[#242424]">
+                        <option key={a.id} value={a.id} className="bg-[#1c1c1c]">
                             {a.assetCode} — {a.title}
                         </option>
                     ))}
@@ -138,10 +138,10 @@ const SchedulesTable = ({
                 <select
                     value={filters.bucket}
                     onChange={(e) => setField('bucket', e.target.value)}
-                    className="w-full lg:w-44 px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
+                    className="w-full lg:w-44 px-3 py-2.5 bg-[#1c1c1c] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
                 >
                     {BUCKET_OPTIONS.map((opt) => (
-                        <option key={opt.value} value={opt.value} className="bg-[#242424]">
+                        <option key={opt.value} value={opt.value} className="bg-[#1c1c1c]">
                             {opt.label}
                         </option>
                     ))}
