@@ -38,7 +38,7 @@ const AssetsTable = ({ assets, onRowClick }) => {
 
     if (assets.length === 0) {
         return (
-            <div className="bg-[#242424] rounded-xl p-4 sm:p-6">
+            <div className="bg-[#242424] p-4 sm:p-6">
                 <p className="text-white/50 text-sm py-8 text-center">
                     No assets match the current filters.
                 </p>
@@ -47,7 +47,7 @@ const AssetsTable = ({ assets, onRowClick }) => {
     }
 
     return (
-        <div className="rounded-xl p-4 sm:p-6">
+        <div className="p-4 sm:p-6">
             {/* ---- Mobile cards ---- */}
             <div className="sm:hidden space-y-3">
                 {paged.map((a) => {
@@ -59,7 +59,7 @@ const AssetsTable = ({ assets, onRowClick }) => {
                             type="button"
                             key={a.id}
                             onClick={() => onRowClick(a.id)}
-                            className="w-full text-left bg-[#1a1a1a] border border-white/10 rounded-xl p-4 space-y-3 hover:border-white/20 transition-colors"
+                            className="w-full text-left bg-[#1a1a1a] border border-white/10 p-4 space-y-3 hover:border-white/20 transition-colors"
                         >
                             {/* Top — code + status */}
                             <div className="flex items-start justify-between gap-3">

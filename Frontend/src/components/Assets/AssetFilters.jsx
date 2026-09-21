@@ -24,7 +24,7 @@ const AssetFilters = ({ filters, onChange }) => {
         });
 
     return (
-        <div className="rounded-xl p-4 mb-6">
+        <div className="p-4 mb-6">
             <div className="flex flex-col lg:flex-row gap-3">
                 {/* Search — with clear button inside */}
                 <div className="relative flex-1 min-w-50">
@@ -34,7 +34,7 @@ const AssetFilters = ({ filters, onChange }) => {
                         value={filters.search}
                         onChange={(e) => setField('search', e.target.value)}
                         placeholder="Search by code, title, description…"
-                        className="w-full pl-10 pr-10 py-2.5 bg-[#1c1c1c] border border-white/10 rounded-lg text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] transition"
+                        className="w-full pl-10 pr-10 py-2.5 bg-[#1c1c1c] border border-white/10 text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] transition"
                     />
                     {hasAnyFilter && (
                         <button
@@ -52,7 +52,7 @@ const AssetFilters = ({ filters, onChange }) => {
                 <select
                     value={filters.categoryId}
                     onChange={(e) => setField('categoryId', e.target.value)}
-                    className="w-full lg:w-48 px-3 py-2.5 bg-[#1c1c1c] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
+                    className="w-full lg:w-48 px-3 py-2.5 bg-[#1c1c1c] border border-white/10 text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
                 >
                     <option value="" className="bg-[#1c1c1c]">All Categories</option>
                     {MOCK_ASSET_CATEGORIES.map((c) => (
@@ -66,7 +66,7 @@ const AssetFilters = ({ filters, onChange }) => {
                 <select
                     value={filters.wardId}
                     onChange={(e) => setField('wardId', e.target.value)}
-                    className="w-full lg:w-40 px-3 py-2.5 bg-[#1c1c1c] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
+                    className="w-full lg:w-40 px-3 py-2.5 bg-[#1c1c1c] border border-white/10 text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
                 >
                     <option value="" className="bg-[#1c1c1c]">All Wards</option>
                     {MOCK_WARDS.map((w) => (
@@ -80,7 +80,7 @@ const AssetFilters = ({ filters, onChange }) => {
                 <select
                     value={filters.status}
                     onChange={(e) => setField('status', e.target.value)}
-                    className="w-full lg:w-52 px-3 py-2.5 bg-[#1c1c1c] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
+                    className="w-full lg:w-52 px-3 py-2.5 bg-[#1c1c1c] border border-white/10 text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
                 >
                     <option value="" className="bg-[#1c1c1c]">All Statuses</option>
                     {ASSET_STATUSES.map((s) => (
