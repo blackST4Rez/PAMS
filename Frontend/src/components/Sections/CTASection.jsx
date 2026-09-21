@@ -1,21 +1,31 @@
-import { BiArrowFromLeft } from "react-icons/bi";
+import { Link } from 'react-router-dom';
+import { BiArrowFromLeft } from 'react-icons/bi';
 
 const CTASection = () => {
-
     return (
-        <section className="py-25 px-8 lg:px-12 bg-white">
+        <section className="py-16 sm:py-20 lg:py-28 px-4 sm:px-6 lg:px-12 bg-white">
             <div className="max-w-5xl mx-auto text-center">
-                <div className="bg-linear-to-br from-indigo-50 to-blue-50 rounded-3xl p-20 border border-indigo-100">
-                    <h2 className="text-6xl lg:text-7xl font-bold text-gray-900">Ready to Start Managing </h2>
-                    <h2 className="text-6xl lg:text-7xl font-bold text-gray-900 mb-5">Your Assets ?</h2>
-                    <span className="text-2xl text-gray-600 mt-8 max-w-2xl mx-auto leading-relaxed">Join Gaurishankar Rural Municipality and streamline your</span>
-                    <span className="text-2xl text-gray-600 mt-8 max-w-2xl mx-auto leading-relaxed">asset management process today.</span>
-                    <div className="flex flex-wrap justify-center gap-6 mt-12">
-                        <button
-                            className="flex w-60 h-5 my-auto gap-2 items-center bg-[#173ef0] text-white px-12 py-8 font-semibold text-xl hover:bg-[#0020ad] transition-colors ease-in-out duration-300 cursor-pointer">
-                            <span>Get Started</span>
-                            <BiArrowFromLeft className="w-6 h-6 text-white" />
-                        </button>
+                <div className="bg-linear-to-br from-indigo-50 to-blue-50 rounded-2xl sm:rounded-3xl p-8 sm:p-12 lg:p-16 xl:p-20 border border-indigo-100">
+                    {/* Heading */}
+                    <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 leading-tight mb-6 sm:mb-8">
+                        Ready to Start Managing{' '}
+                        <span className="block sm:inline">Your Assets?</span>
+                    </h2>
+
+                    {/* Description */}
+                    <p className="text-base sm:text-lg lg:text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto mb-8 sm:mb-10">
+                        Join Gaurishankar Rural Municipality and streamline your
+                        asset management process today.
+                    </p>
+
+                    {/* CTA button */}
+                    <div className="flex flex-wrap justify-center gap-4">
+                        <Link to="/register">
+                            <button className="inline-flex items-center justify-center gap-2 bg-[#173ef0] text-white px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-semibold text-base sm:text-lg hover:bg-[#0020ad] transition-colors duration-300 cursor-pointer">
+                                <span>Get Started</span>
+                                <BiArrowFromLeft className="w-5 h-5" />
+                            </button>
+                        </Link>
                     </div>
                 </div>
             </div>
