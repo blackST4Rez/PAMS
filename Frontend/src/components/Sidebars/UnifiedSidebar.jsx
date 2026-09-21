@@ -33,7 +33,7 @@ const UnifiedSidebar = () => {
                                 to={item.path}
                                 onClick={closeMenu}
                                 className={({ isActive }) =>
-                                    `w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors duration-200 ${
+                                    `w-full flex items-center gap-3 px-4 py-3 transition-colors duration-200 ${
                                         isActive
                                             ? 'bg-[#173ef0] text-white'
                                             : 'text-white/70 hover:bg-[#173ef0] hover:text-white'
@@ -50,7 +50,7 @@ const UnifiedSidebar = () => {
                 <div className="mt-4 px-2 pt-4 border-t border-white/10">
                     <button
                         onClick={handleLogout}
-                        className="w-full flex justify-center items-center gap-3 px-4 py-3 rounded-lg font-semibold text-white bg-red-600 hover:bg-red-700 transition-colors ease-in-out duration-300 cursor-pointer"
+                        className="w-full flex justify-center items-center gap-3 px-4 py-3 font-semibold text-white bg-red-600 hover:bg-red-700 transition-colors ease-in-out duration-300 cursor-pointer"
                     >
                         <Fa.FaSignOutAlt className="w-5 h-5" />
                         <span>Log Out</span>
