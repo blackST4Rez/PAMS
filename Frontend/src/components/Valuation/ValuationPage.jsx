@@ -105,7 +105,7 @@ const ValuationPage = () => {
                 <UnifiedSidebar />
 
                 <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto bg-[#1a1a1a]">
-                    <div className="mb-6">
+                    <div className="mb-6 px-4">
                         <div className="flex items-center gap-3 flex-wrap">
                             <h1 className="text-3xl font-bold text-white">Valuation</h1>
                             <span className="inline-flex items-center justify-center min-w-7 h-7 px-2 text-sm font-semibold rounded-full bg-[#173ef0] text-white">
@@ -117,34 +117,31 @@ const ValuationPage = () => {
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    {/* Totals — 2×2 grid */}
+                    <div className="grid grid-cols-2 gap-4 mb-6 px-4">
                         <Stat
                             label="Assets"
                             value={totals.count}
                             accent="text-white"
-                            bg="bg-[#242424]"
-                            border="border-white/10"
+                            bg="bg-[#1c1c1c]"
                         />
                         <Stat
                             label="Total Acquisition Cost"
                             value={formatNprShort(totals.cost)}
                             accent="text-white"
-                            bg="bg-[#242424]"
-                            border="border-white/10"
+                            bg="bg-[#1c1c1c]"
                         />
                         <Stat
                             label="Current Book Value"
                             value={formatNprShort(totals.book)}
-                            accent="text-green-300"
-                            bg="bg-green-500/5"
-                            border="border-green-500/20"
+                            accent="text-emerald-400"
+                            bg="bg-[#1c1c1c]"
                         />
                         <Stat
                             label="Cumulative Depreciation"
                             value={formatNprShort(totals.depreciation)}
-                            accent="text-red-300"
-                            bg="bg-red-500/5"
-                            border="border-red-500/20"
+                            accent="text-red-400"
+                            bg="bg-[#1c1c1c]"
                         />
                     </div>
 
@@ -176,8 +173,8 @@ const ValuationPage = () => {
     );
 };
 
-const Stat = ({ label, value, accent = 'text-white', bg = 'bg-[#242424]', border = 'border-white/10' }) => (
-    <div className={`${bg} border ${border} rounded-xl p-4 sm:p-5`}>
+const Stat = ({ label, value, accent = 'text-white', bg = 'bg-[#1c1c1c]' }) => (
+    <div className={`${bg} border-l-5 border-l-[#173ef0] p-4 sm:p-5`}>
         <p className="text-xs font-medium text-white/50 uppercase tracking-wider mb-1.5">
             {label}
         </p>

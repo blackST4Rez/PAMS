@@ -63,28 +63,28 @@ const AssetsValuationTable = ({
     );
 
     return (
-        <div className="bg-[#242424] rounded-xl p-4 sm:p-6">
+        <div className="rounded-xl p-4 sm:p-6">
             {/* Filter row */}
             <div className="flex flex-col lg:flex-row gap-3 mb-6">
                 <div className="relative flex-1 min-w-50">
-                    <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40 pointer-events-none" />
+                    <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white pointer-events-none" />
                     <input
                         type="text"
                         value={filters.search}
                         onChange={(e) => setField('search', e.target.value)}
                         placeholder="Search by code, title, category…"
-                        className="w-full pl-10 pr-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] transition"
+                        className="w-full pl-10 pr-3 py-2.5 bg-[#1c1c1c] border border-white/10 rounded-lg text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] transition"
                     />
                 </div>
 
                 <select
                     value={filters.categoryId}
                     onChange={(e) => setField('categoryId', e.target.value)}
-                    className="w-full lg:w-52 px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
+                    className="w-full lg:w-52 px-3 py-2.5 bg-[#1c1c1c] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
                 >
-                    <option value="" className="bg-[#242424]">All Categories</option>
+                    <option value="" className="bg-[#1c1c1c]">All Categories</option>
                     {MOCK_ASSET_CATEGORIES.map((c) => (
-                        <option key={c.id} value={c.id} className="bg-[#242424]">
+                        <option key={c.id} value={c.id} className="bg-[#1c1c1c11]">
                             {c.name}
                         </option>
                     ))}
@@ -93,10 +93,10 @@ const AssetsValuationTable = ({
                 <select
                     value={filters.method}
                     onChange={(e) => setField('method', e.target.value)}
-                    className="w-full lg:w-52 px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
+                    className="w-full lg:w-52 px-3 py-2.5 bg-[#1c1c1c] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
                 >
                     {METHOD_FILTER_OPTIONS.map((opt) => (
-                        <option key={opt.value} value={opt.value} className="bg-[#242424]">
+                        <option key={opt.value} value={opt.value} className="bg-[#1c1c1c]">
                             {opt.label}
                         </option>
                     ))}

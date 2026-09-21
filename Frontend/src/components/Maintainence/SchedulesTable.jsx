@@ -112,7 +112,7 @@ const SchedulesTable = ({
             {/* Filter row */}
             <div className="flex flex-col lg:flex-row gap-3 mb-6">
                 <div className="relative flex-1 min-w-50">
-                    <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40 pointer-events-none" />
+                    <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white pointer-events-none" />
                     <input
                         type="text"
                         value={filters.search}
@@ -127,7 +127,7 @@ const SchedulesTable = ({
                     onChange={(e) => setField('assetId', e.target.value)}
                     className="w-full lg:w-64 px-3 py-2.5 bg-[#1c1c1c] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
                 >
-                    <option value="" className="bg-[#242424]">All Assets</option>
+                    <option value="" className="bg-[#1c1c1c]">All Assets</option>
                     {allAssets().map((a) => (
                         <option key={a.id} value={a.id} className="bg-[#1c1c1c]">
                             {a.assetCode} — {a.title}

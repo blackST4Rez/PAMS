@@ -59,7 +59,7 @@ const DepreciationRunPanel = ({ canRun, latestRun }) => {
     };
 
     return (
-        <div className="p-6 mb-6">
+        <div className="rounded-xl p-6 mb-6">
             {/* Header */}
             <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
                 <h2 className="text-lg font-semibold text-white flex items-center gap-2">
@@ -85,6 +85,7 @@ const DepreciationRunPanel = ({ canRun, latestRun }) => {
                                 <Row
                                     label="Ran At"
                                     value={fmtDateTime(latestRun.runAt)}
+                                    align="right"
                                 />
                                 <Row
                                     label="Ran By"
@@ -93,6 +94,7 @@ const DepreciationRunPanel = ({ canRun, latestRun }) => {
                                 <Row
                                     label="Assets Affected"
                                     value={latestRun.assetsAffected}
+                                    align="right"
                                 />
                             </div>
 
@@ -107,7 +109,7 @@ const DepreciationRunPanel = ({ canRun, latestRun }) => {
 
                             {latestRun.notes && (
                                 <p className="text-xs text-white/50 italic mt-3">
-                                    "{latestRun.notes}"
+                                    *{latestRun.notes}*
                                 </p>
                             )}
                         </>
@@ -174,10 +176,10 @@ const DepreciationRunPanel = ({ canRun, latestRun }) => {
     );
 };
 
-const Row = ({ label, value }) => (
-    <div>
+const Row = ({ label, value, align = 'left' }) => (
+    <div className={align === 'right' ? 'text-right' : 'text-left'}>
         <p className="text-xs text-white/50 mb-0.5">{label}</p>
-        <p className="text-sm text-white wrap-break-word">{value}</p>
+        <p className="text-sm text-white wrap-break-words">{value}</p>
     </div>
 );
 
