@@ -5,7 +5,7 @@ import {
     ASSET_STATUSES,
 } from '../mock/mockAssets';
 
-const AssetFilters = ({ filters, onChange, resultCount }) => {
+const AssetFilters = ({ filters, onChange }) => {
     const setField = (key, value) =>
         onChange({ ...filters, [key]: value });
 
@@ -28,7 +28,7 @@ const AssetFilters = ({ filters, onChange, resultCount }) => {
             <div className="flex flex-col lg:flex-row gap-3">
                 {/* Search — with clear button inside */}
                 <div className="relative flex-1 min-w-50">
-                    <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40 pointer-events-none" />
+                    <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white pointer-events-none" />
                     <input
                         type="text"
                         value={filters.search}
@@ -91,14 +91,6 @@ const AssetFilters = ({ filters, onChange, resultCount }) => {
                 </select>
             </div>
 
-            {/* Result count */}
-            <div className="mt-3 flex items-center justify-between">
-                <p className="text-xs text-white/50">
-                    Showing <span className="text-white font-medium">{resultCount}</span>{' '}
-                    {resultCount === 1 ? 'asset' : 'assets'}
-                    {hasAnyFilter && ' matching the current filters'}
-                </p>
-            </div>
         </div>
     );
 };
