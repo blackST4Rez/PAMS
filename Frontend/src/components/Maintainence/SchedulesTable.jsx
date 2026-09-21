@@ -108,7 +108,7 @@ const SchedulesTable = ({
     };
 
     return (
-        <div className="rounded-xl p-4 sm:p-6">
+        <div className="p-4 sm:p-6">
             {/* Filter row */}
             <div className="flex flex-col lg:flex-row gap-3 mb-6">
                 <div className="relative flex-1 min-w-50">
@@ -118,14 +118,14 @@ const SchedulesTable = ({
                         value={filters.search}
                         onChange={(e) => setField('search', e.target.value)}
                         placeholder="Search schedules…"
-                        className="w-full pl-10 pr-3 py-2.5 bg-[#1c1c1c] border border-white/10 rounded-lg text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] transition"
+                        className="w-full pl-10 pr-3 py-2.5 bg-[#1c1c1c] border border-white/10 text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] transition"
                     />
                 </div>
 
                 <select
                     value={filters.assetId}
                     onChange={(e) => setField('assetId', e.target.value)}
-                    className="w-full lg:w-64 px-3 py-2.5 bg-[#1c1c1c] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
+                    className="w-full lg:w-64 px-3 py-2.5 bg-[#1c1c1c] border border-white/10 text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
                 >
                     <option value="" className="bg-[#1c1c1c]">All Assets</option>
                     {allAssets().map((a) => (
@@ -138,7 +138,7 @@ const SchedulesTable = ({
                 <select
                     value={filters.bucket}
                     onChange={(e) => setField('bucket', e.target.value)}
-                    className="w-full lg:w-44 px-3 py-2.5 bg-[#1c1c1c] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
+                    className="w-full lg:w-44 px-3 py-2.5 bg-[#1c1c1c] border border-white/10 text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
                 >
                     {BUCKET_OPTIONS.map((opt) => (
                         <option key={opt.value} value={opt.value} className="bg-[#1c1c1c]">
@@ -150,7 +150,7 @@ const SchedulesTable = ({
                 {hasAnyFilter && (
                     <button
                         onClick={clearAll}
-                        className="flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white/70 hover:text-white rounded-lg hover:bg-white/5 transition-colors whitespace-nowrap"
+                        className="flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white/70 hover:text-white hover:bg-white/5 transition-colors whitespace-nowrap"
                     >
                         <FaTimes className="w-3.5 h-3.5" />
                         Clear
@@ -177,7 +177,7 @@ const SchedulesTable = ({
                             return (
                                 <div
                                     key={schedule.id}
-                                    className="bg-[#1a1a1a] border border-white/10 rounded-xl p-4 space-y-3"
+                                    className="bg-[#1a1a1a] border border-white/10 p-4 space-y-3"
                                 >
                                     {/* Top — title + status */}
                                     <div className="flex items-start justify-between gap-3">
@@ -228,14 +228,14 @@ const SchedulesTable = ({
                                         <div className="pt-3 border-t border-white/5 flex flex-wrap justify-end gap-2">
                                             <button
                                                 onClick={() => onLog(schedule.id)}
-                                                className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-lg text-green-400 bg-green-500/10 hover:bg-green-500/20 transition-colors"
+                                                className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-2 text-green-400 bg-green-500/10 hover:bg-green-500/20 transition-colors"
                                             >
                                                 <FaCheck className="w-3 h-3" />
                                                 Log
                                             </button>
                                             <button
                                                 onClick={() => onEdit(schedule.id)}
-                                                className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-lg text-white/80 bg-white/5 hover:bg-white/10 transition-colors"
+                                                className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-2 text-white/80 bg-white/5 hover:bg-white/10 transition-colors"
                                             >
                                                 <FaEdit className="w-3 h-3" />
                                                 Edit
@@ -243,7 +243,7 @@ const SchedulesTable = ({
                                             {schedule.active ? (
                                                 <button
                                                     onClick={() => handleDeactivate(schedule)}
-                                                    className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-lg text-red-400 bg-red-500/10 hover:bg-red-500/20 transition-colors"
+                                                    className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-2 text-red-400 bg-red-500/10 hover:bg-red-500/20 transition-colors"
                                                 >
                                                     <FaBan className="w-3 h-3" />
                                                     Deactivate
@@ -251,7 +251,7 @@ const SchedulesTable = ({
                                             ) : (
                                                 <button
                                                     onClick={() => handleActivate(schedule)}
-                                                    className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-lg text-green-400 bg-green-500/10 hover:bg-green-500/20 transition-colors"
+                                                    className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-2 text-green-400 bg-green-500/10 hover:bg-green-500/20 transition-colors"
                                                 >
                                                     <FaPlay className="w-3 h-3" />
                                                     Activate

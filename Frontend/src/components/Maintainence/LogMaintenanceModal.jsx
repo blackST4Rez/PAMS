@@ -3,7 +3,7 @@ import toast from 'react-hot-toast';
 import { useAuth } from '../Context/AuthContext';
 import { useAssets } from '../Context/AssetsContext';
 import { useMaintenance } from '../Context/MaintenanceContext';
-import { computeNextDue, addDays } from '../mock/mockMaintenance';
+import { computeNextDue } from '../mock/mockMaintenance';
 
 const today = () => new Date().toISOString().slice(0, 10);
 
@@ -82,7 +82,7 @@ const LogMaintenanceModal = ({ scheduleId, onClose, onSaved }) => {
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
-            <div className="bg-[#242424] rounded-xl border border-white/10 w-full max-w-2xl max-h-[90vh] overflow-y-auto hide-scrollbar">
+            <div className="bg-[#242424] border border-white/10 w-full max-w-2xl max-h-[90vh] overflow-y-auto hide-scrollbar">
                 {/* Header */}
                 <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between">
                     <h2 className="text-lg font-semibold text-white">

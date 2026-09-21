@@ -35,12 +35,12 @@ const DueSoonPanel = ({ schedules, canLog, onLog }) => {
                 </h2>
                 <div className="flex items-center gap-2">
                     {overdueCount > 0 && (
-                        <span className="text-xs font-medium px-2.5 py-1 rounded-full text-red-400">
+                        <span className="text-xs font-medium px-2.5 py-1 text-red-400">
                             {overdueCount} overdue
                         </span>
                     )}
                     {dueSoonCount > 0 && (
-                        <span className="text-xs font-medium px-2.5 py-1 rounded-full text-yellow-300">
+                        <span className="text-xs font-medium px-2.5 py-1 text-yellow-300">
                             {dueSoonCount} due soon
                         </span>
                     )}
@@ -62,9 +62,9 @@ const DueSoonPanel = ({ schedules, canLog, onLog }) => {
                             {/* Status dot */}
                             <div className="shrink-0 mt-1">
                                 {isOverdue ? (
-                                    <span className="inline-block w-2 h-2 rounded-full bg-red-400" />
+                                    <span className="inline-block w-2 h-2 bg-red-400" />
                                 ) : (
-                                    <span className="inline-block w-2 h-2 rounded-full bg-yellow-400" />
+                                    <span className="inline-block w-2 h-2 bg-yellow-400" />
                                 )}
                             </div>
 
