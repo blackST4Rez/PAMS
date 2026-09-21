@@ -1,10 +1,8 @@
-import { useState } from 'react';
-import { FaExclamationTriangle, FaCheck, FaTrash } from 'react-icons/fa';
+import { useMemo, useState } from 'react';
+import { FaExclamationTriangle, FaCheck, FaTrash, FaSearch, FaTimes } from 'react-icons/fa';
+import Pagination from '../Common/Pagination';
 import { useAuth } from '../Context/AuthContext';
 
-/*
-  Role schema — label + color for each role code.
-*/
 const ROLE_SCHEMA = {
     SYS_ADMIN: { label: 'System Admin', color: 'text-purple-300' },
     ASSET_MANAGER: { label: 'Asset Manager', color: 'text-blue-300' },
@@ -19,15 +17,52 @@ const STATUS_SCHEMA = {
     Inactive: { color: 'bg-[#1a1a1a] text-red-400' },
 };
 
+const MOBILE_PAGE_SIZE = 3;
+const DESKTOP_PAGE_SIZE = 8;
+
 const UsersTable = () => {
     const { allUsers, updateUserRole, updateUserStatus, deleteUser } = useAuth();
     const users = allUsers();
 
-    /*
-      Confirmation dialog state.
-      Shape: { type: 'deactivate' | 'activate' | 'delete', user } | null
-    */
     const [confirmAction, setConfirmAction] = useState(null);
+    const [search, setSearch] = useState('');
+    const [page, setPage] = useState(1);
+
+    const filteredUsers = useMemo(() => {
+        const q = search.trim().toLowerCase();
+        if (!q) return users;
+
+        return users.filter((u) => {
+            const haystack = [u.fullName, u.username, u.email]
+                .filter(Boolean)
+                .join(' ')
+                .toLowerCase();
+            return haystack.includes(q);
+        });
+    }, [users, search]);
+
+    /* Responsive page size */
+    const pageSize =
+        typeof window !== 'undefined' && window.innerWidth < 640
+            ? MOBILE_PAGE_SIZE
+            : DESKTOP_PAGE_SIZE;
+
+    const totalPages = Math.max(1, Math.ceil(filteredUsers.length / pageSize));
+    const safePage = Math.min(page, totalPages);
+    const pagedUsers = filteredUsers.slice(
+        (safePage - 1) * pageSize,
+        safePage * pageSize
+    );
+
+    const handleSearchChange = (e) => {
+        setSearch(e.target.value);
+        setPage(1);
+    };
+
+    const clearSearch = () => {
+        setSearch('');
+        setPage(1);
+    };
 
     const handleRoleChange = (username, newRole) => {
         updateUserRole(username, newRole);
@@ -65,120 +100,221 @@ const UsersTable = () => {
     };
 
     return (
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
             <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-white">
                     Active Users
                     <span className="ml-2 text-sm font-normal px-2 py-0.5 rounded-full bg-emerald-400 text-black">
-                        {users.length}
+                        {filteredUsers.length}
                     </span>
                 </h2>
             </div>
 
-            <div className="overflow-x-auto">
-                <table className="w-full border-collapse">
-                    <thead>
-                        <tr>
-                            <th className="text-left text-xs font-semibold text-white/60 uppercase tracking-wider pb-3 px-4">
-                                User
-                            </th>
-                            <th className="text-left text-xs font-semibold text-white/60 uppercase tracking-wider pb-3 px-4">
-                                Contact
-                            </th>
-                            <th className="text-left text-xs font-semibold text-white/60 uppercase tracking-wider pb-3 px-4">
-                                Role
-                            </th>
-                            <th className="text-left text-xs font-semibold text-white/60 uppercase tracking-wider pb-3 px-4">
-                                Status
-                            </th>
-                            <th className="text-right text-xs font-semibold text-white/60 uppercase tracking-wider pb-3 px-4">
-                                Actions
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {users.map((u) => {
+            {/* Search bar */}
+            <div className="relative mb-4">
+                <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white pointer-events-none" />
+                <input
+                    type="text"
+                    value={search}
+                    onChange={handleSearchChange}
+                    placeholder="Search by name, username, or email…"
+                    className="w-full pl-10 pr-10 py-2.5 bg-[#1c1c1c] border border-white/10 rounded-lg text-white placeholder-white/50 text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] transition"
+                />
+                {search && (
+                    <button
+                        onClick={clearSearch}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white transition-colors"
+                        aria-label="Clear search"
+                    >
+                        <FaTimes className="w-4 h-4" />
+                    </button>
+                )}
+            </div>
+
+            {filteredUsers.length === 0 ? (
+                <p className="text-white/50 text-sm py-8 text-center">
+                    {search ? 'No users match your search.' : 'No users yet.'}
+                </p>
+            ) : (
+                <>
+                    {/* Mobile cards */}
+                    <div className="sm:hidden space-y-3">
+                        {pagedUsers.map((u) => {
                             const roleCode = u.roles?.[0] ?? 'PUBLIC_USER';
                             const roleMeta = ROLE_SCHEMA[roleCode] ?? ROLE_SCHEMA.PUBLIC_USER;
                             const statusMeta = STATUS_SCHEMA[u.status] ?? STATUS_SCHEMA.Active;
 
                             return (
-                                <tr key={u.username} className="border-b border-b-[#3a3a3a]">
-                                    <td className="py-3 px-4">
-                                        <div className="flex items-center gap-3">
+                                <div
+                                    key={u.username}
+                                    className="bg-[#1a1a1a] border border-white/10 rounded-xl p-4 space-y-4"
+                                >
+                                    <div className="flex items-start justify-between gap-3">
+                                        <div className="flex items-center gap-3 min-w-0">
                                             {u.avatar ? (
                                                 <img
                                                     src={u.avatar}
                                                     alt=""
-                                                    className="w-9 h-9 rounded-full object-cover"
+                                                    className="w-11 h-11 rounded-full object-cover shrink-0"
                                                 />
                                             ) : (
-                                                <div className="w-9 h-9 rounded-full bg-[#173ef0]/20 flex items-center justify-center text-[#7c8cff] text-sm font-bold">
+                                                <div className="w-11 h-11 rounded-full bg-[#173ef0]/20 flex items-center justify-center text-[#7c8cff] text-base font-bold shrink-0">
                                                     {(u.fullName || u.username).charAt(0).toUpperCase()}
                                                 </div>
                                             )}
-                                            <div>
-                                                <p className="text-sm font-medium text-white">{u.fullName}</p>
-                                                <p className="text-xs text-white/40">@{u.username}</p>
+                                            <div className="min-w-0">
+                                                <p className="text-sm font-semibold text-white truncate">
+                                                    {u.fullName}
+                                                </p>
+                                                <p className="text-xs text-white/50 truncate">
+                                                    @{u.username}
+                                                </p>
                                             </div>
                                         </div>
-                                    </td>
-
-                                    <td className="py-3 px-4">
-                                        <p className="text-sm text-white/80">{u.email}</p>
-                                        {u.phone && (
-                                            <p className="text-xs text-white/40">{u.phone}</p>
-                                        )}
-                                    </td>
-
-                                    <td className="py-3 px-4">
-                                        <select
-                                            value={roleCode}
-                                            onChange={(e) => handleRoleChange(u.username, e.target.value)}
-                                            className={`text-xs font-medium px-2.5 py-1 rounded-full bg-transparent border border-white/10 cursor-pointer ${roleMeta.color}`}
+                                        <span
+                                            className={`text-xs font-medium px-2.5 py-1 rounded-full shrink-0 ${statusMeta.color}`}
                                         >
-                                            {Object.entries(ROLE_SCHEMA).map(([code, meta]) => (
-                                                <option key={code} value={code} className="bg-[#242424] text-white">
-                                                    {meta.label}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </td>
-
-                                    <td className="py-3 px-4">
-                                        <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${statusMeta.color}`}>
                                             {u.status}
                                         </span>
-                                    </td>
+                                    </div>
 
-                                    <td className="py-3 px-4 text-right">
+                                    <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+                                        <div className="col-span-2">
+                                            <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">
+                                                Contact
+                                            </p>
+                                            <p className="text-xs text-white/80 truncate">
+                                                {u.email}
+                                            </p>
+                                            {u.phone && (
+                                                <p className="text-xs text-white/50 truncate">
+                                                    {u.phone}
+                                                </p>
+                                            )}
+                                        </div>
+                                        <div className="col-span-2">
+                                            <p className="text-[10px] uppercase tracking-wider text-white/40 mb-1">
+                                                Role
+                                            </p>
+                                            <select
+                                                value={roleCode}
+                                                onChange={(e) => handleRoleChange(u.username, e.target.value)}
+                                                className={`w-full text-xs font-medium px-2.5 py-1.5 rounded-lg bg-[#242424] border border-white/10 cursor-pointer ${roleMeta.color}`}
+                                            >
+                                                {Object.entries(ROLE_SCHEMA).map(([code, meta]) => (
+                                                    <option key={code} value={code} className="bg-[#242424] text-white">
+                                                        {meta.label}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div className="pt-3 border-t border-white/5 flex justify-end gap-2">
                                         <button
                                             onClick={() => askToggleStatus(u)}
-                                            className="text-xs font-medium px-3 py-1.5 mr-2 rounded-md text-white/70 hover:text-white hover:bg-white/5 transition-colors"
+                                            className="text-xs font-medium px-3 py-2 rounded-lg text-white/80 bg-white/5 hover:bg-white/10 transition-colors"
                                         >
                                             {u.status === 'Active' ? 'Deactivate' : 'Activate'}
                                         </button>
                                         <button
                                             onClick={() => askDelete(u)}
-                                            className="text-xs font-medium px-3 py-1.5 rounded-md text-red-500 hover:text-red-600 hover:bg-red-500/10 transition-colors"
+                                            className="text-xs font-medium px-3 py-2 rounded-lg text-red-400 bg-red-500/10 hover:bg-red-500/20 transition-colors"
                                         >
                                             Delete
                                         </button>
-                                    </td>
-                                </tr>
+                                    </div>
+                                </div>
                             );
                         })}
-                    </tbody>
-                </table>
-            </div>
+                    </div>
 
-            {users.length === 0 && (
-                <p className="text-white/50 text-sm py-8 text-center">
-                    No users yet.
-                </p>
+                    {/* Desktop table */}
+                    <div className="hidden sm:block overflow-x-auto">
+                        <table className="w-full border-collapse">
+                            <thead>
+                                <tr>
+                                    <th className="text-left text-xs font-semibold text-white/60 uppercase tracking-wider pb-3 px-4">User</th>
+                                    <th className="text-left text-xs font-semibold text-white/60 uppercase tracking-wider pb-3 px-4">Contact</th>
+                                    <th className="text-left text-xs font-semibold text-white/60 uppercase tracking-wider pb-3 px-4">Role</th>
+                                    <th className="text-left text-xs font-semibold text-white/60 uppercase tracking-wider pb-3 px-4">Status</th>
+                                    <th className="text-right text-xs font-semibold text-white/60 uppercase tracking-wider pb-3 px-4">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {pagedUsers.map((u) => {
+                                    const roleCode = u.roles?.[0] ?? 'PUBLIC_USER';
+                                    const roleMeta = ROLE_SCHEMA[roleCode] ?? ROLE_SCHEMA.PUBLIC_USER;
+                                    const statusMeta = STATUS_SCHEMA[u.status] ?? STATUS_SCHEMA.Active;
+
+                                    return (
+                                        <tr key={u.username} className="border-b border-b-[#3a3a3a]">
+                                            <td className="py-3 px-4">
+                                                <div className="flex items-center gap-3">
+                                                    {u.avatar ? (
+                                                        <img
+                                                            src={u.avatar}
+                                                            alt=""
+                                                            className="w-9 h-9 rounded-full object-cover"
+                                                        />
+                                                    ) : (
+                                                        <div className="w-9 h-9 rounded-full bg-[#173ef0]/20 flex items-center justify-center text-[#7c8cff] text-sm font-bold">
+                                                            {(u.fullName || u.username).charAt(0).toUpperCase()}
+                                                        </div>
+                                                    )}
+                                                    <div>
+                                                        <p className="text-sm font-medium text-white">{u.fullName}</p>
+                                                        <p className="text-xs text-white/40">@{u.username}</p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="py-3 px-4">
+                                                <p className="text-sm text-white/80">{u.email}</p>
+                                                {u.phone && <p className="text-xs text-white/40">{u.phone}</p>}
+                                            </td>
+                                            <td className="py-3 px-4">
+                                                <select
+                                                    value={roleCode}
+                                                    onChange={(e) => handleRoleChange(u.username, e.target.value)}
+                                                    className={`text-xs font-medium px-2.5 py-1 rounded-full bg-transparent border border-white/10 cursor-pointer ${roleMeta.color}`}
+                                                >
+                                                    {Object.entries(ROLE_SCHEMA).map(([code, meta]) => (
+                                                        <option key={code} value={code} className="bg-[#242424] text-white">
+                                                            {meta.label}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </td>
+                                            <td className="py-3 px-4">
+                                                <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${statusMeta.color}`}>
+                                                    {u.status}
+                                                </span>
+                                            </td>
+                                            <td className="py-3 px-4 text-right whitespace-nowrap">
+                                                <button
+                                                    onClick={() => askToggleStatus(u)}
+                                                    className="text-xs font-medium px-3 py-1.5 mr-2 rounded-md text-white/70 hover:text-white hover:bg-white/5 transition-colors"
+                                                >
+                                                    {u.status === 'Active' ? 'Deactivate' : 'Activate'}
+                                                </button>
+                                                <button
+                                                    onClick={() => askDelete(u)}
+                                                    className="text-xs font-medium px-3 py-1.5 rounded-md text-red-500 hover:text-red-600 hover:bg-red-500/10 transition-colors"
+                                                >
+                                                    Delete
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <Pagination page={safePage} totalPages={totalPages} onPage={setPage} />
+                </>
             )}
 
-            {/* Confirmation dialog */}
             {confirmAction && (
                 <ConfirmDialog
                     action={confirmAction}
@@ -190,21 +326,15 @@ const UsersTable = () => {
     );
 };
 
-/*
-  Confirmation modal — mirrors the styled dialog used in the pending
-  registrations table. Handles three action types: deactivate, activate, delete.
-*/
 const ConfirmDialog = ({ action, onCancel, onConfirm }) => {
     const { type, user } = action;
 
-    /* Per-action config: icon, tint, title, subtitle, confirm label, confirm color */
     const config = {
         deactivate: {
             icon: <FaExclamationTriangle className="w-5 h-5" />,
             tint: 'bg-[#1a1a1a] text-yellow-400',
             title: 'Deactivate account?',
-            subtitle:
-                'The user will not be able to sign in until the account is reactivated.',
+            subtitle: 'The user will not be able to sign in until the account is reactivated.',
             confirmLabel: 'Yes, deactivate',
             confirmClass: 'bg-yellow-600 hover:bg-yellow-700',
         },
@@ -232,46 +362,35 @@ const ConfirmDialog = ({ action, onCancel, onConfirm }) => {
             onClick={onCancel}
         >
             <div
-                className="bg-[#242424] rounded-xl w-full max-w-md p-6"
+                className="bg-[#242424] rounded-xl w-full max-w-md p-4 sm:p-6"
                 onClick={(e) => e.stopPropagation()}
             >
-                {/* Icon + Title */}
-                <div className="flex items-start gap-4 mb-4">
-                    <div
-                        className={`w-11 h-11 rounded-full flex items-center justify-center shrink-0 ${config.tint}`}
-                    >
+                <div className="flex items-start gap-3 sm:gap-4 mb-4">
+                    <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center shrink-0 ${config.tint}`}>
                         {config.icon}
                     </div>
                     <div>
-                        <h3 className="text-lg font-semibold text-white">
-                            {config.title}
-                        </h3>
-                        <p className="text-sm text-white/60 mt-1">
-                            {config.subtitle}
-                        </p>
+                        <h3 className="text-base sm:text-lg font-semibold text-white">{config.title}</h3>
+                        <p className="text-sm text-white/60 mt-1">{config.subtitle}</p>
                     </div>
                 </div>
 
-                {/* Summary */}
-                <div className="bg-[#1a1a1a] rounded-lg p-4 mb-6 space-y-2">
-                    <div className="flex justify-between text-sm">
-                        <span className="text-white/50">Name</span>
-                        <span className="text-white font-medium">{user.fullName}</span>
+                <div className="bg-[#1a1a1a] rounded-lg p-3 sm:p-4 mb-5 sm:mb-6 space-y-2">
+                    <div className="flex justify-between text-sm gap-4">
+                        <span className="text-white/50 shrink-0">Name</span>
+                        <span className="text-white font-medium text-right truncate">{user.fullName}</span>
                     </div>
-                    <div className="flex justify-between text-sm">
-                        <span className="text-white/50">Username</span>
-                        <span className="text-white font-medium">@{user.username}</span>
+                    <div className="flex justify-between text-sm gap-4">
+                        <span className="text-white/50 shrink-0">Username</span>
+                        <span className="text-white font-medium text-right truncate">@{user.username}</span>
                     </div>
-                    <div className="flex justify-between text-sm">
-                        <span className="text-white/50">Email</span>
-                        <span className="text-white font-medium truncate ml-4">
-                            {user.email}
-                        </span>
+                    <div className="flex justify-between text-sm gap-4">
+                        <span className="text-white/50 shrink-0">Email</span>
+                        <span className="text-white font-medium text-right truncate">{user.email}</span>
                     </div>
                 </div>
 
-                {/* Actions */}
-                <div className="flex justify-end gap-3">
+                <div className="flex justify-end gap-2 sm:gap-3">
                     <button
                         onClick={onCancel}
                         className="px-4 py-2 text-sm font-medium text-white/70 rounded-lg hover:bg-white/5 transition-colors"

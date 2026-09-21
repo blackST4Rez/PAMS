@@ -1,20 +1,19 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
+import Pagination, { useIsMobile } from '../Common/Pagination';
 import ReportExportButton from './ReportExportButton';
 import { useAssets } from '../Context/AssetsContext';
 import { useMaintenance } from '../Context/MaintenanceContext';
 import { formatNprShort } from '../mock/mockValuation';
 
-/* Table columns */
 const COLUMNS = [
-    { key: 'assetCode', label: 'Asset Code' },
-    { key: 'assetTitle', label: 'Asset' },
-    { key: 'wardName', label: 'Ward' },
-    { key: 'events', label: 'Events' },
-    { key: 'totalCostFormatted', label: 'Total Cost' },
-    { key: 'lastDate', label: 'Last Maintenance' },
+    { key: 'assetCode', label: 'Asset Code', align: 'left' },
+    { key: 'assetTitle', label: 'Asset', align: 'left' },
+    { key: 'wardName', label: 'Ward', align: 'left' },
+    { key: 'events', label: 'Events', align: 'right' },
+    { key: 'totalCostFormatted', label: 'Total Cost', align: 'right' },
+    { key: 'lastDate', label: 'Last Maintenance', align: 'right' },
 ];
 
-/* CSV columns — raw values */
 const CSV_COLUMNS = [
     { key: 'assetCode', label: 'Asset Code' },
     { key: 'assetTitle', label: 'Asset' },
@@ -24,7 +23,9 @@ const CSV_COLUMNS = [
     { key: 'lastDate', label: 'Last Maintenance' },
 ];
 
-/* Format an ISO date string as "DD MMM YYYY" */
+const MOBILE_PAGE_SIZE = 3;
+const DESKTOP_PAGE_SIZE = 8;
+
 const fmtDate = (iso) => {
     if (!iso) return '—';
     try {
@@ -42,12 +43,16 @@ const MaintenanceCostReport = () => {
     const { allAssets } = useAssets();
     const { allLogs } = useMaintenance();
 
+    const isMobile = useIsMobile();
+    const pageSize = isMobile ? MOBILE_PAGE_SIZE : DESKTOP_PAGE_SIZE;
+
+    const [page, setPage] = useState(1);
+
     const { rows, totals, csvRows } = useMemo(() => {
         const assets = allAssets();
         const assetById = new Map(assets.map((a) => [a.id, a]));
         const logs = allLogs();
 
-        /* Bucket logs by assetId */
         const byAsset = new Map();
         for (const log of logs) {
             if (!byAsset.has(log.assetId)) {
@@ -69,7 +74,6 @@ const MaintenanceCostReport = () => {
             }
         }
 
-        /* Build display rows */
         const rows = [...byAsset.values()]
             .map((b) => {
                 const asset = assetById.get(b.assetId);
@@ -88,7 +92,6 @@ const MaintenanceCostReport = () => {
             .filter(Boolean)
             .sort((a, b) => b.totalCost - a.totalCost);
 
-        /* Totals */
         const totals = {
             events: 0,
             totalCost: 0,
@@ -100,11 +103,6 @@ const MaintenanceCostReport = () => {
         }
         totals.totalCostFormatted = formatNprShort(totals.totalCost);
 
-        /*
-          CSV rows = data rows + totals row.
-          The totals row uses the same keys as the CSV column definitions.
-          Non-numeric cells are empty in the totals row.
-        */
         const csvRows = [
             ...rows.map((r) => ({
                 assetCode: r.assetCode,
@@ -127,10 +125,17 @@ const MaintenanceCostReport = () => {
         return { rows, totals, csvRows };
     }, [allAssets, allLogs]);
 
+    const totalPages = Math.max(1, Math.ceil(rows.length / pageSize));
+    const safePage = Math.min(page, totalPages);
+    const paged = rows.slice(
+        (safePage - 1) * pageSize,
+        safePage * pageSize
+    );
+
     return (
         <div>
             {/* Header + export */}
-            <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
+            <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
                 <div>
                     <h2 className="text-lg font-semibold text-white">
                         Maintenance Cost
@@ -146,82 +151,153 @@ const MaintenanceCostReport = () => {
                 />
             </div>
 
-            {/* Empty state */}
             {rows.length === 0 ? (
                 <p className="text-white/50 text-sm py-8 text-center">
                     No maintenance events have been logged yet.
                 </p>
             ) : (
-                <div className="overflow-x-auto">
-                    <table className="w-full border-collapse">
-                        <thead>
-                            <tr>
-                                <th className="text-left text-xs font-semibold text-white/60 uppercase tracking-wider pb-3 px-4">
-                                    Asset Code
-                                </th>
-                                <th className="text-left text-xs font-semibold text-white/60 uppercase tracking-wider pb-3 px-4">
-                                    Asset
-                                </th>
-                                <th className="text-left text-xs font-semibold text-white/60 uppercase tracking-wider pb-3 px-4">
-                                    Ward
-                                </th>
-                                <th className="text-right text-xs font-semibold text-white/60 uppercase tracking-wider pb-3 px-4">
-                                    Events
-                                </th>
-                                <th className="text-right text-xs font-semibold text-white/60 uppercase tracking-wider pb-3 px-4">
-                                    Total Cost
-                                </th>
-                                <th className="text-right text-xs font-semibold text-white/60 uppercase tracking-wider pb-3 px-4">
-                                    Last Maintenance
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {rows.map((r) => (
-                                <tr
-                                    key={r.assetId}
-                                    className="border-b border-b-[#3a3a3a]"
-                                >
-                                    <td className="py-3 px-4 text-sm text-white">
+                <>
+                    {/* ---- Mobile cards (paginated) ---- */}
+                    <div className="sm:hidden space-y-3">
+                        {paged.map((r) => (
+                            <div
+                                key={r.assetId}
+                                className="bg-[#1a1a1a] border border-white/10 rounded-xl p-4 space-y-3"
+                            >
+                                <div className="flex items-start justify-between gap-3">
+                                    <p className="text-[10px] uppercase tracking-wider text-white/50 truncate">
                                         {r.assetCode}
-                                    </td>
-                                    <td className="py-3 px-4 text-sm text-white truncate max-w-xs">
-                                        {r.assetTitle}
-                                    </td>
-                                    <td className="py-3 px-4 text-sm text-white/80">
-                                        {r.wardName}
-                                    </td>
-                                    <td className="py-3 px-4 text-sm text-white text-right">
-                                        {r.events}
-                                    </td>
-                                    <td className="py-3 px-4 text-sm text-white text-right">
-                                        {r.totalCostFormatted}
-                                    </td>
-                                    <td className="py-3 px-4 text-sm text-white/60 text-right">
-                                        {r.lastDate}
-                                    </td>
-                                </tr>
-                            ))}
+                                    </p>
+                                    <span className="text-xs text-white/60 shrink-0">
+                                        {r.events} {r.events === 1 ? 'event' : 'events'}
+                                    </span>
+                                </div>
 
-                            {/* Totals */}
-                            <tr className="border-t-2 border-t-white/20">
-                                <td
-                                    className="py-3 px-4 text-sm font-semibold text-white"
-                                    colSpan={3}
-                                >
-                                    Total
-                                </td>
-                                <td className="py-3 px-4 text-sm font-semibold text-white text-right">
-                                    {totals.events}
-                                </td>
-                                <td className="py-3 px-4 text-sm font-semibold text-white text-right">
+                                <p className="text-sm font-semibold text-white leading-snug">
+                                    {r.assetTitle}
+                                </p>
+
+                                <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+                                    <div>
+                                        <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Ward</p>
+                                        <p className="text-xs text-white/80 truncate">
+                                            {r.wardName}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Last Maintenance</p>
+                                        <p className="text-xs text-white/80">
+                                            {r.lastDate}
+                                        </p>
+                                    </div>
+                                    <div className="col-span-2">
+                                        <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Total Cost</p>
+                                        <p className="text-sm font-medium text-white">
+                                            {r.totalCostFormatted}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* ---- Desktop table (paginated) ---- */}
+                    <div className="hidden sm:block overflow-x-auto">
+                        <table className="w-full border-collapse">
+                            <thead>
+                                <tr>
+                                    {COLUMNS.map((c) => (
+                                        <th
+                                            key={c.key}
+                                            className={`text-${c.align} text-xs font-semibold text-white/60 uppercase tracking-wider pb-3 px-4`}
+                                        >
+                                            {c.label}
+                                        </th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {paged.map((r) => (
+                                    <tr key={r.assetId} className="border-b border-b-[#3a3a3a]">
+                                        <td className="py-3 px-4 text-sm text-white">
+                                            {r.assetCode}
+                                        </td>
+                                        <td className="py-3 px-4 text-sm text-white truncate max-w-xs">
+                                            {r.assetTitle}
+                                        </td>
+                                        <td className="py-3 px-4 text-sm text-white/80">
+                                            {r.wardName}
+                                        </td>
+                                        <td className="py-3 px-4 text-sm text-white text-right">
+                                            {r.events}
+                                        </td>
+                                        <td className="py-3 px-4 text-sm text-white text-right">
+                                            {r.totalCostFormatted}
+                                        </td>
+                                        <td className="py-3 px-4 text-sm text-white/60 text-right">
+                                            {r.lastDate}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/*
+                      Totals — outside pagination, always visible.
+                      Tinted background, blue left accent.
+                    */}
+                    <div className="mt-4 bg-white/3 border-l-2 border-l-[#173ef0] rounded-r-lg">
+                        {/* Mobile totals */}
+                        <div className="sm:hidden p-4 space-y-3">
+                            <div className="flex items-start justify-between gap-3">
+                                <div>
+                                    <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">
+                                        Summary
+                                    </p>
+                                    <p className="text-sm font-semibold text-white">
+                                        All Assets
+                                    </p>
+                                </div>
+                                <span className="text-xs text-white/60 shrink-0">
+                                    {totals.events} {totals.events === 1 ? 'event' : 'events'}
+                                </span>
+                            </div>
+
+                            <div>
+                                <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Total Cost</p>
+                                <p className="text-sm font-semibold text-white">
                                     {totals.totalCostFormatted}
-                                </td>
-                                <td className="py-3 px-4" />
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Desktop totals */}
+                        <div className="hidden sm:flex items-center px-4 py-4 gap-4">
+                            <div className="shrink-0">
+                                <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">
+                                    Summary
+                                </p>
+                                <p className="text-sm font-semibold text-white">
+                                    All Assets
+                                </p>
+                            </div>
+
+                            <div className="flex-1 grid grid-cols-2 gap-4 ml-6 max-w-md">
+                                <div>
+                                    <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Events</p>
+                                    <p className="text-sm font-semibold text-white">{totals.events}</p>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Total Cost</p>
+                                    <p className="text-sm font-semibold text-white">{totals.totalCostFormatted}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <Pagination page={safePage} totalPages={totalPages} onPage={setPage} />
+                </>
             )}
         </div>
     );

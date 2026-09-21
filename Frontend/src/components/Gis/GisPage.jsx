@@ -13,18 +13,12 @@ const GisPage = () => {
     const { hasPermission, loading: authLoading } = useAuth();
     const { allAssets, loading: assetsLoading } = useAssets();
 
-    /* Filters: only ones that make sense for a map view */
     const [filters, setFilters] = useState({
         categoryId: '',
         wardId: '',
         status: '',
     });
 
-    /*
-      Build the list of assets that have coordinates.
-      Assets without a coordinate can't be shown on the map and are
-      omitted from the count.
-    */
     const allWithCoords = useMemo(() => {
         return allAssets()
             .map((a) => {
@@ -35,7 +29,6 @@ const GisPage = () => {
             .filter(Boolean);
     }, [allAssets]);
 
-    /* Apply filters */
     const filteredAssets = useMemo(() => {
         return allWithCoords.filter((a) => {
             if (filters.categoryId && a.categoryId !== filters.categoryId) return false;
@@ -45,14 +38,13 @@ const GisPage = () => {
         });
     }, [allWithCoords, filters]);
 
-    /* ----- Loading ----- */
     if (authLoading || assetsLoading) {
         return (
             <div className="min-h-screen bg-gray-700 flex flex-col">
                 <Header />
                 <div className="flex-1 flex">
                     <UnifiedSidebar />
-                    <div className="flex-1 p-6 lg:p-8 bg-[#1a1a1a] flex items-center justify-center">
+                    <div className="flex-1 p-4 sm:p-6 lg:p-8 bg-[#1a1a1a] flex items-center justify-center">
                         <p className="text-white/50 text-sm">Loading…</p>
                     </div>
                 </div>
@@ -61,14 +53,13 @@ const GisPage = () => {
         );
     }
 
-    /* ----- Access guard ----- */
     if (!hasPermission('gis.view')) {
         return (
             <div className="min-h-screen bg-gray-700 flex flex-col">
                 <Header />
                 <div className="flex-1 flex">
                     <UnifiedSidebar />
-                    <div className="flex-1 p-6 lg:p-8 bg-[#1a1a1a]">
+                    <div className="flex-1 p-4 sm:p-6 lg:p-8 bg-[#1a1a1a]">
                         <div className="bg-[#242424] rounded-xl p-8 max-w-xl">
                             <h2 className="text-lg font-semibold text-white mb-2">
                                 Access Denied
@@ -91,10 +82,9 @@ const GisPage = () => {
             <div className="flex-1 flex flex-col lg:flex-row w-full">
                 <UnifiedSidebar />
 
-                <div className="flex-1 p-6 lg:p-8 overflow-y-auto bg-[#1a1a1a]">
-                    {/* Header */}
+                <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto bg-[#1a1a1a]">
                     <div className="mb-6">
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3 flex-wrap">
                             <h1 className="text-3xl font-bold text-white">
                                 GIS Map
                             </h1>
@@ -107,7 +97,6 @@ const GisPage = () => {
                         </p>
                     </div>
 
-                    {/* Filters */}
                     <GisFilters
                         filters={filters}
                         onChange={setFilters}
@@ -115,7 +104,6 @@ const GisPage = () => {
                         totalCount={allWithCoords.length}
                     />
 
-                    {/* Map + legend */}
                     <div className="relative">
                         <GisMap assets={filteredAssets} />
                         <GisLegend />

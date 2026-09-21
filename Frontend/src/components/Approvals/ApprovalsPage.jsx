@@ -7,7 +7,6 @@ import ApprovalDetailDrawer from './ApprovalDetailDrawer';
 import { useAuth } from '../Context/AuthContext';
 import { useApprovals } from '../Context/ApprovalsContext';
 
-/* Roles allowed to see the oversight view (all pending requests) */
 const OVERSIGHT_ROLES = ['SYS_ADMIN', 'AUDITOR'];
 
 const ApprovalsPage = () => {
@@ -34,14 +33,13 @@ const ApprovalsPage = () => {
         [canOversee, allRequests]
     );
 
-    /* ----- Loading ----- */
     if (authLoading || approvalsLoading) {
         return (
             <div className="min-h-screen bg-gray-700 flex flex-col">
                 <Header />
                 <div className="flex-1 flex">
                     <UnifiedSidebar />
-                    <div className="flex-1 p-6 lg:p-8 bg-[#1a1a1a] flex items-center justify-center">
+                    <div className="flex-1 p-4 sm:p-6 lg:p-8 bg-[#1a1a1a] flex items-center justify-center">
                         <p className="text-white/50 text-sm">Loading…</p>
                     </div>
                 </div>
@@ -50,20 +48,15 @@ const ApprovalsPage = () => {
         );
     }
 
-    /*
-      Entry gate: a user can reach the page if their role appears in any
-      approval chain, OR if they have oversight (Admin/Auditor).
-      Approval authority is chain-based, not permission-based.
-    */
     const canEnter = isChainMember(userRoles) || canOversee;
 
     if (!canEnter) {
         return (
-            <div className="min-h-screen flex flex-col">
+            <div className="min-h-screen bg-gray-700 flex flex-col">
                 <Header />
                 <div className="flex-1 flex">
                     <UnifiedSidebar />
-                    <div className="flex-1 p-6 lg:p-8 bg-[#1a1a1a]">
+                    <div className="flex-1 p-4 sm:p-6 lg:p-8 bg-[#1a1a1a]">
                         <div className="bg-[#242424] rounded-xl p-8 max-w-xl">
                             <h2 className="text-lg font-semibold text-white mb-2">
                                 Access Denied
@@ -80,14 +73,14 @@ const ApprovalsPage = () => {
     }
 
     return (
-        <div className="min-h-screen flex flex-col">
+        <div className="min-h-screen bg-gray-700 flex flex-col">
             <Header />
 
             <div className="flex-1 flex flex-col lg:flex-row w-full">
                 <UnifiedSidebar />
 
-                <div className="flex-1 p-6 lg:p-8 overflow-y-auto bg-[#1a1a1a]">
-                    <div className="mb-6">
+                <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto bg-[#1a1a1a]">
+                    <div className="mb-6 px-4">
                         <h1 className="text-3xl font-bold text-white">Approvals</h1>
                         <p className="text-white/60 text-lg mt-1">
                             Review and act on requests waiting for your role
@@ -95,8 +88,8 @@ const ApprovalsPage = () => {
                     </div>
 
                     <section className="mb-8">
-                        <div className="mb-4 flex items-center gap-3">
-                            <h2 className="text-xl font-semibold text-white">
+                        <div className="mb-4 flex items-center flex-wrap">
+                            <h2 className="text-xl font-semibold text-white px-4">
                                 My Approvals
                             </h2>
                             <span className="text-xs font-normal px-2.5 py-1 rounded-full bg-[#173ef0] text-white">
@@ -105,7 +98,7 @@ const ApprovalsPage = () => {
                         </div>
 
                         {myQueue.length === 0 ? (
-                            <div className="p-8">
+                            <div className="bg-[#242424] rounded-xl p-8 mx-4 sm:mx-6">
                                 <p className="text-white/50 text-sm text-center">
                                     Nothing waiting on your role right now.
                                 </p>
@@ -120,8 +113,8 @@ const ApprovalsPage = () => {
 
                     {canOversee && (
                         <section>
-                            <div className="mb-4 flex items-center gap-3">
-                                <h2 className="text-xl font-semibold text-white">
+                            <div className="mb-4 flex items-center flex-wrap">
+                                <h2 className="text-xl font-semibold text-white px-4">
                                     Oversight — All Requests
                                 </h2>
                                 <span className="text-xs font-normal px-2.5 py-1 rounded-full bg-[#173ef0] text-white">
@@ -130,7 +123,7 @@ const ApprovalsPage = () => {
                             </div>
 
                             {everyRequest.length === 0 ? (
-                                <div className="p-8">
+                                <div className="bg-[#242424] rounded-xl p-8 mx-4 sm:mx-6">
                                     <p className="text-white/50 text-sm text-center">
                                         No approval requests in the system.
                                     </p>

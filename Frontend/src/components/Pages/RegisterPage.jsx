@@ -9,10 +9,6 @@ import Header from '../Common/Header';
 import Footer from '../Common/Footer';
 import { useAuth } from '../Context/AuthContext';
 
-/*
-  Ward options — Gaurishankar Rural Municipality has 9 wards.
-  Single-select dropdown.
-*/
 const WARD_OPTIONS = [
     'Ward 1', 'Ward 2', 'Ward 3', 'Ward 4', 'Ward 5',
     'Ward 6', 'Ward 7', 'Ward 8', 'Ward 9',
@@ -45,7 +41,6 @@ const RegisterPage = () => {
     const onSubmit = async (e) => {
         e.preventDefault();
 
-        /* Validation */
         if (!form.firstName.trim() || !form.lastName.trim()) {
             return toast.error('First and last name are required');
         }
@@ -64,7 +59,6 @@ const RegisterPage = () => {
 
         setBusy(true);
         try {
-            /* Derive a username from the email local-part */
             const username = form.email.split('@')[0].toLowerCase();
 
             submitRegistration({
@@ -91,19 +85,19 @@ const RegisterPage = () => {
             <div className="min-h-screen bg-[#1a1a1a] flex flex-col">
                 <Header />
 
-                <div className="flex-1 flex items-center justify-center px-8 py-20">
+                <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-10 sm:py-16 lg:py-20">
                     <div className="max-w-lg w-full text-center">
-                        <BiCheckCircle className="w-16 h-16 text-green-400 mx-auto mb-4" />
-                        <h2 className="text-2xl font-bold text-white mb-3">
+                        <BiCheckCircle className="w-12 h-12 sm:w-16 sm:h-16 text-green-400 mx-auto mb-4" />
+                        <h2 className="text-xl sm:text-2xl font-bold text-white mb-3">
                             Registration Submitted
                         </h2>
-                        <p className="text-white/70 text-base leading-relaxed mb-6">
-                            Your registration is pending approval. An administrator will review
-                            your request and assign your role.
+                        <p className="text-white/70 text-sm sm:text-base leading-relaxed mb-6">
+                            Your registration is pending approval. An administrator
+                            will review your request and assign your role.
                         </p>
 
                         <div className="p-4 mb-6">
-                            <p className="text-base font-semibold text-[#7c8cff] uppercase tracking-wider mb-4 text-center">
+                            <p className="text-sm sm:text-base font-semibold text-[#7c8cff] uppercase tracking-wider mb-4 text-center">
                                 What happens next
                             </p>
                             <ul className="space-y-2 text-sm text-white/80 text-left inline-block">
@@ -124,7 +118,7 @@ const RegisterPage = () => {
 
                         <Link
                             to="/login"
-                            className="inline-flex items-center gap-2 text-[#7c8cff] font-semibold hover:text-[#173ef0]"
+                            className="inline-flex items-center gap-2 text-[#7c8cff] font-semibold hover:text-[#173ef0] text-sm sm:text-base"
                         >
                             ← Back to Sign In
                         </Link>
@@ -141,16 +135,18 @@ const RegisterPage = () => {
         <div className="min-h-screen bg-[#1a1a1a] flex flex-col">
             <Header />
 
-            <div className="flex-1 flex items-center justify-center px-8 lg:px-12 py-20">
-                <div className="max-w-5xl w-full bg-[#1a1a1a] rounded-2xl p-8 lg:p-12">
-                    <div className="text-center mb-8">
-                        <h2 className="text-4xl font-bold text-white mb-2">Create Account</h2>
-                        <p className="text-white/60 text-lg">
+            <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-12 py-10 sm:py-16 lg:py-20">
+                <div className="max-w-5xl w-full bg-[#1a1a1a] rounded-2xl p-6 sm:p-10 lg:p-12">
+                    <div className="text-center mb-6 sm:mb-8">
+                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2">
+                            Create Account
+                        </h2>
+                        <p className="text-white/60 text-sm sm:text-base lg:text-lg">
                             Register to request access — an admin will assign your role
                         </p>
                     </div>
 
-                    <form className="space-y-6" onSubmit={onSubmit}>
+                    <form className="space-y-5 sm:space-y-6" onSubmit={onSubmit}>
                         {/* Row 1: First & Last Name */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
@@ -306,15 +302,15 @@ const RegisterPage = () => {
                         </div>
 
                         {/* Terms */}
-                        <div className="flex items-center mb-10">
+                        <div className="flex items-start gap-2 mb-6 sm:mb-10">
                             <input
                                 type="checkbox"
                                 name="agree"
                                 checked={form.agree}
                                 onChange={onChange}
-                                className="h-4 w-4 rounded border-white/20 bg-white/5 text-[#173ef0] focus:ring-[#173ef0] focus:ring-offset-0"
+                                className="mt-0.5 h-4 w-4 rounded border-white/20 bg-white/5 text-[#173ef0] focus:ring-[#173ef0] focus:ring-offset-0 shrink-0"
                             />
-                            <label className="ml-2 block text-sm text-white/60">
+                            <label className="block text-sm text-white/60 leading-snug">
                                 I agree to the{' '}
                                 <Link to="#" className="text-[#7c8cff] hover:underline">
                                     Terms &amp; Conditions
@@ -331,7 +327,7 @@ const RegisterPage = () => {
                             <button
                                 type="submit"
                                 disabled={busy}
-                                className="flex items-center justify-center gap-2 bg-[#173ef0] text-white px-6 py-3 rounded-lg font-semibold text-lg hover:bg-[#0020ad] disabled:opacity-50 transition-all ease-in-out duration-300 cursor-pointer"
+                                className="flex items-center justify-center gap-2 bg-[#173ef0] text-white px-6 sm:px-8 py-3 rounded-lg font-semibold text-base sm:text-lg hover:bg-[#0020ad] disabled:opacity-50 transition-all ease-in-out duration-300 cursor-pointer"
                             >
                                 <span>{busy ? 'Submitting…' : 'Create Account'}</span>
                                 <BiArrowFromLeft className="w-5 h-5" />
@@ -340,7 +336,7 @@ const RegisterPage = () => {
                     </form>
 
                     <div className="mt-6 text-center">
-                        <p className="text-white/60">
+                        <p className="text-white/60 text-sm sm:text-base">
                             Already have an account?{' '}
                             <Link
                                 to="/login"

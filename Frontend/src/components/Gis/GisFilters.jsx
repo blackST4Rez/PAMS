@@ -18,17 +18,17 @@ const GisFilters = ({ filters, onChange, resultCount, totalCount }) => {
         onChange({ categoryId: '', wardId: '', status: '' });
 
     return (
-        <div className="p-4 mb-6">
+        <div className="bg-[#242424] rounded-xl p-4 mb-6">
             <div className="flex flex-col lg:flex-row gap-3">
                 {/* Category */}
                 <select
                     value={filters.categoryId}
                     onChange={(e) => setField('categoryId', e.target.value)}
-                    className="w-full lg:w-52 px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
+                    className="w-full lg:w-52 px-3 py-2.5 bg-[#1c1c1c] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
                 >
-                    <option value="" className="bg-[#242424]">All Categories</option>
+                    <option value="" className="bg-[#1c1c1c]">All Categories</option>
                     {MOCK_ASSET_CATEGORIES.map((c) => (
-                        <option key={c.id} value={c.id} className="bg-[#242424]">
+                        <option key={c.id} value={c.id} className="bg-[#1c1c1c]">
                             {c.name}
                         </option>
                     ))}
@@ -38,11 +38,11 @@ const GisFilters = ({ filters, onChange, resultCount, totalCount }) => {
                 <select
                     value={filters.wardId}
                     onChange={(e) => setField('wardId', e.target.value)}
-                    className="w-full lg:w-40 px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
+                    className="w-full lg:w-40 px-3 py-2.5 bg-[#1c1c1c] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
                 >
-                    <option value="" className="bg-[#242424]">All Wards</option>
+                    <option value="" className="bg-[#1c1c1c]">All Wards</option>
                     {MOCK_WARDS.map((w) => (
-                        <option key={w.id} value={w.id} className="bg-[#242424]">
+                        <option key={w.id} value={w.id} className="bg-[#1c1c1c]">
                             {w.name}
                         </option>
                     ))}
@@ -52,24 +52,24 @@ const GisFilters = ({ filters, onChange, resultCount, totalCount }) => {
                 <select
                     value={filters.status}
                     onChange={(e) => setField('status', e.target.value)}
-                    className="w-full lg:w-52 px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
+                    className="w-full lg:w-52 px-3 py-2.5 bg-[#1c1c1c] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
                 >
-                    <option value="" className="bg-[#242424]">All Statuses</option>
+                    <option value="" className="bg-[#1c1c1c]">All Statuses</option>
                     {ASSET_STATUSES.map((s) => (
-                        <option key={s.code} value={s.code} className="bg-[#242424]">
+                        <option key={s.code} value={s.code} className="bg-[#1c1c1c]">
                             {s.label}
                         </option>
                     ))}
                 </select>
 
-                {/* Clear */}
+                {/* Clear — icon only, at the end of the row on desktop */}
                 {hasAnyFilter && (
                     <button
                         onClick={clearAll}
                         className="flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white/70 hover:text-white rounded-lg hover:bg-white/5 transition-colors whitespace-nowrap"
                     >
-                        <FaTimes className="w-3.5 h-3.5" />
-                        Clear
+                        <FaTimes className="w-4 h-4" />
+                        <span className="lg:hidden">Clear filters</span>
                     </button>
                 )}
 

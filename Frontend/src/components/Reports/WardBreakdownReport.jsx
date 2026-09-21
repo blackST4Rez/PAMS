@@ -1,4 +1,5 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
+import Pagination, { useIsMobile } from '../Common/Pagination';
 import ReportExportButton from './ReportExportButton';
 import { useAssets } from '../Context/AssetsContext';
 import { formatNprShort } from '../mock/mockValuation';
@@ -22,8 +23,16 @@ const CSV_COLUMNS = [
     { key: 'percentOfTotal', label: '% of Total Assets' },
 ];
 
+const MOBILE_PAGE_SIZE = 3;
+const DESKTOP_PAGE_SIZE = 8;
+
 const WardBreakdownReport = () => {
     const { allAssets } = useAssets();
+
+    const isMobile = useIsMobile();
+    const pageSize = isMobile ? MOBILE_PAGE_SIZE : DESKTOP_PAGE_SIZE;
+
+    const [page, setPage] = useState(1);
 
     const { rows, totals, csvRows } = useMemo(() => {
         const assets = allAssets();
@@ -72,7 +81,6 @@ const WardBreakdownReport = () => {
                 return na - nb;
             });
 
-        /* Totals */
         const totals = {
             wardName: 'Total',
             count: 0,
@@ -94,13 +102,15 @@ const WardBreakdownReport = () => {
         totals.bookFormatted = formatNprShort(totals.book);
         totals.depreciationFormatted = formatNprShort(totals.depreciation);
 
-        /*
-          CSV rows = data rows + totals row.
-          The totals row uses the same keys as the CSV column definitions,
-          so ReportExportButton handles it without special-casing.
-        */
         const csvRows = [
-            ...rows,
+            ...rows.map((r) => ({
+                wardName: r.wardName,
+                count: r.count,
+                cost: r.cost,
+                book: r.book,
+                depreciation: r.depreciation,
+                percentOfTotal: r.percentOfTotal,
+            })),
             {
                 wardName: 'Total',
                 count: totals.count,
@@ -114,10 +124,17 @@ const WardBreakdownReport = () => {
         return { rows, totals, csvRows };
     }, [allAssets]);
 
+    const totalPages = Math.max(1, Math.ceil(rows.length / pageSize));
+    const safePage = Math.min(page, totalPages);
+    const paged = rows.slice(
+        (safePage - 1) * pageSize,
+        safePage * pageSize
+    );
+
     return (
         <div>
             {/* Header + export */}
-            <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
+            <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
                 <div>
                     <h2 className="text-lg font-semibold text-white">
                         Ward-wise Breakdown
@@ -133,8 +150,46 @@ const WardBreakdownReport = () => {
                 />
             </div>
 
-            {/* Table */}
-            <div className="overflow-x-auto">
+            {/* ---- Mobile cards (paginated) ---- */}
+            <div className="sm:hidden space-y-3">
+                {paged.map((r) => (
+                    <div
+                        key={r.wardId}
+                        className="bg-[#1a1a1a] border border-white/10 rounded-xl p-4 space-y-3"
+                    >
+                        <div className="flex items-start justify-between gap-3">
+                            <p className="text-sm font-semibold text-white">
+                                {r.wardName}
+                            </p>
+                            <span className="text-xs text-white/60 shrink-0">
+                                {r.percentOfTotal}% of total
+                            </span>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+                            <div>
+                                <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Assets</p>
+                                <p className="text-xs text-white">{r.count}</p>
+                            </div>
+                            <div>
+                                <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Book Value</p>
+                                <p className="text-xs font-medium text-white">{r.bookFormatted}</p>
+                            </div>
+                            <div className="col-span-2">
+                                <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Total Acquisition Cost</p>
+                                <p className="text-xs text-white/80">{r.costFormatted}</p>
+                            </div>
+                            <div className="col-span-2">
+                                <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Depreciation</p>
+                                <p className="text-xs text-red-300">{r.depreciationFormatted}</p>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {/* ---- Desktop table (paginated) ---- */}
+            <div className="hidden sm:block overflow-x-auto">
                 <table className="w-full border-collapse">
                     <thead>
                         <tr>
@@ -149,52 +204,111 @@ const WardBreakdownReport = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {rows.map((r) => (
-                            <tr key={r.wardId}>
-                                {COLUMNS.map((c) => {
-                                    let cls = `py-3 px-4 text-sm text-${c.align} border-b border-b-[#3a3a3a]`;
-                                    if (c.key === 'wardName') {
-                                        cls += ' text-white font-medium';
-                                    } else if (c.key === 'depreciationFormatted') {
-                                        cls += ' text-red-300';
-                                    } else if (c.key === 'percentOfTotal') {
-                                        cls += ' text-white/60';
-                                    } else if (c.key === 'count' || c.key === 'bookFormatted') {
-                                        cls += ' text-white';
-                                    } else {
-                                        cls += ' text-white/80';
-                                    }
-                                    return (
-                                        <td key={c.key} className={cls}>
-                                            {r[c.key]}
-                                        </td>
-                                    );
-                                })}
+                        {paged.map((r) => (
+                            <tr key={r.wardId} className="border-b border-b-[#3a3a3a]">
+                                <td className="py-3 px-4 text-sm text-white font-medium">
+                                    {r.wardName}
+                                </td>
+                                <td className="py-3 px-4 text-sm text-white text-right">
+                                    {r.count}
+                                </td>
+                                <td className="py-3 px-4 text-sm text-white/80 text-right">
+                                    {r.costFormatted}
+                                </td>
+                                <td className="py-3 px-4 text-sm text-white text-right">
+                                    {r.bookFormatted}
+                                </td>
+                                <td className="py-3 px-4 text-sm text-red-300 text-right">
+                                    {r.depreciationFormatted}
+                                </td>
+                                <td className="py-3 px-4 text-sm text-white/60 text-right">
+                                    {r.percentOfTotal}%
+                                </td>
                             </tr>
                         ))}
-
-                        <tr>
-                            {COLUMNS.map((c) => {
-                                let cls = `py-3 px-4 text-${c.align} border-t-2 border-t-white/20`;
-                                if (c.key === 'wardName') {
-                                    cls += ' text-sm font-semibold text-white';
-                                } else if (c.key === 'depreciationFormatted') {
-                                    cls += ' text-sm font-semibold text-red-300';
-                                } else if (c.key === 'percentOfTotal') {
-                                    cls += ' text-sm font-semibold text-white/70';
-                                } else {
-                                    cls += ' text-sm font-semibold text-white';
-                                }
-                                return (
-                                    <td key={c.key} className={cls}>
-                                        {totals[c.key]}
-                                    </td>
-                                );
-                            })}
-                        </tr>
                     </tbody>
                 </table>
             </div>
+
+            {/*
+              Totals — outside pagination, always visible.
+              Styled as a summary block: tinted background, accent
+              left border, no full card chrome.
+            */}
+            <div className="mt-4 bg-white/3 border-l-2 border-l-[#173ef0] rounded-r-lg">
+                {/* Mobile totals */}
+                <div className="sm:hidden p-4 space-y-3">
+                    <div className="flex items-start justify-between gap-3">
+                        <div>
+                            <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">
+                                Summary
+                            </p>
+                            <p className="text-sm font-semibold text-white">
+                                All Wards
+                            </p>
+                        </div>
+                        <span className="text-xs text-white/60 shrink-0">
+                            100% of total
+                        </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+                        <div>
+                            <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Assets</p>
+                            <p className="text-xs font-semibold text-white">{totals.count}</p>
+                        </div>
+                        <div>
+                            <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Book Value</p>
+                            <p className="text-xs font-semibold text-white">{totals.bookFormatted}</p>
+                        </div>
+                        <div className="col-span-2">
+                            <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Total Acquisition Cost</p>
+                            <p className="text-xs font-semibold text-white">{totals.costFormatted}</p>
+                        </div>
+                        <div className="col-span-2">
+                            <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Depreciation</p>
+                            <p className="text-xs font-semibold text-red-300">{totals.depreciationFormatted}</p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Desktop totals */}
+                <div className="hidden sm:flex items-center px-4 py-4 gap-4">
+                    <div className="shrink-0">
+                        <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">
+                            Summary
+                        </p>
+                        <p className="text-sm font-semibold text-white">
+                            All Wards
+                        </p>
+                    </div>
+
+                    <div className="flex-1 grid grid-cols-5 gap-4 ml-6">
+                        <div>
+                            <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Assets</p>
+                            <p className="text-sm font-semibold text-white">{totals.count}</p>
+                        </div>
+                        <div>
+                            <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Total Cost</p>
+                            <p className="text-sm font-semibold text-white">{totals.costFormatted}</p>
+                        </div>
+                        <div>
+                            <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Book Value</p>
+                            <p className="text-sm font-semibold text-white">{totals.bookFormatted}</p>
+                        </div>
+                        <div>
+                            <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Depreciation</p>
+                            <p className="text-sm font-semibold text-red-300">{totals.depreciationFormatted}</p>
+                        </div>
+                        <div>
+                            <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">% of Total</p>
+                            <p className="text-sm font-semibold text-white/70">100%</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <Pagination page={safePage} totalPages={totalPages} onPage={setPage} />
         </div>
     );
 };

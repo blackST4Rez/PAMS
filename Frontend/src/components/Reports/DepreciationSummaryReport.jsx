@@ -1,17 +1,18 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
+import Pagination, { useIsMobile } from '../Common/Pagination';
 import ReportExportButton from './ReportExportButton';
 import { useAssets } from '../Context/AssetsContext';
 import { formatNprShort, methodLabel } from '../mock/mockValuation';
 import { MOCK_ASSET_CATEGORIES } from '../mock/mockAssets';
 
 const COLUMNS = [
-    { key: 'categoryName', label: 'Category' },
-    { key: 'methodLabel', label: 'Method' },
-    { key: 'count', label: 'Assets' },
-    { key: 'costFormatted', label: 'Total Cost' },
-    { key: 'depreciationFormatted', label: 'Depreciation' },
-    { key: 'bookFormatted', label: 'Current Book Value' },
-    { key: 'depreciationRate', label: 'Rate' },
+    { key: 'categoryName', label: 'Category', align: 'left' },
+    { key: 'methodLabel', label: 'Method', align: 'left' },
+    { key: 'count', label: 'Assets', align: 'right' },
+    { key: 'costFormatted', label: 'Total Cost', align: 'right' },
+    { key: 'depreciationFormatted', label: 'Depreciation', align: 'right' },
+    { key: 'bookFormatted', label: 'Current Book Value', align: 'right' },
+    { key: 'depreciationRate', label: 'Rate', align: 'right' },
 ];
 
 const CSV_COLUMNS = [
@@ -24,8 +25,15 @@ const CSV_COLUMNS = [
     { key: 'depreciationRate', label: 'Depreciation %' },
 ];
 
+const MOBILE_PAGE_SIZE = 3;
+
 const DepreciationSummaryReport = () => {
     const { allAssets } = useAssets();
+
+    const isMobile = useIsMobile();
+    const pageSize = isMobile ? MOBILE_PAGE_SIZE : Infinity;
+
+    const [page, setPage] = useState(1);
 
     const { rows, totals, csvRows } = useMemo(() => {
         const assets = allAssets();
@@ -89,7 +97,6 @@ const DepreciationSummaryReport = () => {
                 ? Math.round((totals.depreciation / totals.cost) * 100)
                 : 0;
 
-        /* CSV rows = data rows + totals row (same keys as CSV_COLUMNS) */
         const csvRows = [
             ...rows.map((r) => ({
                 categoryName: r.categoryName,
@@ -114,10 +121,17 @@ const DepreciationSummaryReport = () => {
         return { rows, totals, csvRows };
     }, [allAssets]);
 
+    const totalPages = Math.max(1, Math.ceil(rows.length / pageSize));
+    const safePage = Math.min(page, totalPages);
+    const paged = rows.slice(
+        (safePage - 1) * pageSize,
+        safePage * pageSize
+    );
+
     return (
         <div>
             {/* Header + export */}
-            <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
+            <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
                 <div>
                     <h2 className="text-lg font-semibold text-white">
                         Depreciation Summary
@@ -133,34 +147,68 @@ const DepreciationSummaryReport = () => {
                 />
             </div>
 
-            {/* Table */}
-            <div className="overflow-x-auto">
+            {/* ---- Mobile cards (paginated) ---- */}
+            <div className="sm:hidden space-y-3">
+                {paged.map((r) => (
+                    <div
+                        key={r.categoryId}
+                        className="bg-[#1a1a1a] border border-white/10 rounded-xl p-4 space-y-3"
+                    >
+                        <div className="flex items-start justify-between gap-3">
+                            <p className="text-sm font-semibold text-white">
+                                {r.categoryName}
+                            </p>
+                            <span className="text-xs text-white/60 shrink-0">
+                                {r.depreciationRate}% depreciated
+                            </span>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+                            <div>
+                                <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Method</p>
+                                <p className="text-xs text-white/70 truncate">
+                                    {r.methodLabel}
+                                </p>
+                            </div>
+                            <div>
+                                <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Assets</p>
+                                <p className="text-xs text-white">{r.count}</p>
+                            </div>
+                            <div className="col-span-2">
+                                <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Total Cost</p>
+                                <p className="text-xs text-white/80">{r.costFormatted}</p>
+                            </div>
+                            <div className="col-span-2">
+                                <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Depreciation</p>
+                                <p className="text-xs text-red-300">{r.depreciationFormatted}</p>
+                            </div>
+                            <div className="col-span-2">
+                                <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Current Book Value</p>
+                                <p className="text-xs font-medium text-white">{r.bookFormatted}</p>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {/* ---- Desktop table (paginated) ---- */}
+            <div className="hidden sm:block overflow-x-auto">
                 <table className="w-full border-collapse">
                     <thead>
                         <tr>
-                            {COLUMNS.map((c) => {
-                                const numeric =
-                                    c.key !== 'categoryName' &&
-                                    c.key !== 'methodLabel';
-                                return (
-                                    <th
-                                        key={c.key}
-                                        className={`text-xs font-semibold text-white/60 uppercase tracking-wider pb-3 px-4 ${
-                                            numeric ? 'text-right' : 'text-left'
-                                        }`}
-                                    >
-                                        {c.label}
-                                    </th>
-                                );
-                            })}
+                            {COLUMNS.map((c) => (
+                                <th
+                                    key={c.key}
+                                    className={`text-${c.align} text-xs font-semibold text-white/60 uppercase tracking-wider pb-3 px-4`}
+                                >
+                                    {c.label}
+                                </th>
+                            ))}
                         </tr>
                     </thead>
                     <tbody>
-                        {rows.map((r) => (
-                            <tr
-                                key={r.categoryId}
-                                className="border-b border-b-[#3a3a3a]"
-                            >
+                        {paged.map((r) => (
+                            <tr key={r.categoryId} className="border-b border-b-[#3a3a3a]">
                                 <td className="py-3 px-4 text-sm text-white font-medium">
                                     {r.categoryName}
                                 </td>
@@ -184,33 +232,88 @@ const DepreciationSummaryReport = () => {
                                 </td>
                             </tr>
                         ))}
-
-                        <tr className="border-t-2 border-t-white/20">
-                            <td className="py-3 px-4 text-sm font-semibold text-white">
-                                {totals.categoryName}
-                            </td>
-                            <td className="py-3 px-4 text-sm text-white/40">
-                                {totals.methodLabel}
-                            </td>
-                            <td className="py-3 px-4 text-sm font-semibold text-white text-right">
-                                {totals.count}
-                            </td>
-                            <td className="py-3 px-4 text-sm font-semibold text-white text-right">
-                                {totals.costFormatted}
-                            </td>
-                            <td className="py-3 px-4 text-sm font-semibold text-red-300 text-right">
-                                {totals.depreciationFormatted}
-                            </td>
-                            <td className="py-3 px-4 text-sm font-semibold text-white text-right">
-                                {totals.bookFormatted}
-                            </td>
-                            <td className="py-3 px-4 text-sm font-semibold text-white/70 text-right">
-                                {totals.depreciationRate}%
-                            </td>
-                        </tr>
                     </tbody>
                 </table>
             </div>
+
+            {/*
+              Totals — outside pagination, always visible.
+              Tinted background, blue left accent, no full card chrome.
+            */}
+            <div className="mt-4 bg-white/3 border-l-2 border-l-[#173ef0] rounded-r-lg">
+                {/* Mobile totals */}
+                <div className="sm:hidden p-4 space-y-3">
+                    <div className="flex items-start justify-between gap-3">
+                        <div>
+                            <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">
+                                Summary
+                            </p>
+                            <p className="text-sm font-semibold text-white">
+                                All Categories
+                            </p>
+                        </div>
+                        <span className="text-xs text-white/60 shrink-0">
+                            {totals.depreciationRate}% depreciated
+                        </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+                        <div>
+                            <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Assets</p>
+                            <p className="text-xs font-semibold text-white">{totals.count}</p>
+                        </div>
+                        <div>
+                            <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Book Value</p>
+                            <p className="text-xs font-semibold text-white">{totals.bookFormatted}</p>
+                        </div>
+                        <div className="col-span-2">
+                            <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Total Cost</p>
+                            <p className="text-xs font-semibold text-white">{totals.costFormatted}</p>
+                        </div>
+                        <div className="col-span-2">
+                            <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Depreciation</p>
+                            <p className="text-xs font-semibold text-red-300">{totals.depreciationFormatted}</p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Desktop totals */}
+                <div className="hidden sm:flex items-center px-4 py-4 gap-4">
+                    <div className="shrink-0">
+                        <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">
+                            Summary
+                        </p>
+                        <p className="text-sm font-semibold text-white">
+                            All Categories
+                        </p>
+                    </div>
+
+                    <div className="flex-1 grid grid-cols-5 gap-4 ml-6">
+                        <div>
+                            <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Assets</p>
+                            <p className="text-sm font-semibold text-white">{totals.count}</p>
+                        </div>
+                        <div>
+                            <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Total Cost</p>
+                            <p className="text-sm font-semibold text-white">{totals.costFormatted}</p>
+                        </div>
+                        <div>
+                            <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Book Value</p>
+                            <p className="text-sm font-semibold text-white">{totals.bookFormatted}</p>
+                        </div>
+                        <div>
+                            <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Depreciation</p>
+                            <p className="text-sm font-semibold text-red-300">{totals.depreciationFormatted}</p>
+                        </div>
+                        <div>
+                            <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Rate</p>
+                            <p className="text-sm font-semibold text-white/70">{totals.depreciationRate}%</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <Pagination page={safePage} totalPages={totalPages} onPage={setPage} />
         </div>
     );
 };

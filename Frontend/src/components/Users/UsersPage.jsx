@@ -18,7 +18,7 @@ const UsersPage = () => {
                 <Header />
                 <div className="flex-1 flex">
                     <UnifiedSidebar />
-                    <div className="flex-1 p-6 lg:p-8 bg-[#1a1a1a] flex items-center justify-center">
+                    <div className="flex-1 p-4 sm:p-6 lg:p-8 bg-[#1a1a1a] flex items-center justify-center">
                         <p className="text-white/50 text-sm">Loading…</p>
                     </div>
                 </div>
@@ -34,7 +34,7 @@ const UsersPage = () => {
                 <Header />
                 <div className="flex-1 flex">
                     <UnifiedSidebar />
-                    <div className="flex-1 p-6 lg:p-8 bg-[#1a1a1a]">
+                    <div className="flex-1 p-4 sm:p-6 lg:p-8 bg-[#1a1a1a]">
                         <div className="bg-[#242424] rounded-xl p-8 max-w-xl">
                             <h2 className="text-lg font-semibold text-white mb-2">Access Denied</h2>
                             <p className="text-white/60 text-sm">
@@ -55,9 +55,9 @@ const UsersPage = () => {
             <div className="flex-1 flex flex-col lg:flex-row w-full">
                 <UnifiedSidebar />
 
-                <div className="flex-1 p-6 lg:p-8 overflow-y-auto bg-[#1a1a1a]">
+                <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto bg-[#1a1a1a]">
                     {/* Page header */}
-                    <div className="mb-6 flex items-center justify-between">
+                    <div className="mb-6 px-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                         <div>
                             <h1 className="text-3xl font-bold text-white">User Management</h1>
                             <p className="text-white/60 text-lg mt-1">
@@ -66,7 +66,7 @@ const UsersPage = () => {
                         </div>
                         <button
                             onClick={() => setShowRegister(true)}
-                            className="px-5 py-2.5 bg-[#173ef0] text-white font-medium rounded-lg hover:bg-[#0020ad] transition-colors"
+                            className="px-5 py-2.5 bg-[#173ef0] text-white font-medium rounded-lg hover:bg-[#0020ad] transition-colors whitespace-nowrap"
                         >
                             + Register New User
                         </button>

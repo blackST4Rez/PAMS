@@ -35,32 +35,28 @@ const LoginPage = () => {
         setPassword('');
     };
 
-    /* Quick-fill buttons for testing */
-    const quickFill = (u) => {
-        setUsername(u);
-        setPassword('ChangeMe123!');
-    };
-
     /* ---------- Deactivated account screen ---------- */
     if (error && isDeactivated(error)) {
         return (
             <div className="min-h-screen bg-[#1a1a1a] flex flex-col">
                 <Header />
 
-                <div className="flex-1 flex items-center justify-center px-8 py-20">
-                    <div className="max-w-lg w-full bg-[#1a1a1a] rounded-2xl p-12">
+                <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-10 sm:py-16 lg:py-20">
+                    <div className="max-w-lg w-full bg-[#1a1a1a] rounded-2xl p-6 sm:p-10 lg:p-12">
                         {/* Icon + Title + Message */}
                         <div className="flex flex-col items-center text-center mb-5">
-                            <div className="w-16 h-16 flex items-center justify-center mb-4">
-                                <FaExclamationTriangle className="w-7 h-7 text-red-500" />
+                            <div className="w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center mb-4">
+                                <FaExclamationTriangle className="w-6 h-6 sm:w-7 sm:h-7 text-red-500" />
                             </div>
-                            <h2 className="text-3xl font-bold text-red-500 mb-2">Account Deactivated</h2>
-                            <p className="text-white/60 text-base">
+                            <h2 className="text-2xl sm:text-3xl font-bold text-red-500 mb-2">
+                                Account Deactivated
+                            </h2>
+                            <p className="text-sm sm:text-base text-white/60">
                                 {error}
                             </p>
                         </div>
 
-                        {/* Back — centered below the message */}
+                        {/* Back */}
                         <div className="flex justify-center">
                             <button
                                 onClick={clearError}
@@ -83,14 +79,20 @@ const LoginPage = () => {
         <div className="min-h-screen bg-[#1a1a1a] flex flex-col">
             <Header />
 
-            <div className="flex-1 flex items-center justify-center px-8 py-20">
-                <div className="max-w-md w-full bg-[#1a1a1a] rounded-2xl p-12">
-                    <h2 className="text-4xl font-bold text-white mb-2 text-center">Welcome Back</h2>
-                    <p className="text-white/60 text-lg text-center mb-8">Sign in to manage your assets</p>
+            <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-10 sm:py-16 lg:py-20">
+                <div className="max-w-md w-full bg-[#1a1a1a] rounded-2xl p-6 sm:p-10 lg:p-12">
+                    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2 text-center">
+                        Welcome Back
+                    </h2>
+                    <p className="text-white/60 text-sm sm:text-base lg:text-lg text-center mb-6 sm:mb-8">
+                        Sign in to manage your assets
+                    </p>
 
                     <form className="space-y-4" onSubmit={onSubmit}>
                         <div>
-                            <label className="block text-sm font-semibold text-white/80 mb-2">Username</label>
+                            <label className="block text-sm font-semibold text-white/80 mb-2">
+                                Username
+                            </label>
                             <div className="relative">
                                 <BiUser className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/40" />
                                 <input
@@ -103,7 +105,9 @@ const LoginPage = () => {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-semibold text-white/80 mb-2">Password</label>
+                            <label className="block text-sm font-semibold text-white/80 mb-2">
+                                Password
+                            </label>
                             <div className="relative">
                                 <BiLock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/40" />
                                 <input
@@ -116,7 +120,7 @@ const LoginPage = () => {
                             </div>
                         </div>
 
-                        {/* Non-deactivation errors still show as a small inline banner */}
+                        {/* Non-deactivation errors */}
                         {error && (
                             <div
                                 role="alert"
@@ -130,7 +134,7 @@ const LoginPage = () => {
                         <button
                             disabled={busy}
                             type="submit"
-                            className="w-full flex items-center justify-center gap-2 bg-[#173ef0] text-white px-6 py-3 rounded-lg font-semibold text-lg hover:bg-[#264bee] disabled:opacity-50 transition-colors"
+                            className="w-full flex items-center justify-center gap-2 bg-[#173ef0] text-white px-6 py-3 rounded-lg font-semibold text-base sm:text-lg hover:bg-[#264bee] disabled:opacity-50 transition-colors"
                         >
                             {busy ? 'Signing in…' : 'Sign In'}
                             <BiArrowFromLeft className="w-5 h-5" />
@@ -138,9 +142,12 @@ const LoginPage = () => {
                     </form>
 
                     <div className="mt-6 text-center">
-                        <p className="text-white/60">
+                        <p className="text-white/60 text-sm sm:text-base">
                             Don't have an account?{' '}
-                            <Link to="/register" className="text-[#7c8cff] font-semibold hover:text-[#173ef0]">
+                            <Link
+                                to="/register"
+                                className="text-[#7c8cff] font-semibold hover:text-[#173ef0]"
+                            >
                                 Sign up
                             </Link>
                         </p>
