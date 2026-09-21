@@ -30,12 +30,12 @@ const Pagination = ({ page, totalPages, onPage }) => {
 
     return (
         <div className="flex items-center justify-center pt-4">
-            <div className="inline-flex items-center gap-1 bg-[#1a1a1a] border border-white/10 rounded-lg p-1">
+            <div className="inline-flex items-center gap-1 bg-[#1a1a1a] border border-white/10 p-1">
                 {/* Previous */}
                 <button
                     onClick={() => onPage(Math.max(1, page - 1))}
                     disabled={page === 1}
-                    className="flex items-center justify-center w-8 h-8 rounded-md text-white/70 hover:bg-white/5 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent transition-colors"
+                    className="flex items-center justify-center w-8 h-8 text-white/70 hover:bg-white/5 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent transition-colors"
                     aria-label="Previous page"
                 >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -48,7 +48,7 @@ const Pagination = ({ page, totalPages, onPage }) => {
                     <button
                         key={n}
                         onClick={() => onPage(n)}
-                        className={`flex items-center justify-center min-w-8 h-8 px-2 rounded-md text-xs font-medium transition-colors ${n === page
+                        className={`flex items-center justify-center min-w-8 h-8 px-2 text-xs font-medium transition-colors ${n === page
                                 ? 'bg-[#173ef0] text-white'
                                 : 'text-white/60 hover:bg-white/5 hover:text-white'
                             }`}

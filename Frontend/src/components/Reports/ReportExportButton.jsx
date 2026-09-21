@@ -98,7 +98,7 @@ const ReportExportButton = ({ filename, columns, rows, disabled }) => {
         <button
             onClick={onExport}
             disabled={disabled || isEmpty}
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#173ef0] border border-white/10 text-white text-sm font-medium rounded-lg hover:bg-white/10 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#173ef0] border border-white/10 text-white text-sm font-medium hover:bg-white/10 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             title={isEmpty ? 'Nothing to export' : 'Download as CSV'}
         >
             <FaDownload className="w-3.5 h-3.5" />

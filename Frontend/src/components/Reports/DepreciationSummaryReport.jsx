@@ -152,7 +152,7 @@ const DepreciationSummaryReport = () => {
                 {paged.map((r) => (
                     <div
                         key={r.categoryId}
-                        className="bg-[#1a1a1a] border border-white/10 rounded-xl p-4 space-y-3"
+                        className="bg-[#1a1a1a] border border-white/10 p-4 space-y-3"
                     >
                         <div className="flex items-start justify-between gap-3">
                             <p className="text-sm font-semibold text-white">
@@ -240,7 +240,7 @@ const DepreciationSummaryReport = () => {
               Totals — outside pagination, always visible.
               Tinted background, blue left accent, no full card chrome.
             */}
-            <div className="mt-4 bg-white/3 border-l-2 border-l-[#173ef0] rounded-r-lg">
+            <div className="mt-4 bg-white/3 border-l-2 border-l-[#173ef0]">
                 {/* Mobile totals */}
                 <div className="sm:hidden p-4 space-y-3">
                     <div className="flex items-start justify-between gap-3">

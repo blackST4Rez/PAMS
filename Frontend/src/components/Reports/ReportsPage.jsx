@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FaChartBar, FaBuilding, FaChartLine, FaWrench } from 'react-icons/fa';
+import { FaChartBar, FaBuilding, FaWrench, FaLevelDownAlt } from 'react-icons/fa';
 import Header from '../Common/Header';
 import Footer from '../Common/Footer';
 import UnifiedSidebar from '../Sidebars/UnifiedSidebar';
@@ -12,7 +12,7 @@ import { useAuth } from '../Context/AuthContext';
 const TABS = [
     { id: 'register',     label: 'Asset Register',       Icon: FaChartBar },
     { id: 'ward',         label: 'Ward Breakdown',       Icon: FaBuilding },
-    { id: 'depreciation', label: 'Depreciation Summary', Icon: FaChartLine },
+    { id: 'depreciation', label: 'Depreciation Summary', Icon: FaLevelDownAlt },
     { id: 'maintenance',  label: 'Maintenance Cost',     Icon: FaWrench },
 ];
 
@@ -72,7 +72,7 @@ const ReportsPage = () => {
                                     <button
                                         key={id}
                                         onClick={() => setActiveTab(id)}
-                                        className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+                                        className={`flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium transition-colors ${
                                             isActive
                                                 ? 'bg-[#173ef0] text-white'
                                                 : 'text-white/60 hover:bg-white/5 hover:text-white'
@@ -87,7 +87,7 @@ const ReportsPage = () => {
                     </div>
 
                     {/* Report content — uniform card wrapper */}
-                    <div className="rounded-xl p-4 sm:p-6 w-full">
+                    <div className="p-4 sm:p-6 w-full">
                         {activeTab === 'register'     && <AssetRegisterReport />}
                         {activeTab === 'ward'         && <WardBreakdownReport />}
                         {activeTab === 'depreciation' && <DepreciationSummaryReport />}

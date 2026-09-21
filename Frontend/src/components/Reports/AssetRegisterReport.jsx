@@ -130,7 +130,7 @@ const AssetRegisterReport = () => {
                         value={filters.search}
                         onChange={(e) => setField('search', e.target.value)}
                         placeholder="Search by code, title, category…"
-                        className="w-full pl-10 pr-10 py-2.5 bg-[#1c1c1c] border border-white/10 rounded-lg text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] transition"
+                        className="w-full pl-10 pr-10 py-2.5 bg-[#1c1c1c] border border-white/10 text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] transition"
                     />
                     {hasAnyFilter && (
                         <button
@@ -147,7 +147,7 @@ const AssetRegisterReport = () => {
                 <select
                     value={filters.categoryId}
                     onChange={(e) => setField('categoryId', e.target.value)}
-                    className="w-full lg:w-52 px-3 py-2.5 bg-[#1c1c1c] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
+                    className="w-full lg:w-52 px-3 py-2.5 bg-[#1c1c1c] border border-white/10 text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
                 >
                     <option value="" className="bg-[#1c1c1c]">All Categories</option>
                     {MOCK_ASSET_CATEGORIES.map((c) => (
@@ -160,7 +160,7 @@ const AssetRegisterReport = () => {
                 <select
                     value={filters.wardId}
                     onChange={(e) => setField('wardId', e.target.value)}
-                    className="w-full lg:w-40 px-3 py-2.5 bg-[#1c1c1c] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
+                    className="w-full lg:w-40 px-3 py-2.5 bg-[#1c1c1c] border border-white/10 text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
                 >
                     <option value="" className="bg-[#1c1c1c]">All Wards</option>
                     {MOCK_WARDS.map((w) => (
@@ -173,7 +173,7 @@ const AssetRegisterReport = () => {
                 <select
                     value={filters.status}
                     onChange={(e) => setField('status', e.target.value)}
-                    className="w-full lg:w-48 px-3 py-2.5 bg-[#1c1c1c] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
+                    className="w-full lg:w-48 px-3 py-2.5 bg-[#1c1c1c] border border-white/10 text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
                 >
                     <option value="" className="bg-[#1c1c1c]">All Statuses</option>
                     {ASSET_STATUSES.map((s) => (
@@ -195,7 +195,7 @@ const AssetRegisterReport = () => {
                         {paged.map((r) => (
                             <div
                                 key={r.id}
-                                className="bg-[#1a1a1a] border border-white/10 rounded-xl p-4 space-y-3"
+                                className="bg-[#1a1a1a] border border-white/10 p-4 space-y-3"
                             >
                                 {/* Top — code + status */}
                                 <div className="flex items-start justify-between gap-3">

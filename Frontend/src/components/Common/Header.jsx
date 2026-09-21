@@ -43,12 +43,12 @@ const Header = () => {
                 {/* Right — auth actions */}
                 <div className="flex items-center gap-2 sm:gap-3">
                     <Link to="/login">
-                        <button className="flex items-center justify-center bg-[#173ef0] text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-semibold text-sm sm:text-base hover:bg-[#0020ad] transition-colors cursor-pointer">
+                        <button className="flex items-center justify-center bg-[#173ef0] text-white px-4 sm:px-6 py-2.5 sm:py-3 font-semibold text-sm sm:text-base hover:bg-[#0020ad] transition-colors cursor-pointer">
                             Log In
                         </button>
                     </Link>
                     <Link to="/register" className="hidden sm:block">
-                        <button className="flex items-center justify-center bg-[#173ef0] text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-semibold text-sm sm:text-base hover:bg-[#0020ad] transition-colors cursor-pointer">
+                        <button className="flex items-center justify-center bg-[#173ef0] text-white px-4 sm:px-6 py-2.5 sm:py-3 font-semibold text-sm sm:text-base hover:bg-[#0020ad] transition-colors cursor-pointer">
                             Register
                         </button>
                     </Link>
