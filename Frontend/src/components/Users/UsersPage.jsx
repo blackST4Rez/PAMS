@@ -66,7 +66,7 @@ const UsersPage = () => {
                         </div>
                         <button
                             onClick={() => setShowRegister(true)}
-                            className="px-5 py-2.5 bg-[#173ef0] text-white font-medium rounded-lg hover:bg-[#0020ad] transition-colors whitespace-nowrap"
+                            className="px-5 py-2.5 bg-[#173ef0] text-white font-medium hover:bg-[#0020ad] transition-colors whitespace-nowrap"
                         >
                             + Register New User
                         </button>

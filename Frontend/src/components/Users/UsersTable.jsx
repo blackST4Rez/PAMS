@@ -104,7 +104,7 @@ const UsersTable = () => {
             <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-white">
                     Active Users
-                    <span className="ml-2 text-sm font-normal px-2 py-0.5 rounded-full bg-emerald-400 text-black">
+                    <span className="ml-2 text-sm font-normal px-2 py-0.5 bg-emerald-400 text-black rounded-full">
                         {filteredUsers.length}
                     </span>
                 </h2>
@@ -118,7 +118,7 @@ const UsersTable = () => {
                     value={search}
                     onChange={handleSearchChange}
                     placeholder="Search by name, username, or email…"
-                    className="w-full pl-10 pr-10 py-2.5 bg-[#1c1c1c] border border-white/10 rounded-lg text-white placeholder-white/50 text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] transition"
+                    className="w-full pl-10 pr-10 py-2.5 bg-[#1c1c1c] border border-white/10 text-white placeholder-white/50 text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] transition"
                 />
                 {search && (
                     <button
@@ -147,7 +147,7 @@ const UsersTable = () => {
                             return (
                                 <div
                                     key={u.username}
-                                    className="bg-[#1a1a1a] border border-white/10 rounded-xl p-4 space-y-4"
+                                    className="bg-[#1a1a1a] border border-white/10 p-4 space-y-4"
                                 >
                                     <div className="flex items-start justify-between gap-3">
                                         <div className="flex items-center gap-3 min-w-0">
@@ -155,10 +155,10 @@ const UsersTable = () => {
                                                 <img
                                                     src={u.avatar}
                                                     alt=""
-                                                    className="w-11 h-11 rounded-full object-cover shrink-0"
+                                                    className="w-11 h-11 object-cover shrink-0"
                                                 />
                                             ) : (
-                                                <div className="w-11 h-11 rounded-full bg-[#173ef0]/20 flex items-center justify-center text-[#7c8cff] text-base font-bold shrink-0">
+                                                <div className="w-11 h-11 bg-[#173ef0]/20 flex items-center justify-center text-[#7c8cff] text-base font-bold shrink-0">
                                                     {(u.fullName || u.username).charAt(0).toUpperCase()}
                                                 </div>
                                             )}
@@ -172,7 +172,7 @@ const UsersTable = () => {
                                             </div>
                                         </div>
                                         <span
-                                            className={`text-xs font-medium px-2.5 py-1 rounded-full shrink-0 ${statusMeta.color}`}
+                                            className={`text-xs font-medium px-2.5 py-1 shrink-0 ${statusMeta.color}`}
                                         >
                                             {u.status}
                                         </span>
@@ -199,7 +199,7 @@ const UsersTable = () => {
                                             <select
                                                 value={roleCode}
                                                 onChange={(e) => handleRoleChange(u.username, e.target.value)}
-                                                className={`w-full text-xs font-medium px-2.5 py-1.5 rounded-lg bg-[#242424] border border-white/10 cursor-pointer ${roleMeta.color}`}
+                                                className={`w-full text-xs font-medium px-2.5 py-1.5 bg-[#242424] border border-white/10 cursor-pointer ${roleMeta.color}`}
                                             >
                                                 {Object.entries(ROLE_SCHEMA).map(([code, meta]) => (
                                                     <option key={code} value={code} className="bg-[#242424] text-white">
@@ -213,13 +213,13 @@ const UsersTable = () => {
                                     <div className="pt-3 border-t border-white/5 flex justify-end gap-2">
                                         <button
                                             onClick={() => askToggleStatus(u)}
-                                            className="text-xs font-medium px-3 py-2 rounded-lg text-white/80 bg-white/5 hover:bg-white/10 transition-colors"
+                                            className="text-xs font-medium px-3 py-2 text-white/80 bg-white/5 hover:bg-white/10 transition-colors"
                                         >
                                             {u.status === 'Active' ? 'Deactivate' : 'Activate'}
                                         </button>
                                         <button
                                             onClick={() => askDelete(u)}
-                                            className="text-xs font-medium px-3 py-2 rounded-lg text-red-400 bg-red-500/10 hover:bg-red-500/20 transition-colors"
+                                            className="text-xs font-medium px-3 py-2 text-red-400 bg-red-500/10 hover:bg-red-500/20 transition-colors"
                                         >
                                             Delete
                                         </button>
@@ -255,10 +255,10 @@ const UsersTable = () => {
                                                         <img
                                                             src={u.avatar}
                                                             alt=""
-                                                            className="w-9 h-9 rounded-full object-cover"
+                                                            className="w-9 h-9 object-cover"
                                                         />
                                                     ) : (
-                                                        <div className="w-9 h-9 rounded-full bg-[#173ef0]/20 flex items-center justify-center text-[#7c8cff] text-sm font-bold">
+                                                        <div className="w-9 h-9 bg-[#173ef0]/20 flex items-center justify-center text-[#7c8cff] text-sm font-bold">
                                                             {(u.fullName || u.username).charAt(0).toUpperCase()}
                                                         </div>
                                                     )}
@@ -286,20 +286,20 @@ const UsersTable = () => {
                                                 </select>
                                             </td>
                                             <td className="py-3 px-4">
-                                                <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${statusMeta.color}`}>
+                                                <span className={`text-xs font-medium px-2.5 py-1 ${statusMeta.color}`}>
                                                     {u.status}
                                                 </span>
                                             </td>
                                             <td className="py-3 px-4 text-right whitespace-nowrap">
                                                 <button
                                                     onClick={() => askToggleStatus(u)}
-                                                    className="text-xs font-medium px-3 py-1.5 mr-2 rounded-md text-white/70 hover:text-white hover:bg-white/5 transition-colors"
+                                                    className="text-xs font-medium px-3 py-1.5 mr-2 text-white/70 hover:text-white hover:bg-white/5 transition-colors"
                                                 >
                                                     {u.status === 'Active' ? 'Deactivate' : 'Activate'}
                                                 </button>
                                                 <button
                                                     onClick={() => askDelete(u)}
-                                                    className="text-xs font-medium px-3 py-1.5 rounded-md text-red-500 hover:text-red-600 hover:bg-red-500/10 transition-colors"
+                                                    className="text-xs font-medium px-3 py-1.5 text-red-500 hover:text-red-600 hover:bg-red-500/10 transition-colors"
                                                 >
                                                     Delete
                                                 </button>
@@ -362,11 +362,11 @@ const ConfirmDialog = ({ action, onCancel, onConfirm }) => {
             onClick={onCancel}
         >
             <div
-                className="bg-[#242424] rounded-xl w-full max-w-md p-4 sm:p-6"
+                className="bg-[#242424] w-full max-w-md p-4 sm:p-6"
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="flex items-start gap-3 sm:gap-4 mb-4">
-                    <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center shrink-0 ${config.tint}`}>
+                    <div className={`w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center shrink-0 ${config.tint}`}>
                         {config.icon}
                     </div>
                     <div>
@@ -375,7 +375,7 @@ const ConfirmDialog = ({ action, onCancel, onConfirm }) => {
                     </div>
                 </div>
 
-                <div className="bg-[#1a1a1a] rounded-lg p-3 sm:p-4 mb-5 sm:mb-6 space-y-2">
+                <div className="bg-[#1a1a1a] p-3 sm:p-4 mb-5 sm:mb-6 space-y-2">
                     <div className="flex justify-between text-sm gap-4">
                         <span className="text-white/50 shrink-0">Name</span>
                         <span className="text-white font-medium text-right truncate">{user.fullName}</span>
@@ -393,13 +393,13 @@ const ConfirmDialog = ({ action, onCancel, onConfirm }) => {
                 <div className="flex justify-end gap-2 sm:gap-3">
                     <button
                         onClick={onCancel}
-                        className="px-4 py-2 text-sm font-medium text-white/70 rounded-lg hover:bg-white/5 transition-colors"
+                        className="px-4 py-2 text-sm font-medium text-white/70 hover:bg-white/5 transition-colors"
                     >
                         Cancel
                     </button>
                     <button
                         onClick={onConfirm}
-                        className={`px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors ${config.confirmClass}`}
+                        className={`px-4 py-2 text-sm font-medium text-white transition-colors ${config.confirmClass}`}
                     >
                         {config.confirmLabel}
                     </button>

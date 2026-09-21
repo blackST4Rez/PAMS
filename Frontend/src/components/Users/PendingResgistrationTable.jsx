@@ -95,7 +95,7 @@ const PendingRegistrationsTable = () => {
                 <h2 className="text-lg font-semibold text-white mb-4">
                     Pending Registrations
                 </h2>
-                <p className="bg-[#282828] rounded-lg text-white/50 text-sm py-6 text-center">
+                <p className="bg-[#282828] text-white/50 text-sm py-6 text-center">
                     No pending registrations.
                 </p>
             </div>
@@ -106,7 +106,7 @@ const PendingRegistrationsTable = () => {
         <div className="p-4 sm:p-6 mb-6">
             <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2 flex-wrap">
                 Pending Registrations
-                <span className="text-xs bg-yellow-500 text-black px-2 py-0.5 rounded-full">
+                <span className="text-xs bg-yellow-500 text-black px-2 py-0.5">
                     {filtered.length}
                 </span>
             </h2>
@@ -118,7 +118,7 @@ const PendingRegistrationsTable = () => {
                     value={search}
                     onChange={onSearchChange}
                     placeholder="Search by name, username, or email…"
-                    className="w-full pl-10 pr-3 py-2.5 bg-[#1c1c1c] border border-white/10 rounded-lg text-white placeholder-white/50 text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] transition"
+                    className="w-full pl-10 pr-3 py-2.5 bg-[#1c1c1c] border border-white/10 text-white placeholder-white/50 text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] transition"
                 />
             </div>
 
@@ -132,10 +132,10 @@ const PendingRegistrationsTable = () => {
                         {paged.map((p) => (
                             <div
                                 key={p.id}
-                                className="bg-[#1a1a1a] border border-white/10 rounded-xl p-4 space-y-4"
+                                className="bg-[#1a1a1a] border border-white/10 p-4 space-y-4"
                             >
                                 <div className="flex items-center gap-3">
-                                    <div className="w-11 h-11 rounded-full bg-yellow-500/20 flex items-center justify-center text-yellow-300 text-base font-bold shrink-0">
+                                    <div className="w-11 h-11 rounded-ful bg-yellow-500/20 flex items-center justify-center text-yellow-300 text-base font-bold shrink-0">
                                         {(p.fullName || p.username).charAt(0).toUpperCase()}
                                     </div>
                                     <div className="min-w-0">
@@ -169,7 +169,7 @@ const PendingRegistrationsTable = () => {
                                     <select
                                         value={roleSelections[p.username] ?? 'PUBLIC_USER'}
                                         onChange={(e) => setRole(p.username, e.target.value)}
-                                        className="w-full text-xs font-medium px-2.5 py-2 rounded-lg bg-[#242424] border border-white/10 text-white cursor-pointer"
+                                        className="w-full text-xs font-medium px-2.5 py-2 bg-[#242424] border border-white/10 text-white cursor-pointer"
                                     >
                                         {ROLE_OPTIONS.map((opt) => (
                                             <option key={opt.code} value={opt.code} className="bg-[#242424]">
@@ -182,14 +182,14 @@ const PendingRegistrationsTable = () => {
                                 <div className="pt-3 border-t border-white/5 flex justify-end gap-2">
                                     <button
                                         onClick={() => askApprove(p)}
-                                        className="text-xs font-medium px-3 py-2 rounded-lg text-green-400 bg-green-500/10 hover:bg-green-500/20 transition-colors inline-flex items-center gap-1.5"
+                                        className="text-xs font-medium px-3 py-2 text-green-400 bg-green-500/10 hover:bg-green-500/20 transition-colors inline-flex items-center gap-1.5"
                                     >
                                         <FaCheck className="w-3 h-3" />
                                         Approve
                                     </button>
                                     <button
                                         onClick={() => askReject(p)}
-                                        className="text-xs font-medium px-3 py-2 rounded-lg text-red-400 bg-red-500/10 hover:bg-red-500/20 transition-colors inline-flex items-center gap-1.5"
+                                        className="text-xs font-medium px-3 py-2 text-red-400 bg-red-500/10 hover:bg-red-500/20 transition-colors inline-flex items-center gap-1.5"
                                     >
                                         <FaTimes className="w-3 h-3" />
                                         Reject
@@ -215,7 +215,7 @@ const PendingRegistrationsTable = () => {
                                     <tr key={p.id} className="border-b border-b-[#3a3a3a]">
                                         <td className="py-2 pr-4">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-9 h-9 rounded-full bg-yellow-500/20 flex items-center justify-center text-yellow-300 text-sm font-bold">
+                                                <div className="w-9 h-9 bg-yellow-500/20 flex items-center justify-center text-yellow-300 text-sm font-bold">
                                                     {(p.fullName || p.username).charAt(0).toUpperCase()}
                                                 </div>
                                                 <div>
@@ -231,7 +231,7 @@ const PendingRegistrationsTable = () => {
                                         </td>
 
                                         <td className="py-2 px-4">
-                                            <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-white/5 text-white/70">
+                                            <span className="text-xs font-medium px-2.5 py-1 bg-white/5 text-white/70">
                                                 {p.ward || '—'}
                                             </span>
                                         </td>
@@ -240,7 +240,7 @@ const PendingRegistrationsTable = () => {
                                             <select
                                                 value={roleSelections[p.username] ?? 'PUBLIC_USER'}
                                                 onChange={(e) => setRole(p.username, e.target.value)}
-                                                className="text-xs font-medium px-2.5 py-1.5 rounded-full bg-white/5 border border-white/10 text-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#173ef0]"
+                                                className="text-xs font-medium px-2.5 py-1.5 bg-white/5 border border-white/10 text-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#173ef0]"
                                             >
                                                 {ROLE_OPTIONS.map((opt) => (
                                                     <option key={opt.code} value={opt.code} className="bg-[#242424]">
@@ -253,14 +253,14 @@ const PendingRegistrationsTable = () => {
                                         <td className="py-2 text-left">
                                             <button
                                                 onClick={() => askApprove(p)}
-                                                className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 mr-2 rounded-md text-green-400 hover:bg-green-500/10 transition-colors"
+                                                className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 mr-2 text-green-400 hover:bg-green-500/10 transition-colors"
                                             >
                                                 <FaCheck className="w-3 h-3" />
                                                 Approve
                                             </button>
                                             <button
                                                 onClick={() => askReject(p)}
-                                                className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-md text-red-400 hover:bg-red-500/10 transition-colors"
+                                                className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 text-red-400 hover:bg-red-500/10 transition-colors"
                                             >
                                                 <FaTimes className="w-3 h-3" />
                                                 Reject
@@ -300,12 +300,12 @@ const ConfirmDialog = ({ action, selectedRole, onCancel, onConfirm }) => {
             onClick={onCancel}
         >
             <div
-                className="bg-[#242424] rounded-xl w-full max-w-md p-4 sm:p-6"
+                className="bg-[#242424] w-full max-w-md p-4 sm:p-6"
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="flex items-start gap-3 sm:gap-4 mb-4">
                     <div
-                        className={`w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center shrink-0 ${
+                        className={`w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center shrink-0 ${
                             isApprove
                                 ? 'bg-[#1a1a1a] text-green-400'
                                 : 'bg-[#1a1a1a] text-red-400'
@@ -329,7 +329,7 @@ const ConfirmDialog = ({ action, selectedRole, onCancel, onConfirm }) => {
                     </div>
                 </div>
 
-                <div className="bg-[#1a1a1a] rounded-lg p-3 sm:p-4 mb-5 sm:mb-6 space-y-2">
+                <div className="bg-[#1a1a1a] p-3 sm:p-4 mb-5 sm:mb-6 space-y-2">
                     <div className="flex justify-between text-sm gap-4">
                         <span className="text-white/50 shrink-0">Name</span>
                         <span className="text-white font-medium text-right truncate">{user.fullName}</span>
@@ -353,13 +353,13 @@ const ConfirmDialog = ({ action, selectedRole, onCancel, onConfirm }) => {
                 <div className="flex justify-end gap-2 sm:gap-3">
                     <button
                         onClick={onCancel}
-                        className="px-4 py-2 text-sm font-medium text-white/70 rounded-lg hover:bg-white/5 transition-colors"
+                        className="px-4 py-2 text-sm font-medium text-white/70 hover:bg-white/5 transition-colors"
                     >
                         Cancel
                     </button>
                     <button
                         onClick={onConfirm}
-                        className={`px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors ${
+                        className={`px-4 py-2 text-sm font-medium text-white transition-colors ${
                             isApprove
                                 ? 'bg-green-600 hover:bg-green-700'
                                 : 'bg-red-600 hover:bg-red-700'
