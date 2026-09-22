@@ -83,7 +83,7 @@ const GisPage = () => {
                 <UnifiedSidebar />
 
                 <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto bg-[#1a1a1a]">
-                    <div className="mb-6">
+                    <div className="mb-6 px-4">
                         <div className="flex items-center gap-3 flex-wrap">
                             <h1 className="text-3xl font-bold text-white">
                                 GIS Map
@@ -104,7 +104,7 @@ const GisPage = () => {
                         totalCount={allWithCoords.length}
                     />
 
-                    <div className="relative">
+                    <div className="relative w-full px-4">
                         <GisMap assets={filteredAssets} />
                         <GisLegend />
                     </div>

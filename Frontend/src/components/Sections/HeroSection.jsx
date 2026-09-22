@@ -28,7 +28,7 @@ const HeroSection = () => {
                         {/* CTA Button */}
                         <div className="flex flex-wrap gap-4 pt-2">
                             <Link to="/register">
-                                <button className="inline-flex items-center justify-center gap-2 bg-[#173ef0] text-white px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-semibold text-base sm:text-lg hover:bg-[#0020ad] transition-colors duration-300 cursor-pointer">
+                                <button className="inline-flex items-center justify-center gap-2 bg-[#173ef0] text-white px-6 sm:px-8 py-3 sm:py-4 font-semibold text-base sm:text-lg hover:bg-[#0020ad] transition-colors duration-300 cursor-pointer">
                                     <span>Get Started</span>
                                     <BiArrowFromLeft className="w-5 h-5" />
                                 </button>

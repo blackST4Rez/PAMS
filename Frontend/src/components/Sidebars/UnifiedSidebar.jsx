@@ -24,7 +24,7 @@ const UnifiedSidebar = () => {
                     </h3>
                 </div>
 
-                <nav className="space-y-1 px-2 flex-1 overflow-y-auto">
+                <nav className="space-y-1 px-2 flex-1 overflow-y-auto overscroll-contain">
                     {menu.map((item) => {
                         const Icon = Fa[item.icon] || Fa.FaCircle;
                         return (
@@ -52,7 +52,7 @@ const UnifiedSidebar = () => {
                         onClick={handleLogout}
                         className="w-full flex justify-center items-center gap-3 px-4 py-3 font-semibold text-white bg-red-600 hover:bg-red-700 transition-colors ease-in-out duration-300 cursor-pointer"
                     >
-                        <Fa.FaPowerOff className="w-5 h-5" />
+                        <Fa.FaSignOutAlt className="w-5 h-5" />
                         <span>Log Out</span>
                     </button>
                 </div>
@@ -62,26 +62,26 @@ const UnifiedSidebar = () => {
 
     return (
         <>
-            {/* Desktop — static sidebar, visible at lg and up */}
+            {/* Desktop — static sidebar */}
             <div className="hidden lg:block">{nav}</div>
 
-            {/* Mobile — slide-out drawer + backdrop */}
+            {/* Mobile — slide-out drawer */}
             <div
-                className={`fixed inset-0 z-50 lg:hidden transition-opacity duration-200 ${
+                className={`fixed inset-0 z-9999 lg:hidden transition-opacity duration-200 ${
                     mobileMenuOpen
                         ? 'opacity-100 pointer-events-auto'
                         : 'opacity-0 pointer-events-none'
                 }`}
             >
-                {/* Backdrop */}
+                {/* Backdrop — blocks all interaction with the map behind */}
                 <div
-                    className="absolute inset-0 bg-black/60"
+                    className="absolute inset-0 bg-black/60 touch-none overscroll-contain"
                     onClick={closeMenu}
                 />
 
-                {/* Drawer */}
+                {/* Drawer — own scroll, blocks pass-through */}
                 <div
-                    className={`absolute top-0 left-0 h-full transition-transform duration-250 ease-out ${
+                    className={`absolute top-0 left-0 h-full transition-transform duration-250 ease-out touch-pan-y overscroll-contain ${
                         mobileMenuOpen
                             ? 'translate-x-0'
                             : '-translate-x-full'

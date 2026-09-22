@@ -83,11 +83,11 @@ export const DEPRECIATION_METHODS = [
 ];
 
 export const ASSET_STATUSES = [
-    { code: 'AWAITING_REVIEW', label: 'Awaiting Review', color: 'text-yellow-300 bg-yellow-500/15' },
-    { code: 'ACTIVE', label: 'Active', color: 'text-green-300 bg-green-500/15' },
-    { code: 'MAINTENANCE', label: 'Maintenance', color: 'text-orange-300 bg-orange-500/15' },
-    { code: 'RETIRED', label: 'Retired', color: 'text-gray-300 bg-gray-500/15' },
-    { code: 'CANCELLED', label: 'Cancelled', color: 'text-red-300 bg-red-500/15' },
+    { code: 'AWAITING_REVIEW', label: 'Awaiting Review', color: 'text-yellow-300' },
+    { code: 'ACTIVE', label: 'Active', color: 'text-green-300' },
+    { code: 'MAINTENANCE', label: 'Maintenance', color: 'text-orange-300' },
+    { code: 'RETIRED', label: 'Retired', color: 'text-gray-300' },
+    { code: 'CANCELLED', label: 'Cancelled', color: 'text-red-300' },
 ];
 
 /* ============================================================
@@ -238,7 +238,6 @@ export const MOCK_ASSETS = [
         createdAt: '2081-02-11T13:00:00Z',
         deletedAt: null,
     },
-    /* ---- Two awaiting review so the approve/reject flow has data ---- */
     {
         id: 'a-009',
         assetCode: 'GAU-EQP-0001',
@@ -321,8 +320,6 @@ export const MOCK_ASSET_LIFECYCLE = [
 /*
   Generate the next asset code for a category.
   Format: GAU-<CATEGORY_CODE>-<4-digit sequence>
-  Looks at existing assets, finds the highest sequence in that category,
-  and increments. Falls back to 1 if none exist.
 */
 export const generateAssetCode = (categoryCode, existingAssets = []) => {
     const prefix = `GAU-${categoryCode}-`;
@@ -360,5 +357,5 @@ export const getStatusMeta = (code) =>
     ASSET_STATUSES.find((s) => s.code === code) ?? {
         code,
         label: code,
-        color: 'text-white/70 bg-white/10',
+        color: 'text-white/70',
     };

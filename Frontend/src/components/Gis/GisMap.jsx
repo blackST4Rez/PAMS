@@ -63,7 +63,7 @@ const FitBounds = ({ assets }) => {
 const GisMap = ({ assets }) => {
     return (
         <div
-            className="relative rounded-xl overflow-hidden border border-white/10"
+            className="relative w-full overflow-hidden border border-white/10"
             style={{ height: '70vh' }}
         >
             <MapContainer
@@ -99,7 +99,7 @@ const GisMap = ({ assets }) => {
             {/* Empty-state overlay when no assets match filters */}
             {assets.length === 0 && (
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-500">
-                    <div className="bg-[#242424]/95 border border-white/10 rounded-lg px-6 py-4">
+                    <div className="bg-[#242424]/95 border border-white/10 px-6 py-4">
                         <p className="text-white/70 text-sm">
                             No assets match the current filters.
                         </p>
@@ -116,7 +116,6 @@ const GisMap = ({ assets }) => {
                 .leaflet-popup-content-wrapper {
                     background: #242424;
                     color: white;
-                    border-radius: 8px;
                     border: 1px solid rgba(255,255,255,0.1);
                     padding: 0;
                 }
@@ -130,7 +129,15 @@ const GisMap = ({ assets }) => {
                 }
                 .leaflet-popup-close-button {
                     color: rgba(255,255,255,0.6);
-                    padding: 8px 8px 0 0;
+                    font-size: 22px;
+                    line-height: 1;
+                    padding: 6px 10px 0 0;
+                    width: 32px;
+                    height: 32px;
+                    display: flex;
+                    align-items: flex-start;
+                    justify-content: flex-end;
+                    transition: color 0.15s ease;
                 }
                 .leaflet-popup-close-button:hover {
                     color: #fff;

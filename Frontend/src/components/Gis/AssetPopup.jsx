@@ -8,8 +8,8 @@ const AssetPopup = ({ asset }) => {
 
     return (
         <div className="text-white" style={{ minWidth: '260px' }}>
-            {/* Header — title + code */}
-            <div className="px-4 pt-3 pb-3 border-b border-white/10">
+            {/* Header — title + code, with bottom divider inset to match text */}
+            <div className="px-4 pt-3 pb-3">
                 <p className="text-[10px] uppercase tracking-wider text-white/50 font-medium mb-1">
                     {asset.categoryName ?? '—'}
                 </p>
@@ -20,6 +20,9 @@ const AssetPopup = ({ asset }) => {
                     {asset.assetCode}
                 </p>
             </div>
+
+            {/* Divider — inset left/right to align with text */}
+            <div className="mx-4 border-t border-white/10" />
 
             {/* Body — key/value rows */}
             <div className="px-4 py-3 space-y-2">
