@@ -42,7 +42,6 @@ const ApprovalsTable = ({ requests, onRowClick, showCurrentOwner = false }) => {
     const [search, setSearch] = useState('');
     const [page, setPage] = useState(1);
 
-    /* Search filter */
     const filtered = useMemo(() => {
         const q = search.trim().toLowerCase();
         if (!q) return requests;
@@ -56,7 +55,6 @@ const ApprovalsTable = ({ requests, onRowClick, showCurrentOwner = false }) => {
         });
     }, [requests, search]);
 
-    /* Pagination */
     const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
     const safePage = Math.min(page, totalPages);
     const paged = filtered.slice(
@@ -70,11 +68,11 @@ const ApprovalsTable = ({ requests, onRowClick, showCurrentOwner = false }) => {
     };
 
     if (!requests || requests.length === 0) {
-        return null; // parent handles empty states
+        return null;
     }
 
     return (
-        <div className="rounded-xl p-4 sm:p-6">
+        <div className="p-4 sm:p-6">
             {/* Search bar */}
             <div className="relative mb-4">
                 <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white pointer-events-none" />
@@ -83,7 +81,7 @@ const ApprovalsTable = ({ requests, onRowClick, showCurrentOwner = false }) => {
                     value={search}
                     onChange={onSearchChange}
                     placeholder="Search by title, entity, or requester…"
-                    className="w-full pl-10 pr-3 py-2.5 bg-[#1c1c1c] border border-white/10 rounded-lg text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] transition"
+                    className="w-full pl-10 pr-3 py-2.5 bg-[#1c1c1c] border border-white/10 text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] transition"
                 />
             </div>
 
@@ -114,9 +112,8 @@ const ApprovalsTable = ({ requests, onRowClick, showCurrentOwner = false }) => {
                                     type="button"
                                     key={r.id}
                                     onClick={() => onRowClick(r.id)}
-                                    className="w-full text-left bg-[#1a1a1a] border border-white/10 rounded-xl p-4 space-y-3 hover:border-white/20 transition-colors"
+                                    className="w-full text-left bg-[#1a1a1a] border border-white/10 p-4 space-y-3 hover:border-white/20 transition-colors"
                                 >
-                                    {/* Top — id + status */}
                                     <div className="flex items-start justify-between gap-3">
                                         <p className="text-[10px] uppercase tracking-wider text-white/50 truncate">
                                             {r.id}
@@ -126,20 +123,18 @@ const ApprovalsTable = ({ requests, onRowClick, showCurrentOwner = false }) => {
                                         </span>
                                     </div>
 
-                                    {/* Title */}
                                     <p className="text-sm font-semibold text-white leading-snug">
                                         {r.title}
                                     </p>
 
-                                    {/* Fields */}
                                     <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-                                        <div>
+                                        <div className="text-left">
                                             <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Type</p>
                                             <p className="text-xs text-white/80 truncate">
                                                 {entity?.label ?? r.entityName}
                                             </p>
                                         </div>
-                                        <div>
+                                        <div className="text-right">
                                             <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Level</p>
                                             <p className="text-xs text-white/80">
                                                 {isTerminal
@@ -162,7 +157,6 @@ const ApprovalsTable = ({ requests, onRowClick, showCurrentOwner = false }) => {
                                         </div>
                                     </div>
 
-                                    {/* Footer hint */}
                                     <div className="pt-3 border-t border-white/5 flex items-center justify-end">
                                         <span className="text-xs text-white/50 inline-flex items-center gap-1.5">
                                             <FaEye className="w-3 h-3" />

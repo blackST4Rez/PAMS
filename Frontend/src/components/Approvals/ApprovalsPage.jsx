@@ -98,7 +98,7 @@ const ApprovalsPage = () => {
                         </div>
 
                         {myQueue.length === 0 ? (
-                            <div className="bg-[#242424] rounded-xl p-8 mx-4 sm:mx-6">
+                            <div className="bg-[#242424] p-8 mx-4 sm:mx-6">
                                 <p className="text-white/50 text-sm text-center">
                                     Nothing waiting on your role right now.
                                 </p>
@@ -123,7 +123,7 @@ const ApprovalsPage = () => {
                             </div>
 
                             {everyRequest.length === 0 ? (
-                                <div className="bg-[#242424] rounded-xl p-8 mx-4 sm:mx-6">
+                                <div className="bg-[#242424] p-8 mx-4 sm:mx-6">
                                     <p className="text-white/50 text-sm text-center">
                                         No approval requests in the system.
                                     </p>
