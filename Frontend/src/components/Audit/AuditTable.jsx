@@ -42,17 +42,17 @@ const AuditTable = ({ entries, filters, onFiltersChange, actors, onRowClick }) =
     );
 
     return (
-        <div className="rounded-xl p-4 sm:p-6">
+        <div className="p-4 sm:p-6">
             {/* Filter row */}
             <div className="flex flex-col lg:flex-row gap-3 mb-6">
                 <div className="relative flex-1 min-w-50">
-                    <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40 pointer-events-none" />
+                    <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white pointer-events-none" />
                     <input
                         type="text"
                         value={filters.search}
                         onChange={(e) => setField('search', e.target.value)}
                         placeholder="Search summary, entity, or actor…"
-                        className="w-full pl-10 pr-10 py-2.5 bg-[#1c1c1c] border border-white/10 rounded-lg text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] transition"
+                        className="w-full pl-10 pr-10 py-2.5 bg-[#1c1c1c] border border-white/10 text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] transition"
                     />
                     {hasAnyFilter && (
                         <button
@@ -69,7 +69,7 @@ const AuditTable = ({ entries, filters, onFiltersChange, actors, onRowClick }) =
                 <select
                     value={filters.entityType}
                     onChange={(e) => setField('entityType', e.target.value)}
-                    className="w-full lg:w-44 px-3 py-2.5 bg-[#1c1c1c] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
+                    className="w-full lg:w-44 px-3 py-2.5 bg-[#1c1c1c] border border-white/10 text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
                 >
                     <option value="" className="bg-[#1c1c1c]">All Entities</option>
                     {AUDIT_ENTITY_TYPES.map((e) => (
@@ -82,7 +82,7 @@ const AuditTable = ({ entries, filters, onFiltersChange, actors, onRowClick }) =
                 <select
                     value={filters.action}
                     onChange={(e) => setField('action', e.target.value)}
-                    className="w-full lg:w-40 px-3 py-2.5 bg-[#1c1c1c] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
+                    className="w-full lg:w-40 px-3 py-2.5 bg-[#1c1c1c] border border-white/10 text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
                 >
                     <option value="" className="bg-[#1c1c1c]">All Actions</option>
                     {AUDIT_ACTIONS.map((a) => (
@@ -95,7 +95,7 @@ const AuditTable = ({ entries, filters, onFiltersChange, actors, onRowClick }) =
                 <select
                     value={filters.actor}
                     onChange={(e) => setField('actor', e.target.value)}
-                    className="w-full lg:w-52 px-3 py-2.5 bg-[#1c1c1c] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
+                    className="w-full lg:w-52 px-3 py-2.5 bg-[#1c1c1c] border border-white/10 text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
                 >
                     <option value="" className="bg-[#1c1c1c]">All Actors</option>
                     {actors.map((a) => (
@@ -123,7 +123,7 @@ const AuditTable = ({ entries, filters, onFiltersChange, actors, onRowClick }) =
                                     type="button"
                                     key={e.id}
                                     onClick={() => onRowClick(e.id)}
-                                    className="w-full text-left bg-[#1a1a1a] border border-white/10 rounded-xl p-4 space-y-3 hover:border-white/20 transition-colors"
+                                    className="w-full text-left bg-[#1a1a1a] border border-white/10 p-4 space-y-3 hover:border-white/20 transition-colors"
                                 >
                                     <div className="flex items-start justify-between gap-3">
                                         <span className={`text-xs font-medium shrink-0 ${entityMeta.color}`}>
