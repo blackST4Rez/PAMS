@@ -158,31 +158,31 @@ const DepreciationSummaryReport = () => {
                             <p className="text-sm font-semibold text-white">
                                 {r.categoryName}
                             </p>
-                            <span className="text-xs text-white/60 shrink-0">
+                            <span className="text-xs text-emerald-400 shrink-0 font-medium">
                                 {r.depreciationRate}% depreciated
                             </span>
                         </div>
 
                         <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-                            <div>
+                            <div className="text-left">
                                 <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Method</p>
                                 <p className="text-xs text-white/70 truncate">
                                     {r.methodLabel}
                                 </p>
                             </div>
-                            <div>
+                            <div className="text-right">
                                 <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Assets</p>
                                 <p className="text-xs text-white">{r.count}</p>
                             </div>
-                            <div className="col-span-2">
+                            <div className="col-span-2 text-left">
                                 <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Total Cost</p>
                                 <p className="text-xs text-white/80">{r.costFormatted}</p>
                             </div>
-                            <div className="col-span-2">
+                            <div className="col-span-2 text-left">
                                 <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Depreciation</p>
                                 <p className="text-xs text-red-300">{r.depreciationFormatted}</p>
                             </div>
-                            <div className="col-span-2">
+                            <div className="col-span-2 text-right">
                                 <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Current Book Value</p>
                                 <p className="text-xs font-medium text-white">{r.bookFormatted}</p>
                             </div>
@@ -227,7 +227,7 @@ const DepreciationSummaryReport = () => {
                                 <td className="py-3 px-4 text-sm text-white text-right">
                                     {r.bookFormatted}
                                 </td>
-                                <td className="py-3 px-4 text-sm text-white/60 text-right">
+                                <td className="py-3 px-4 text-sm text-emerald-400 font-medium text-right">
                                     {r.depreciationRate}%
                                 </td>
                             </tr>
@@ -238,7 +238,7 @@ const DepreciationSummaryReport = () => {
 
             {/*
               Totals — outside pagination, always visible.
-              Tinted background, blue left accent, no full card chrome.
+              Tinted background, blue left accent.
             */}
             <div className="mt-4 bg-white/3 border-l-2 border-l-[#173ef0]">
                 {/* Mobile totals */}
@@ -252,25 +252,25 @@ const DepreciationSummaryReport = () => {
                                 All Categories
                             </p>
                         </div>
-                        <span className="text-xs text-white/60 shrink-0">
+                        <span className="text-xs text-emerald-400 shrink-0 font-medium">
                             {totals.depreciationRate}% depreciated
                         </span>
                     </div>
 
                     <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-                        <div>
+                        <div className="text-left">
                             <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Assets</p>
                             <p className="text-xs font-semibold text-white">{totals.count}</p>
                         </div>
-                        <div>
+                        <div className="text-right">
                             <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Book Value</p>
                             <p className="text-xs font-semibold text-white">{totals.bookFormatted}</p>
                         </div>
-                        <div className="col-span-2">
+                        <div className="col-span-2 text-left">
                             <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Total Cost</p>
                             <p className="text-xs font-semibold text-white">{totals.costFormatted}</p>
                         </div>
-                        <div className="col-span-2">
+                        <div className="col-span-2 text-left">
                             <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Depreciation</p>
                             <p className="text-xs font-semibold text-red-300">{totals.depreciationFormatted}</p>
                         </div>
@@ -307,7 +307,7 @@ const DepreciationSummaryReport = () => {
                         </div>
                         <div>
                             <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Rate</p>
-                            <p className="text-sm font-semibold text-white/70">{totals.depreciationRate}%</p>
+                            <p className="text-sm font-semibold text-emerald-400">{totals.depreciationRate}%</p>
                         </div>
                     </div>
                 </div>

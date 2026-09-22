@@ -32,6 +32,14 @@ const CSV_COLUMNS = [
     { key: 'statusLabel', label: 'Status' },
 ];
 
+const STATUS_TEXT = {
+    AWAITING_REVIEW: 'text-yellow-300',
+    ACTIVE: 'text-green-300',
+    MAINTENANCE: 'text-orange-300',
+    RETIRED: 'text-gray-300',
+    CANCELLED: 'text-red-300',
+};
+
 const MOBILE_PAGE_SIZE = 3;
 const DESKTOP_PAGE_SIZE = 8;
 
@@ -94,7 +102,6 @@ const AssetRegisterReport = () => {
         setPage(1);
     };
 
-    /* Pagination */
     const totalPages = Math.max(1, Math.ceil(filteredRows.length / pageSize));
     const safePage = Math.min(page, totalPages);
     const paged = filteredRows.slice(
@@ -121,7 +128,7 @@ const AssetRegisterReport = () => {
                 />
             </div>
 
-            {/* Filter row — search + 3 dropdowns on one line at lg, stacked below */}
+            {/* Filter row */}
             <div className="flex flex-col lg:flex-row gap-3 mb-6">
                 <div className="relative flex-1 min-w-50">
                     <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white pointer-events-none" />
@@ -192,61 +199,76 @@ const AssetRegisterReport = () => {
                 <>
                     {/* ---- Mobile cards ---- */}
                     <div className="sm:hidden space-y-3">
-                        {paged.map((r) => (
-                            <div
-                                key={r.id}
-                                className="bg-[#1a1a1a] border border-white/10 p-4 space-y-3"
-                            >
-                                {/* Top — code + status */}
-                                <div className="flex items-start justify-between gap-3">
-                                    <p className="text-[10px] uppercase tracking-wider text-white/50 truncate">
-                                        {r.assetCode}
+                        {paged.map((r) => {
+                            const statusClass =
+                                STATUS_TEXT[r.status] ?? 'text-white/80';
+
+                            return (
+                                <div
+                                    key={r.id}
+                                    className="bg-[#1a1a1a] border border-white/10 p-4 space-y-3"
+                                >
+                                    {/* Top — code + status */}
+                                    <div className="flex items-start justify-between gap-3">
+                                        <p className="text-[10px] uppercase tracking-wider text-white/50 truncate">
+                                            {r.assetCode}
+                                        </p>
+                                        <span className={`text-xs font-medium shrink-0 ${statusClass}`}>
+                                            {r.statusLabel}
+                                        </span>
+                                    </div>
+
+                                    {/* Title */}
+                                    <p className="text-sm font-semibold text-white leading-snug">
+                                        {r.title}
                                     </p>
-                                    <span className="text-xs font-medium text-white/80 shrink-0">
-                                        {r.statusLabel}
-                                    </span>
-                                </div>
 
-                                {/* Title */}
-                                <p className="text-sm font-semibold text-white leading-snug">
-                                    {r.title}
-                                </p>
-
-                                {/* Fields */}
-                                <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-                                    <div>
-                                        <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Category</p>
-                                        <p className="text-xs text-white/80 truncate">
-                                            {r.categoryName}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Ward</p>
-                                        <p className="text-xs text-white/80 truncate">
-                                            {r.wardName}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Cost</p>
-                                        <p className="text-xs text-white/80">
-                                            {r.acquisitionCostFormatted}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Book Value</p>
-                                        <p className="text-xs font-medium text-white">
-                                            {r.currentBookValueFormatted}
-                                        </p>
-                                    </div>
-                                    <div className="col-span-2">
-                                        <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Method</p>
-                                        <p className="text-xs text-white/60">
-                                            {r.depreciationMethod}
-                                        </p>
+                                    {/* Fields */}
+                                    <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+                                        <div className="text-left">
+                                            <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">
+                                                Category
+                                            </p>
+                                            <p className="text-xs text-white/80 truncate">
+                                                {r.categoryName}
+                                            </p>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">
+                                                Ward
+                                            </p>
+                                            <p className="text-xs text-white/80 truncate">
+                                                {r.wardName}
+                                            </p>
+                                        </div>
+                                        <div className="text-left">
+                                            <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">
+                                                Cost
+                                            </p>
+                                            <p className="text-xs text-white/80">
+                                                {r.acquisitionCostFormatted}
+                                            </p>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">
+                                                Book Value
+                                            </p>
+                                            <p className="text-xs font-medium text-white">
+                                                {r.currentBookValueFormatted}
+                                            </p>
+                                        </div>
+                                        <div className="col-span-2 text-left">
+                                            <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">
+                                                Method
+                                            </p>
+                                            <p className="text-xs text-white/60">
+                                                {r.depreciationMethod}
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
 
                     {/* ---- Desktop table ---- */}
@@ -290,8 +312,14 @@ const AssetRegisterReport = () => {
                                         <td className="py-3 px-4 text-sm text-white/80">
                                             {r.depreciationMethod}
                                         </td>
-                                        <td className="py-3 px-4 text-sm text-white/80">
-                                            {r.statusLabel}
+                                        <td className="py-3 px-4">
+                                            <span
+                                                className={`text-sm font-medium ${
+                                                    STATUS_TEXT[r.status] ?? 'text-white/80'
+                                                }`}
+                                            >
+                                                {r.statusLabel}
+                                            </span>
                                         </td>
                                     </tr>
                                 ))}

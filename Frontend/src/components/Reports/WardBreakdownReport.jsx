@@ -161,25 +161,25 @@ const WardBreakdownReport = () => {
                             <p className="text-sm font-semibold text-white">
                                 {r.wardName}
                             </p>
-                            <span className="text-xs text-white/60 shrink-0">
+                            <span className="text-xs text-emerald-400 shrink-0 font-medium">
                                 {r.percentOfTotal}% of total
                             </span>
                         </div>
 
                         <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-                            <div>
+                            <div className="text-left">
                                 <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Assets</p>
                                 <p className="text-xs text-white">{r.count}</p>
                             </div>
-                            <div>
+                            <div className="text-right">
                                 <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Book Value</p>
                                 <p className="text-xs font-medium text-white">{r.bookFormatted}</p>
                             </div>
-                            <div className="col-span-2">
+                            <div className="col-span-2 text-left">
                                 <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Total Acquisition Cost</p>
                                 <p className="text-xs text-white/80">{r.costFormatted}</p>
                             </div>
-                            <div className="col-span-2">
+                            <div className="col-span-2 text-left">
                                 <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Depreciation</p>
                                 <p className="text-xs text-red-300">{r.depreciationFormatted}</p>
                             </div>
@@ -221,7 +221,7 @@ const WardBreakdownReport = () => {
                                 <td className="py-3 px-4 text-sm text-red-300 text-right">
                                     {r.depreciationFormatted}
                                 </td>
-                                <td className="py-3 px-4 text-sm text-white/60 text-right">
+                                <td className="py-3 px-4 text-sm text-emerald-400 font-medium text-right">
                                     {r.percentOfTotal}%
                                 </td>
                             </tr>
@@ -231,9 +231,8 @@ const WardBreakdownReport = () => {
             </div>
 
             {/*
-              Totals — outside pagination, always visible.
-              Styled as a summary block: tinted background, accent
-              left border, no full card chrome.
+              Totals — outside the paginated slice, always visible.
+              Tinted background, blue left accent.
             */}
             <div className="mt-4 bg-white/3 border-l-2 border-l-[#173ef0]">
                 {/* Mobile totals */}
@@ -247,25 +246,25 @@ const WardBreakdownReport = () => {
                                 All Wards
                             </p>
                         </div>
-                        <span className="text-xs text-white/60 shrink-0">
+                        <span className="text-xs text-emerald-400 shrink-0 font-medium">
                             100% of total
                         </span>
                     </div>
 
                     <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-                        <div>
+                        <div className="text-left">
                             <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Assets</p>
                             <p className="text-xs font-semibold text-white">{totals.count}</p>
                         </div>
-                        <div>
+                        <div className="text-right">
                             <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Book Value</p>
                             <p className="text-xs font-semibold text-white">{totals.bookFormatted}</p>
                         </div>
-                        <div className="col-span-2">
+                        <div className="col-span-2 text-left">
                             <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Total Acquisition Cost</p>
                             <p className="text-xs font-semibold text-white">{totals.costFormatted}</p>
                         </div>
-                        <div className="col-span-2">
+                        <div className="col-span-2 text-left">
                             <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Depreciation</p>
                             <p className="text-xs font-semibold text-red-300">{totals.depreciationFormatted}</p>
                         </div>
@@ -302,7 +301,7 @@ const WardBreakdownReport = () => {
                         </div>
                         <div>
                             <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">% of Total</p>
-                            <p className="text-sm font-semibold text-white/70">100%</p>
+                            <p className="text-sm font-semibold text-emerald-400">100%</p>
                         </div>
                     </div>
                 </div>

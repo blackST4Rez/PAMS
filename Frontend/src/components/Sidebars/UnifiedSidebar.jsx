@@ -52,7 +52,7 @@ const UnifiedSidebar = () => {
                         onClick={handleLogout}
                         className="w-full flex justify-center items-center gap-3 px-4 py-3 font-semibold text-white bg-red-600 hover:bg-red-700 transition-colors ease-in-out duration-300 cursor-pointer"
                     >
-                        <Fa.FaSignOutAlt className="w-5 h-5" />
+                        <Fa.FaPowerOff className="w-5 h-5" />
                         <span>Log Out</span>
                     </button>
                 </div>

@@ -178,19 +178,19 @@ const MaintenanceCostReport = () => {
                                 </p>
 
                                 <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-                                    <div>
+                                    <div className="text-left">
                                         <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Ward</p>
                                         <p className="text-xs text-white/80 truncate">
                                             {r.wardName}
                                         </p>
                                     </div>
-                                    <div>
+                                    <div className="text-right">
                                         <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Last Maintenance</p>
                                         <p className="text-xs text-white/80">
                                             {r.lastDate}
                                         </p>
                                     </div>
-                                    <div className="col-span-2">
+                                    <div className="col-span-2 text-right">
                                         <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Total Cost</p>
                                         <p className="text-sm font-medium text-white">
                                             {r.totalCostFormatted}
@@ -264,7 +264,7 @@ const MaintenanceCostReport = () => {
                                 </span>
                             </div>
 
-                            <div>
+                            <div className="text-right">
                                 <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Total Cost</p>
                                 <p className="text-sm font-semibold text-white">
                                     {totals.totalCostFormatted}

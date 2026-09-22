@@ -130,13 +130,13 @@ const DepreciationRunPanel = ({ canRun, latestRun }) => {
                         {!confirming ? (
                             <button
                                 onClick={() => setConfirming(true)}
-                                className="w-full lg:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#173ef0] text-white font-medium rounded-lg hover:bg-[#0020ad] transition-colors"
+                                className="w-full lg:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#173ef0] text-white font-medium hover:bg-[#0020ad] transition-colors"
                             >
                                 <FaPlay className="w-3.5 h-3.5" />
                                 Run Depreciation
                             </button>
                         ) : (
-                            <div className="w-full rounded-lg border border-yellow-500/30 bg-yellow-500/5 p-5">
+                            <div className="w-full border border-yellow-500/30 bg-yellow-500/5 p-5">
                                 <div className="flex items-start gap-3 mb-4">
                                     <FaExclamationTriangle className="text-yellow-400 w-4 h-4 mt-0.5 shrink-0" />
                                     <div>
@@ -155,14 +155,14 @@ const DepreciationRunPanel = ({ canRun, latestRun }) => {
                                     <button
                                         onClick={() => setConfirming(false)}
                                         disabled={busy}
-                                        className="px-3.5 py-2 text-xs font-medium text-white/70 rounded-md hover:bg-white/5 transition-colors disabled:opacity-50"
+                                        className="px-3.5 py-2 text-xs font-medium text-white/70 hover:bg-white/5 transition-colors disabled:opacity-50"
                                     >
                                         Cancel
                                     </button>
                                     <button
                                         onClick={runNow}
                                         disabled={busy}
-                                        className="px-3.5 py-2 text-xs font-medium bg-[#173ef0] text-white rounded-md hover:bg-[#0020ad] transition-colors disabled:opacity-50"
+                                        className="px-3.5 py-2 text-xs font-medium bg-[#173ef0] text-white hover:bg-[#0020ad] transition-colors disabled:opacity-50"
                                     >
                                         {busy ? 'Running…' : 'Confirm'}
                                     </button>

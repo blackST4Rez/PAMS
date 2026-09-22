@@ -63,7 +63,7 @@ const AssetsValuationTable = ({
     );
 
     return (
-        <div className="rounded-xl p-4 sm:p-6">
+        <div className="p-4 sm:p-6">
             {/* Filter row */}
             <div className="flex flex-col lg:flex-row gap-3 mb-6">
                 <div className="relative flex-1 min-w-50">
@@ -73,14 +73,14 @@ const AssetsValuationTable = ({
                         value={filters.search}
                         onChange={(e) => setField('search', e.target.value)}
                         placeholder="Search by code, title, category…"
-                        className="w-full pl-10 pr-3 py-2.5 bg-[#1c1c1c] border border-white/10 rounded-lg text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] transition"
+                        className="w-full pl-10 pr-3 py-2.5 bg-[#1c1c1c] border border-white/10 text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] transition"
                     />
                 </div>
 
                 <select
                     value={filters.categoryId}
                     onChange={(e) => setField('categoryId', e.target.value)}
-                    className="w-full lg:w-52 px-3 py-2.5 bg-[#1c1c1c] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
+                    className="w-full lg:w-52 px-3 py-2.5 bg-[#1c1c1c] border border-white/10 text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
                 >
                     <option value="" className="bg-[#1c1c1c]">All Categories</option>
                     {MOCK_ASSET_CATEGORIES.map((c) => (
@@ -93,7 +93,7 @@ const AssetsValuationTable = ({
                 <select
                     value={filters.method}
                     onChange={(e) => setField('method', e.target.value)}
-                    className="w-full lg:w-52 px-3 py-2.5 bg-[#1c1c1c] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
+                    className="w-full lg:w-52 px-3 py-2.5 bg-[#1c1c1c] border border-white/10 text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
                 >
                     {METHOD_FILTER_OPTIONS.map((opt) => (
                         <option key={opt.value} value={opt.value} className="bg-[#1c1c1c]">
