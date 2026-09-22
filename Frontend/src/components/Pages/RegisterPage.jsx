@@ -161,7 +161,7 @@ const RegisterPage = () => {
                                         value={form.firstName}
                                         onChange={onChange}
                                         placeholder="John"
-                                        className="w-full pl-10 pr-3 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#173ef0] transition"
+                                        className="w-full pl-10 pr-3 py-3 bg-white/5 border border-white/10 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#173ef0] transition"
                                     />
                                 </div>
                             </div>
@@ -178,7 +178,7 @@ const RegisterPage = () => {
                                         value={form.lastName}
                                         onChange={onChange}
                                         placeholder="Doe"
-                                        className="w-full pl-10 pr-3 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#173ef0] transition"
+                                        className="w-full pl-10 pr-3 py-3 bg-white/5 border border-white/10 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#173ef0] transition"
                                     />
                                 </div>
                             </div>
@@ -198,7 +198,7 @@ const RegisterPage = () => {
                                         value={form.email}
                                         onChange={onChange}
                                         placeholder="you@example.com"
-                                        className="w-full pl-10 pr-3 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#173ef0] transition"
+                                        className="w-full pl-10 pr-3 py-3 bg-white/5 border border-white/10 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#173ef0] transition"
                                     />
                                 </div>
                             </div>
@@ -215,7 +215,7 @@ const RegisterPage = () => {
                                         value={form.phone}
                                         onChange={onChange}
                                         placeholder="+977-98XXXXXXXX"
-                                        className="w-full pl-10 pr-3 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#173ef0] transition"
+                                        className="w-full pl-10 pr-3 py-3 bg-white/5 border border-white/10 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#173ef0] transition"
                                     />
                                 </div>
                             </div>
@@ -234,7 +234,7 @@ const RegisterPage = () => {
                                         name="municipality"
                                         value={form.municipality}
                                         disabled
-                                        className="w-full pl-10 pr-3 py-3 bg-white/5 border border-white/10 rounded-lg text-white/60 focus:outline-none focus:ring-2 focus:ring-[#173ef0] transition disabled:opacity-60"
+                                        className="w-full pl-10 pr-3 py-3 bg-white/5 border border-white/10 text-white/60 focus:outline-none focus:ring-2 focus:ring-[#173ef0] transition disabled:opacity-60"
                                     />
                                 </div>
                             </div>
@@ -249,7 +249,7 @@ const RegisterPage = () => {
                                         name="ward"
                                         value={form.ward}
                                         onChange={onChange}
-                                        className="w-full pl-10 pr-10 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#173ef0] transition appearance-none cursor-pointer"
+                                        className="w-full pl-10 pr-10 py-3 bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-[#173ef0] transition appearance-none cursor-pointer"
                                     >
                                         {WARD_OPTIONS.map((w) => (
                                             <option key={w} value={w} className="bg-[#242424] text-white">
@@ -278,7 +278,7 @@ const RegisterPage = () => {
                                         value={form.password}
                                         onChange={onChange}
                                         placeholder="Create a strong password"
-                                        className="w-full pl-10 pr-3 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#173ef0] transition"
+                                        className="w-full pl-10 pr-3 py-3 bg-white/5 border border-white/10 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#173ef0] transition"
                                     />
                                 </div>
                             </div>
@@ -295,7 +295,7 @@ const RegisterPage = () => {
                                         value={form.confirmPassword}
                                         onChange={onChange}
                                         placeholder="Confirm your password"
-                                        className="w-full pl-10 pr-3 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#173ef0] transition"
+                                        className="w-full pl-10 pr-3 py-3 bg-white/5 border border-white/10 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#173ef0] transition"
                                     />
                                 </div>
                             </div>
@@ -308,7 +308,7 @@ const RegisterPage = () => {
                                 name="agree"
                                 checked={form.agree}
                                 onChange={onChange}
-                                className="mt-0.5 h-4 w-4 rounded border-white/20 bg-white/5 text-[#173ef0] focus:ring-[#173ef0] focus:ring-offset-0 shrink-0"
+                                className="mt-0.5 h-4 w-4 border-white/20 bg-white/5 text-[#173ef0] focus:ring-[#173ef0] focus:ring-offset-0 shrink-0"
                             />
                             <label className="block text-sm text-white/60 leading-snug">
                                 I agree to the{' '}
@@ -327,7 +327,7 @@ const RegisterPage = () => {
                             <button
                                 type="submit"
                                 disabled={busy}
-                                className="flex items-center justify-center gap-2 bg-[#173ef0] text-white px-6 sm:px-8 py-3 rounded-lg font-semibold text-base sm:text-lg hover:bg-[#0020ad] disabled:opacity-50 transition-all ease-in-out duration-300 cursor-pointer"
+                                className="flex items-center justify-center gap-2 bg-[#173ef0] text-white px-6 sm:px-8 py-3 font-semibold text-base sm:text-lg hover:bg-[#0020ad] disabled:opacity-50 transition-all ease-in-out duration-300 cursor-pointer"
                             >
                                 <span>{busy ? 'Submitting…' : 'Create Account'}</span>
                                 <BiArrowFromLeft className="w-5 h-5" />

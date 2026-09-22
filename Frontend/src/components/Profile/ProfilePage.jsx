@@ -50,7 +50,7 @@ const ProfilePage = () => {
                 <button
                   key={id}
                   onClick={() => setActiveTab(id)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  className={`flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors ${
                     isActive
                       ? 'bg-[#173ef0] text-white'
                       : 'text-white/60 hover:bg-white/5 hover:text-white'

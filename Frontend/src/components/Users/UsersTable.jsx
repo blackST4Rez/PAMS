@@ -276,7 +276,7 @@ const UsersTable = () => {
                                                 <select
                                                     value={roleCode}
                                                     onChange={(e) => handleRoleChange(u.username, e.target.value)}
-                                                    className={`text-xs font-medium px-2.5 py-1 rounded-full bg-transparent border border-white/10 cursor-pointer ${roleMeta.color}`}
+                                                    className={`text-xs font-medium px-2.5 py-1 bg-transparent border border-white/10 cursor-pointer ${roleMeta.color}`}
                                                 >
                                                     {Object.entries(ROLE_SCHEMA).map(([code, meta]) => (
                                                         <option key={code} value={code} className="bg-[#242424] text-white">

@@ -43,7 +43,7 @@ const SecurityTab = () => {
         <button
           type="submit"
           disabled={busy}
-          className="px-5 py-2.5 bg-[#173ef0] text-white font-medium rounded-lg hover:bg-[#0020ad] disabled:opacity-50 transition-colors"
+          className="px-5 py-2.5 bg-[#173ef0] text-white font-medium hover:bg-[#0020ad] disabled:opacity-50 transition-colors"
         >
           {busy ? 'Updating…' : 'Update Password'}
         </button>
@@ -54,7 +54,7 @@ const SecurityTab = () => {
         <p className="text-xs text-white/50 mb-3">
           Email OTP 2FA is available on your account. You can enable it here.
         </p>
-        <button className="px-4 py-2 border border-white/20 text-white text-sm rounded-lg hover:bg-white/5">
+        <button className="px-4 py-2 border border-white/20 text-white text-sm hover:bg-white/5">
           Enable 2FA
         </button>
       </div>
@@ -70,7 +70,7 @@ const PasswordField = ({ label, ...props }) => (
     <input
       {...props}
       type="password"
-      className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0]"
+      className="w-full px-3 py-2.5 bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0]"
     />
   </div>
 );

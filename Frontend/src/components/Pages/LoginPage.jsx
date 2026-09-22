@@ -99,7 +99,7 @@ const LoginPage = () => {
                                     value={username}
                                     onChange={(e) => setUsername(e.target.value)}
                                     placeholder="Username"
-                                    className="w-full pl-10 pr-3 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 focus:ring-2 focus:ring-[#173ef0] focus:outline-none transition"
+                                    className="w-full pl-10 pr-3 py-3 bg-white/5 border border-white/10 text-white placeholder-white/40 focus:ring-2 focus:ring-[#173ef0] focus:outline-none transition"
                                 />
                             </div>
                         </div>
@@ -115,7 +115,7 @@ const LoginPage = () => {
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     placeholder="Password"
-                                    className="w-full pl-10 pr-3 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 focus:ring-2 focus:ring-[#173ef0] focus:outline-none transition"
+                                    className="w-full pl-10 pr-3 py-3 bg-white/5 border border-white/10 text-white placeholder-white/40 focus:ring-2 focus:ring-[#173ef0] focus:outline-none transition"
                                 />
                             </div>
                         </div>
@@ -124,7 +124,7 @@ const LoginPage = () => {
                         {error && (
                             <div
                                 role="alert"
-                                className="flex items-start gap-3 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-300 text-sm"
+                                className="flex items-start gap-3 px-4 py-3 bg-red-500/10 border border-red-500/30 text-red-300 text-sm"
                             >
                                 <FaExclamationTriangle className="w-4 h-4 mt-0.5 shrink-0" />
                                 <span>{error}</span>
@@ -134,7 +134,7 @@ const LoginPage = () => {
                         <button
                             disabled={busy}
                             type="submit"
-                            className="w-full flex items-center justify-center gap-2 bg-[#173ef0] text-white px-6 py-3 rounded-lg font-semibold text-base sm:text-lg hover:bg-[#264bee] disabled:opacity-50 transition-colors"
+                            className="w-full flex items-center justify-center gap-2 bg-[#173ef0] text-white px-6 py-3 font-semibold text-base sm:text-lg hover:bg-[#264bee] disabled:opacity-50 transition-colors"
                         >
                             {busy ? 'Signing in…' : 'Sign In'}
                             <BiArrowFromLeft className="w-5 h-5" />

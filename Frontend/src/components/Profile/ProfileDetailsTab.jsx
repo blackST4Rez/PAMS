@@ -45,7 +45,7 @@ const ProfileDetailsTab = () => {
   };
 
   return (
-    <div className="rounded-xl p-6">
+    <div className="p-6">
       <h2 className="text-lg font-semibold text-white mb-4 border-l-5 border-l-[#173ef0] px-6">
         Personal Information
       </h2>
@@ -68,7 +68,7 @@ const ProfileDetailsTab = () => {
         <div className="flex items-center gap-3 pt-2">
           <button
             type="submit"
-            className="px-5 py-2.5 bg-[#173ef0] text-white font-medium rounded-lg hover:bg-[#0020ad] transition-colors"
+            className="px-5 py-2.5 bg-[#173ef0] text-white font-medium hover:bg-[#0020ad] transition-colors"
           >
             Save Changes
           </button>
@@ -89,7 +89,7 @@ const Field = ({ label, ...props }) => (
     </label>
     <input
       {...props}
-      className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] disabled:opacity-60"
+      className="w-full px-3 py-2.5 bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] disabled:opacity-60"
     />
   </div>
 );
