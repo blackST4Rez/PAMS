@@ -168,7 +168,6 @@ const ValuationPage = () => {
                 />
             )}
 
-            <Footer />
         </div>
     );
 };

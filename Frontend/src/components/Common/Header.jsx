@@ -7,7 +7,7 @@ import { useAuth } from "../Context/AuthContext";
 const PROTECTED_PREFIXES = [
     '/dashboard', '/profile', '/users', '/assets',
     '/approvals', '/maintenance', '/valuation',
-    '/reports', '/audit', '/gis',
+    '/reports', '/audit', '/gis', '/roles',
 ];
 
 const Header = () => {
@@ -19,10 +19,11 @@ const Header = () => {
         location.pathname.startsWith(p)
     );
     const showHamburger = Boolean(user) && isProtectedRoute;
+    const showAuthButtons = !user;
 
     return (
         <div className="bg-[#111112] sticky top-0 z-2000">
-            <div className="flex max-w-7xl h-20 bg-[#111112] items-center justify-between mx-auto px-4">
+            <div className="flex h-20 bg-[#111112] items-center justify-between px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center gap-3">
                     {showHamburger && (
                         <button
@@ -44,18 +45,20 @@ const Header = () => {
                     </Link>
                 </div>
 
-                <div className="flex items-center gap-2 sm:gap-3">
-                    <Link to="/login">
-                        <button className="flex items-center justify-center bg-[#173ef0] text-white px-4 sm:px-6 py-2.5 sm:py-3 font-semibold text-sm sm:text-base hover:bg-[#0020ad] transition-colors cursor-pointer">
-                            Log In
-                        </button>
-                    </Link>
-                    <Link to="/register" className="hidden sm:block">
-                        <button className="flex items-center justify-center bg-[#173ef0] text-white px-4 sm:px-6 py-2.5 sm:py-3 font-semibold text-sm sm:text-base hover:bg-[#0020ad] transition-colors cursor-pointer">
-                            Register
-                        </button>
-                    </Link>
-                </div>
+                {showAuthButtons && (
+                    <div className="flex items-center gap-2 sm:gap-3">
+                        <Link to="/login">
+                            <button className="flex items-center justify-center bg-[#173ef0] text-white px-4 sm:px-6 py-2.5 sm:py-3 font-semibold text-sm sm:text-base hover:bg-[#0020ad] transition-colors cursor-pointer">
+                                Log In
+                            </button>
+                        </Link>
+                        <Link to="/register" className="hidden sm:block">
+                            <button className="flex items-center justify-center bg-[#173ef0] text-white px-4 sm:px-6 py-2.5 sm:py-3 font-semibold text-sm sm:text-base hover:bg-[#0020ad] transition-colors cursor-pointer">
+                                Register
+                            </button>
+                        </Link>
+                    </div>
+                )}
             </div>
         </div>
     );

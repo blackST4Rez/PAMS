@@ -118,7 +118,6 @@ const AuditPage = () => {
                 />
             )}
 
-            <Footer />
         </div>
     );
 };

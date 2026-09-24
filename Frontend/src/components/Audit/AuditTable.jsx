@@ -112,8 +112,8 @@ const AuditTable = ({ entries, filters, onFiltersChange, actors, onRowClick }) =
                 </p>
             ) : (
                 <>
-                    {/* ---- Mobile cards ---- */}
-                    <div className="sm:hidden space-y-3">
+                    {/* ---- Mobile cards — unchanged ---- */}
+                    <div className="lg:hidden space-y-3">
                         {paged.map((e) => {
                             const entityMeta = getEntityMeta(e.entityType);
                             const actionMeta = getActionMeta(e.action);
@@ -166,17 +166,37 @@ const AuditTable = ({ entries, filters, onFiltersChange, actors, onRowClick }) =
                         })}
                     </div>
 
-                    {/* ---- Desktop table ---- */}
-                    <div className="hidden sm:block overflow-x-auto">
-                        <table className="w-full border-collapse">
+                    {/* ---- Desktop table — fixed layout, smaller font, all columns visible ---- */}
+                    <div className="hidden lg:block overflow-x-auto">
+                        <table className="w-full border-collapse table-fixed">
+                            <colgroup>
+                                <col className="w-[14%]" />
+                                <col className="w-[10%]" />
+                                <col className="w-[10%]" />
+                                <col className="w-[38%]" />
+                                <col className="w-[16%]" />
+                                <col className="w-[12%]" />
+                            </colgroup>
                             <thead>
                                 <tr>
-                                    <th className="text-left text-xs font-semibold text-white/60 uppercase tracking-wider pb-3 px-4">Time</th>
-                                    <th className="text-left text-xs font-semibold text-white/60 uppercase tracking-wider pb-3 px-4">Entity</th>
-                                    <th className="text-left text-xs font-semibold text-white/60 uppercase tracking-wider pb-3 px-4">Action</th>
-                                    <th className="text-left text-xs font-semibold text-white/60 uppercase tracking-wider pb-3 px-4">Summary</th>
-                                    <th className="text-left text-xs font-semibold text-white/60 uppercase tracking-wider pb-3 px-4">Actor</th>
-                                    <th className="text-right text-xs font-semibold text-white/60 uppercase tracking-wider pb-3 px-4">Actions</th>
+                                    <th className="text-left text-[10px] font-semibold text-white/60 uppercase tracking-wider pb-3 px-3 whitespace-nowrap">
+                                        Time
+                                    </th>
+                                    <th className="text-left text-[10px] font-semibold text-white/60 uppercase tracking-wider pb-3 px-3 whitespace-nowrap">
+                                        Entity
+                                    </th>
+                                    <th className="text-left text-[10px] font-semibold text-white/60 uppercase tracking-wider pb-3 px-3 whitespace-nowrap">
+                                        Action
+                                    </th>
+                                    <th className="text-left text-[10px] font-semibold text-white/60 uppercase tracking-wider pb-3 px-3 whitespace-nowrap">
+                                        Summary
+                                    </th>
+                                    <th className="text-left text-[10px] font-semibold text-white/60 uppercase tracking-wider pb-3 px-3 whitespace-nowrap">
+                                        Actor
+                                    </th>
+                                    <th className="text-left text-[10px] font-semibold text-white/60 uppercase tracking-wider pb-3 px-3 whitespace-nowrap">
+                                        Actions
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -186,49 +206,49 @@ const AuditTable = ({ entries, filters, onFiltersChange, actors, onRowClick }) =
                                     return (
                                         <tr
                                             key={e.id}
-                                            className="border-b border-b-[#3a3a3a] cursor-pointer"
+                                            className="border-b border-b-[#3a3a3a] cursor-pointer align-top"
                                             onClick={() => onRowClick(e.id)}
                                         >
-                                            <td className="py-3 px-4 text-xs text-white/60 whitespace-nowrap">
+                                            <td className="py-3 px-3 text-xs text-white/60">
                                                 {fmtAuditTime(e.at)}
                                             </td>
-                                            <td className="py-3 px-4">
-                                                <span className={`text-sm font-medium ${entityMeta.color}`}>
+                                            <td className="py-3 px-3">
+                                                <span className={`text-xs font-medium ${entityMeta.color}`}>
                                                     {entityMeta.label}
                                                 </span>
                                             </td>
-                                            <td className="py-3 px-4">
-                                                <span className="text-sm text-white/80">
+                                            <td className="py-3 px-3">
+                                                <span className="text-xs text-white/80">
                                                     {actionMeta.label}
                                                 </span>
                                             </td>
-                                            <td className="py-3 px-4">
-                                                <p className="text-sm text-white truncate max-w-md">
+                                            <td className="py-3 px-3">
+                                                <p className="text-xs text-white leading-snug">
                                                     {e.summary || '—'}
                                                 </p>
                                                 {e.entityId && (
-                                                    <p className="text-xs text-white/40 mt-0.5">
+                                                    <p className="text-[10px] text-white/40 mt-0.5 truncate">
                                                         {e.entityId}
                                                     </p>
                                                 )}
                                             </td>
-                                            <td className="py-3 px-4">
-                                                <p className="text-sm text-white/80">{e.actor}</p>
+                                            <td className="py-3 px-3">
+                                                <p className="text-xs text-white/80 truncate">
+                                                    {e.actor}
+                                                </p>
                                             </td>
                                             <td
-                                                className="py-3 px-4"
+                                                className="py-3 px-3"
                                                 onClick={(ev) => ev.stopPropagation()}
                                             >
-                                                <div className="flex items-center justify-end gap-1 whitespace-nowrap">
-                                                    <button
-                                                        onClick={() => onRowClick(e.id)}
-                                                        className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 text-white/70 hover:text-white hover:bg-white/5 transition-colors"
-                                                        title="View details"
-                                                    >
-                                                        <FaEye className="w-3 h-3" />
-                                                        View
-                                                    </button>
-                                                </div>
+                                                <button
+                                                    onClick={() => onRowClick(e.id)}
+                                                    className="inline-flex items-center gap-1 text-xs font-medium px-2 py-1.5 text-white/70 hover:text-white hover:bg-white/5 transition-colors whitespace-nowrap"
+                                                    title="View details"
+                                                >
+                                                    <FaEye className="w-3 h-3" />
+                                                    View
+                                                </button>
                                             </td>
                                         </tr>
                                     );

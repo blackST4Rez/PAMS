@@ -1,5 +1,4 @@
 import Header from '../Common/Header';
-import Footer from '../Common/Footer';
 import UnifiedSidebar from '../Sidebars/UnifiedSidebar';
 import { useAuth } from '../Context/AuthContext';
 
@@ -32,8 +31,6 @@ const DashboardPage = () => {
                     </div>
                 </div>
             </div>
-
-            <Footer />
         </div>
     );
 };

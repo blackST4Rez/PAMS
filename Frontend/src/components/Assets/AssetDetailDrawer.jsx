@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import toast from 'react-hot-toast';
 import {
     FaTimes,
@@ -83,7 +84,6 @@ const AssetDetailDrawer = ({ assetId, onClose }) => {
     const [busy, setBusy] = useState(false);
 
     if (!asset) {
-        /* If the asset was deleted while the drawer was open, close gracefully */
         return null;
     }
 
@@ -177,89 +177,197 @@ const AssetDetailDrawer = ({ assetId, onClose }) => {
         }
     };
 
+    const cat = MOCK_ASSET_CATEGORIES.find((c) => c.id === asset.categoryId);
+    const ward = MOCK_WARDS.find((w) => w.id === asset.wardId);
+    const depr = DEPRECIATION_METHODS.find(
+        (m) => m.code === asset.depreciationMethod
+    );
+
     /* ---------- render ---------- */
 
-    return (
+    return createPortal(
         <div
-            className="fixed inset-0 z-50 flex justify-end bg-black/70"
+            className="fixed inset-0 z-9999 flex justify-end bg-black/80 backdrop-blur-sm"
             onClick={onClose}
         >
             <div
-                className="bg-[#1a1a1a] border-l border-white/10 w-full max-w-2xl h-full overflow-y-auto hide-scrollbar"
+                className="bg-[#161616] border-l border-white/10 w-full sm:max-w-2xl h-full flex flex-col shadow-2xl"
                 onClick={(e) => e.stopPropagation()}
             >
-                {/* Sticky header */}
-                <div className="sticky top-0 z-10 bg-[#1a1a1a] border-b border-white/10 px-6 py-4 flex items-start justify-between gap-4">
-                    <div className="min-w-0">
-                        <p className="text-xs font-medium text-white/50 uppercase tracking-wider">
-                            {asset.assetCode}
-                        </p>
-                        <h2 className="text-xl font-semibold text-white truncate mt-0.5">
-                            {asset.title}
-                        </h2>
-                        <div className="flex items-center gap-2 mt-2">
-                            <span
-                                className={`inline-block text-xs font-medium px-2.5 py-1 rounded-full ${asset.statusMeta.color}`}
-                            >
-                                {asset.statusMeta.label}
-                            </span>
-                            {isDeleted && (
-                                <span className="inline-block text-xs font-medium px-2.5 py-1 rounded-full bg-red-500/15 text-red-300">
-                                    Soft-deleted
+                {/* ==================== HEADER ==================== */}
+                <header className="shrink-0 border-b border-white/10">
+                    <div className="px-6 sm:px-8 py-5 flex items-start justify-between gap-6">
+                        <div className="min-w-0 flex-1 space-y-3">
+                            <p className="text-xs font-mono text-white/40 uppercase tracking-widest leading-none">
+                                {asset.assetCode}
+                            </p>
+
+                            <h2 className="text-2xl sm:text-3xl font-semibold text-white leading-snug tracking-tight wrap-break-words">
+                                {asset.title}
+                            </h2>
+
+                            <div className="flex items-center gap-2 flex-wrap pt-0.5">
+                                <span className="inline-flex items-center px-2.5 py-1 bg-[#1c1c1c] text-sm font-medium">
+                                    <span className={asset.statusMeta.color}>
+                                        {asset.statusMeta.label}
+                                    </span>
                                 </span>
-                            )}
+                                {isDeleted && (
+                                    <span className="inline-flex items-center px-2.5 py-1 bg-[#1c1c1c] text-sm font-medium text-red-300">
+                                        Soft-deleted
+                                    </span>
+                                )}
+                            </div>
                         </div>
+
+                        <button
+                            onClick={onClose}
+                            className="shrink-0 inline-flex items-center gap-1.5 h-8 px-3 text-red-400 bg-[#161616] border border-[#161616] hover:border-red-400 transition-colors text-sm font-medium"
+                            aria-label="Close"
+                        >
+                            <FaTimes className="w-3.5 h-3.5" />
+                            <span className="hidden sm:inline">Close</span>
+                        </button>
                     </div>
-                    <button
-                        onClick={onClose}
-                        className="text-white/50 hover:text-white text-2xl leading-none shrink-0"
-                        aria-label="Close"
-                    >
-                        <FaTimes className="w-5 h-5" />
-                    </button>
+                </header>
+
+                {/* ==================== BODY ==================== */}
+                <div className="flex-1 overflow-y-auto hide-scrollbar">
+                    <div className="px-6 sm:px-8 py-6">
+                        {mode === 'view' && (
+                            <>
+                                {asset.description && (
+                                    <section>
+                                        <SectionHeading>Description</SectionHeading>
+                                        <p className="text-base text-white/80 leading-relaxed">
+                                            {asset.description}
+                                        </p>
+                                    </section>
+                                )}
+
+                                {asset.description && (
+                                    <div className="h-px bg-white/10 my-8" />
+                                )}
+
+                                <section>
+                                    <SectionHeading>Details</SectionHeading>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5">
+                                        <DetailItem
+                                            label="Category"
+                                            value={cat?.name ?? '—'}
+                                        />
+                                        <DetailItem
+                                            label="Ward"
+                                            value={ward?.name ?? '—'}
+                                        />
+                                        <DetailItem
+                                            label="Acquisition Date"
+                                            value={asset.acquisitionDate ?? '—'}
+                                        />
+                                        <DetailItem
+                                            label="Acquisition Cost"
+                                            value={formatNPR(asset.acquisitionCost)}
+                                        />
+                                        <DetailItem
+                                            label="Current Book Value"
+                                            value={formatNPR(asset.currentBookValue)}
+                                        />
+                                        <DetailItem
+                                            label="Depreciation Method"
+                                            value={depr?.label ?? asset.depreciationMethod}
+                                        />
+                                        <DetailItem
+                                            label="Useful Life"
+                                            value={
+                                                asset.usefulLifeYears
+                                                    ? `${asset.usefulLifeYears} years`
+                                                    : '—'
+                                            }
+                                        />
+                                        <DetailItem
+                                            label="Created By"
+                                            value={asset.createdBy ?? '—'}
+                                        />
+                                    </div>
+                                </section>
+
+                                <div className="h-px bg-white/10 my-8" />
+
+                                <section>
+                                    <SectionHeading>Lifecycle</SectionHeading>
+
+                                    {asset.lifecycle.length === 0 ? (
+                                        <p className="text-base text-white/30 italic">
+                                            No lifecycle events recorded yet.
+                                        </p>
+                                    ) : (
+                                        <div className="space-y-4">
+                                            {asset.lifecycle.map((h) => (
+                                                <div
+                                                    key={h.id}
+                                                    className="flex items-start gap-3"
+                                                >
+                                                    <div className="shrink-0 mt-0.5">
+                                                        <FaExclamationTriangle
+                                                            className={`w-3.5 h-3.5 ${lifecycleColor(h.type)}`}
+                                                        />
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="text-base text-white leading-snug">
+                                                            <span className="font-medium">
+                                                                {lifecycleLabel(h.type)}
+                                                            </span>
+                                                            {h.note && (
+                                                                <span className="text-white/60">
+                                                                    {' '}— {h.note}
+                                                                </span>
+                                                            )}
+                                                        </p>
+                                                        <p className="text-sm text-white/40 mt-0.5">
+                                                            {fmtDate(h.at)} · {h.by}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </section>
+                            </>
+                        )}
+
+                        {mode === 'edit' && (
+                            <EditMode
+                                form={editForm}
+                                onChange={onChange}
+                                onCancel={() => setMode('view')}
+                                onSave={handleSaveEdit}
+                                busy={busy}
+                            />
+                        )}
+
+                        {mode === 'reject' && (
+                            <RejectMode
+                                reason={rejectReason}
+                                setReason={setRejectReason}
+                                onCancel={() => {
+                                    setMode('view');
+                                    setRejectReason('');
+                                }}
+                                onConfirm={handleReject}
+                                busy={busy}
+                            />
+                        )}
+                    </div>
                 </div>
 
-                {/* Body */}
-                <div className="p-6 space-y-6">
-                    {mode === 'view' && (
-                        <>
-                            <ViewMode asset={asset} />
-                            <LifecycleTimeline history={asset.lifecycle} />
-                        </>
-                    )}
-
-                    {mode === 'edit' && (
-                        <EditMode
-                            form={editForm}
-                            onChange={onChange}
-                            onCancel={() => setMode('view')}
-                            onSave={handleSaveEdit}
-                            busy={busy}
-                        />
-                    )}
-
-                    {mode === 'reject' && (
-                        <RejectMode
-                            reason={rejectReason}
-                            setReason={setRejectReason}
-                            onCancel={() => {
-                                setMode('view');
-                                setRejectReason('');
-                            }}
-                            onConfirm={handleReject}
-                            busy={busy}
-                        />
-                    )}
-                </div>
-
-                {/* Sticky action footer */}
+                {/* ==================== FOOTER ==================== */}
                 {mode === 'view' && (
-                    <div className="sticky bottom-0 bg-[#1a1a1a] border-t border-white/10 px-6 py-4 flex flex-wrap justify-end gap-3">
+                    <div className="shrink-0 bg-[#161616] border-t border-white/10 px-6 sm:px-8 py-4 flex flex-wrap justify-end gap-3">
                         {canDelete && !isDeleted && (
                             <button
                                 onClick={handleDelete}
                                 disabled={busy}
-                                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-50"
+                                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-50"
                             >
                                 <FaTrash className="w-3.5 h-3.5" />
                                 Delete
@@ -269,7 +377,7 @@ const AssetDetailDrawer = ({ assetId, onClose }) => {
                         {canEdit && !isDeleted && !isPending && (
                             <button
                                 onClick={() => setMode('edit')}
-                                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg text-white/80 hover:bg-white/5 transition-colors"
+                                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white/80 hover:bg-white/5 transition-colors"
                             >
                                 <FaEdit className="w-3.5 h-3.5" />
                                 Edit
@@ -281,7 +389,7 @@ const AssetDetailDrawer = ({ assetId, onClose }) => {
                                 <button
                                     onClick={() => setMode('reject')}
                                     disabled={busy}
-                                    className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-50"
+                                    className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-50"
                                 >
                                     <FaTimes className="w-3.5 h-3.5" />
                                     Reject
@@ -289,7 +397,7 @@ const AssetDetailDrawer = ({ assetId, onClose }) => {
                                 <button
                                     onClick={handleApprove}
                                     disabled={busy}
-                                    className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-green-600 text-white hover:bg-green-700 transition-colors disabled:opacity-50"
+                                    className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-green-600 text-white hover:bg-green-700 transition-colors disabled:opacity-50"
                                 >
                                     <FaCheck className="w-3.5 h-3.5" />
                                     Approve
@@ -299,117 +407,40 @@ const AssetDetailDrawer = ({ assetId, onClose }) => {
                     </div>
                 )}
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
 
 /* ---------------- sub-components ---------------- */
 
-const ViewMode = ({ asset }) => {
-    const cat = MOCK_ASSET_CATEGORIES.find((c) => c.id === asset.categoryId);
-    const ward = MOCK_WARDS.find((w) => w.id === asset.wardId);
-    const depr = DEPRECIATION_METHODS.find(
-        (m) => m.code === asset.depreciationMethod
-    );
-
-    return (
-        <div className="space-y-6">
-            {/* Description */}
-            {asset.description && (
-                <div>
-                    <h3 className="text-xs font-semibold text-white/60 uppercase tracking-wider mb-2">
-                        Description
-                    </h3>
-                    <p className="text-sm text-white/80 leading-relaxed">
-                        {asset.description}
-                    </p>
-                </div>
-            )}
-
-            {/* Detail grid */}
-            <div>
-                <h3 className="text-xs font-semibold text-white/60 uppercase tracking-wider mb-3">
-                    Details
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
-                    <Row label="Category" value={cat?.name ?? '—'} />
-                    <Row label="Ward" value={ward?.name ?? '—'} />
-                    <Row
-                        label="Acquisition Date"
-                        value={asset.acquisitionDate ?? '—'}
-                    />
-                    <Row
-                        label="Acquisition Cost"
-                        value={formatNPR(asset.acquisitionCost)}
-                    />
-                    <Row
-                        label="Current Book Value"
-                        value={formatNPR(asset.currentBookValue)}
-                    />
-                    <Row
-                        label="Depreciation Method"
-                        value={depr?.label ?? asset.depreciationMethod}
-                    />
-                    <Row
-                        label="Useful Life"
-                        value={
-                            asset.usefulLifeYears
-                                ? `${asset.usefulLifeYears} years`
-                                : '—'
-                        }
-                    />
-                    <Row
-                        label="Created By"
-                        value={asset.createdBy ?? '—'}
-                    />
-                </div>
-            </div>
-        </div>
-    );
-};
-
-const Row = ({ label, value }) => (
-    <div>
-        <p className="text-xs text-white/50 mb-0.5">{label}</p>
-        <p className="text-sm text-white">{value}</p>
+const SectionHeading = ({ children }) => (
+    <div className="flex items-center gap-2.5 mb-4">
+        <span className="w-0.5 h-4 bg-[#173ef0]" />
+        <h3 className="text-xs font-semibold text-white/60 uppercase tracking-widest">
+            {children}
+        </h3>
     </div>
 );
 
-const LifecycleTimeline = ({ history }) => (
-    <div>
-        <h3 className="text-xs font-semibold text-white/60 uppercase tracking-wider mb-3">
-            Lifecycle
-        </h3>
-        <div className="space-y-3">
-            {history.map((h) => (
-                <div key={h.id} className="flex items-start gap-3">
-                    <div className="shrink-0 mt-0.5">
-                        <FaExclamationTriangle
-                            className={`w-3.5 h-3.5 ${lifecycleColor(h.type)}`}
-                        />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                        <p className="text-sm text-white">
-                            <span className="font-medium">
-                                {lifecycleLabel(h.type)}
-                            </span>
-                            {h.note && (
-                                <span className="text-white/60"> — {h.note}</span>
-                            )}
-                        </p>
-                        <p className="text-xs text-white/40 mt-0.5">
-                            {fmtDate(h.at)} · {h.by}
-                        </p>
-                    </div>
-                </div>
-            ))}
-        </div>
+const DetailItem = ({ label, value, mono = false }) => (
+    <div className="min-w-0">
+        <p className="text-xs uppercase tracking-widest text-white/40 mb-1.5 leading-none">
+            {label}
+        </p>
+        <p
+            className={`text-base text-white leading-snug break-all ${
+                mono ? 'font-mono text-sm' : 'font-medium'
+            }`}
+        >
+            {value}
+        </p>
     </div>
 );
 
 const EditMode = ({ form, onChange, onCancel, onSave, busy }) => (
-    <div className="space-y-4">
-        <h3 className="text-sm font-semibold text-white">Edit Asset</h3>
+    <div className="space-y-5">
+        <SectionHeading>Edit Asset</SectionHeading>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="sm:col-span-2">
@@ -447,14 +478,14 @@ const EditMode = ({ form, onChange, onCancel, onSave, busy }) => (
                 />
             </div>
             <div>
-                <label className="block text-xs font-medium text-white/60 mb-1.5 uppercase tracking-wider">
+                <label className="block text-xs font-medium text-white/60 mb-1.5 uppercase tracking-widest">
                     Category
                 </label>
                 <select
                     name="categoryId"
                     value={form.categoryId}
                     onChange={onChange}
-                    className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
+                    className="w-full px-3 py-2.5 bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
                 >
                     {MOCK_ASSET_CATEGORIES.map((c) => (
                         <option key={c.id} value={c.id} className="bg-[#242424]">
@@ -464,14 +495,14 @@ const EditMode = ({ form, onChange, onCancel, onSave, busy }) => (
                 </select>
             </div>
             <div>
-                <label className="block text-xs font-medium text-white/60 mb-1.5 uppercase tracking-wider">
+                <label className="block text-xs font-medium text-white/60 mb-1.5 uppercase tracking-widest">
                     Ward
                 </label>
                 <select
                     name="wardId"
                     value={form.wardId}
                     onChange={onChange}
-                    className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
+                    className="w-full px-3 py-2.5 bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
                 >
                     {MOCK_WARDS.map((w) => (
                         <option key={w.id} value={w.id} className="bg-[#242424]">
@@ -481,14 +512,14 @@ const EditMode = ({ form, onChange, onCancel, onSave, busy }) => (
                 </select>
             </div>
             <div>
-                <label className="block text-xs font-medium text-white/60 mb-1.5 uppercase tracking-wider">
+                <label className="block text-xs font-medium text-white/60 mb-1.5 uppercase tracking-widest">
                     Depreciation Method
                 </label>
                 <select
                     name="depreciationMethod"
                     value={form.depreciationMethod}
                     onChange={onChange}
-                    className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
+                    className="w-full px-3 py-2.5 bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
                 >
                     {DEPRECIATION_METHODS.map((m) => (
                         <option key={m.code} value={m.code} className="bg-[#242424]">
@@ -512,7 +543,7 @@ const EditMode = ({ form, onChange, onCancel, onSave, busy }) => (
             <button
                 type="button"
                 onClick={onCancel}
-                className="px-4 py-2 text-sm font-medium text-white/70 rounded-lg hover:bg-white/5 transition-colors"
+                className="px-5 py-2.5 text-base font-medium text-white/70 hover:bg-white/5 transition-colors"
             >
                 Cancel
             </button>
@@ -520,7 +551,7 @@ const EditMode = ({ form, onChange, onCancel, onSave, busy }) => (
                 type="button"
                 onClick={onSave}
                 disabled={busy}
-                className="px-4 py-2 text-sm font-medium bg-[#173ef0] text-white rounded-lg hover:bg-[#0020ad] disabled:opacity-50 transition-colors"
+                className="px-5 py-2.5 text-base font-medium bg-[#173ef0] text-white hover:bg-[#0020ad] disabled:opacity-50 transition-colors"
             >
                 {busy ? 'Saving…' : 'Save Changes'}
             </button>
@@ -529,23 +560,16 @@ const EditMode = ({ form, onChange, onCancel, onSave, busy }) => (
 );
 
 const RejectMode = ({ reason, setReason, onCancel, onConfirm, busy }) => (
-    <div className="space-y-4">
-        <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-full bg-red-500/15 flex items-center justify-center shrink-0">
-                <FaExclamationTriangle className="w-4 h-4 text-red-400" />
-            </div>
-            <div>
-                <h3 className="text-base font-semibold text-white">
-                    Reject this asset?
-                </h3>
-                <p className="text-sm text-white/60 mt-0.5">
-                    The asset will move to Cancelled status. The reason you give is recorded.
-                </p>
-            </div>
-        </div>
+    <div className="space-y-5">
+        <SectionHeading>Reject Asset</SectionHeading>
+
+        <p className="text-base text-white/60 leading-relaxed">
+            The asset will move to <span className="text-white/80">Cancelled</span> status.
+            The reason you give is recorded in the audit trail and shown on the asset's lifecycle.
+        </p>
 
         <div>
-            <label className="block text-xs font-medium text-white/60 mb-1.5 uppercase tracking-wider">
+            <label className="block text-xs font-medium text-white/60 mb-1.5 uppercase tracking-widest">
                 Reason for rejection
             </label>
             <textarea
@@ -553,7 +577,7 @@ const RejectMode = ({ reason, setReason, onCancel, onConfirm, busy }) => (
                 onChange={(e) => setReason(e.target.value)}
                 rows={4}
                 placeholder="e.g. Duplicate entry, verification failed, wrong category…"
-                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] resize-none"
+                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] resize-none"
             />
         </div>
 
@@ -561,7 +585,7 @@ const RejectMode = ({ reason, setReason, onCancel, onConfirm, busy }) => (
             <button
                 type="button"
                 onClick={onCancel}
-                className="px-4 py-2 text-sm font-medium text-white/70 rounded-lg hover:bg-white/5 transition-colors"
+                className="px-5 py-2.5 text-base font-medium text-white/70 hover:bg-white/5 transition-colors"
             >
                 Cancel
             </button>
@@ -569,7 +593,7 @@ const RejectMode = ({ reason, setReason, onCancel, onConfirm, busy }) => (
                 type="button"
                 onClick={onConfirm}
                 disabled={busy}
-                className="px-4 py-2 text-sm font-medium bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors"
+                className="px-5 py-2.5 text-base font-medium bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 transition-colors"
             >
                 {busy ? 'Rejecting…' : 'Confirm Rejection'}
             </button>
@@ -579,12 +603,12 @@ const RejectMode = ({ reason, setReason, onCancel, onConfirm, busy }) => (
 
 const Field = ({ label, ...props }) => (
     <div>
-        <label className="block text-xs font-medium text-white/60 mb-1.5 uppercase tracking-wider">
+        <label className="block text-xs font-medium text-white/60 mb-1.5 uppercase tracking-widest">
             {label}
         </label>
         <input
             {...props}
-            className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0]"
+            className="w-full px-3 py-2.5 bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0]"
         />
     </div>
 );

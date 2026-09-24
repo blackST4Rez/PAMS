@@ -147,7 +147,6 @@ const ApprovalsPage = () => {
                 />
             )}
 
-            <Footer />
         </div>
     );
 };

@@ -32,7 +32,6 @@ const AssetsValuationTable = ({
 
     const [page, setPage] = useState(1);
 
-    /* Set of asset ids that have been revalued at least once */
     const revaluedAssetIds = useMemo(() => {
         const set = new Set();
         for (const r of allRevaluations()) set.add(r.assetId);
@@ -54,7 +53,6 @@ const AssetsValuationTable = ({
         setPage(1);
     };
 
-    /* Pagination */
     const totalPages = Math.max(1, Math.ceil(assets.length / pageSize));
     const safePage = Math.min(page, totalPages);
     const paged = assets.slice(
@@ -84,7 +82,7 @@ const AssetsValuationTable = ({
                 >
                     <option value="" className="bg-[#1c1c1c]">All Categories</option>
                     {MOCK_ASSET_CATEGORIES.map((c) => (
-                        <option key={c.id} value={c.id} className="bg-[#1c1c1c11]">
+                        <option key={c.id} value={c.id} className="bg-[#1c1c1c]">
                             {c.name}
                         </option>
                     ))}
@@ -105,7 +103,7 @@ const AssetsValuationTable = ({
                 {hasAnyFilter && (
                     <button
                         onClick={clearAll}
-                        className="flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white/70 hover:text-white rounded-lg hover:bg-white/5 transition-colors whitespace-nowrap"
+                        className="flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white/70 hover:text-white hover:bg-white/5 transition-colors whitespace-nowrap"
                     >
                         <FaTimes className="w-3.5 h-3.5" />
                         Clear
@@ -119,8 +117,8 @@ const AssetsValuationTable = ({
                 </p>
             ) : (
                 <>
-                    {/* ---- Mobile cards ---- */}
-                    <div className="sm:hidden space-y-3">
+                    {/* ---- Mobile cards — unchanged ---- */}
+                    <div className="lg:hidden space-y-3">
                         {paged.map((a) => {
                             const cost = Number(a.acquisitionCost) || 0;
                             const book = Number(a.currentBookValue) || 0;
@@ -131,9 +129,8 @@ const AssetsValuationTable = ({
                             return (
                                 <div
                                     key={a.id}
-                                    className="bg-[#1a1a1a] border border-white/10 rounded-xl p-4 space-y-3"
+                                    className="bg-[#1a1a1a] border border-white/10 p-4 space-y-3"
                                 >
-                                    {/* Top — code + method */}
                                     <div className="flex items-start justify-between gap-3">
                                         <p className="text-[10px] uppercase tracking-wider text-white/50 truncate">
                                             {a.assetCode}
@@ -145,59 +142,61 @@ const AssetsValuationTable = ({
                                         )}
                                     </div>
 
-                                    {/* Title */}
                                     <p className="text-sm font-semibold text-white leading-snug">
                                         {a.title}
                                     </p>
 
-                                    {/* Fields */}
                                     <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-                                        <div>
-                                            <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Category</p>
+                                        <div className="text-left">
+                                            <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">
+                                                Category
+                                            </p>
                                             <p className="text-xs text-white/80 truncate">
                                                 {a.categoryName}
                                             </p>
                                         </div>
-                                        <div>
-                                            <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Method</p>
+                                        <div className="text-right">
+                                            <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">
+                                                Method
+                                            </p>
                                             <p className="text-xs text-white/80 truncate">
                                                 {methodLabel(a.depreciationMethod)}
                                             </p>
                                         </div>
-                                        <div>
-                                            <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Cost</p>
+                                        <div className="text-left">
+                                            <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">
+                                                Cost
+                                            </p>
                                             <p className="text-xs text-white/80">
                                                 {formatNprShort(cost)}
                                             </p>
                                         </div>
-                                        <div>
-                                            <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Book Value</p>
+                                        <div className="text-right">
+                                            <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">
+                                                Book Value
+                                            </p>
                                             <p className="text-xs font-medium text-white">
                                                 {formatNprShort(book)}
                                             </p>
                                         </div>
-                                        {isDepreciable && deprecated > 0 && (
-                                            <div className="col-span-2">
-                                                <p className="text-xs text-red-300">
-                                                    −{formatNprShort(deprecated)} depreciated
-                                                </p>
-                                            </div>
-                                        )}
-                                        {!isDepreciable && (
-                                            <div className="col-span-2">
-                                                <p className="text-xs text-white/40">
-                                                    Non-depreciable
-                                                </p>
-                                            </div>
-                                        )}
                                     </div>
 
-                                    {/* Action */}
+                                    {isDepreciable && deprecated > 0 && (
+                                        <p className="text-xs text-red-300">
+                                            −{formatNprShort(deprecated)} depreciated
+                                        </p>
+                                    )}
+                                    {!isDepreciable && (
+                                        <p className="text-xs text-white/40">
+                                            Non-depreciable
+                                        </p>
+                                    )}
+
                                     {canRevalue && (
                                         <div className="pt-3 border-t border-white/5 flex justify-end">
                                             <button
                                                 onClick={() => onRevalue(a.id)}
-                                                className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-lg text-white/80 bg-white/5 hover:bg-white/10 transition-colors"
+                                                className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-2 text-white/80 bg-white/5 hover:bg-white/10 transition-colors"
                                             >
                                                 <FaEdit className="w-3 h-3" />
                                                 Revalue
@@ -209,18 +208,30 @@ const AssetsValuationTable = ({
                         })}
                     </div>
 
-                    {/* ---- Desktop table ---- */}
-                    <div className="hidden sm:block overflow-x-auto">
+                    {/* ---- Desktop table — smaller font so headers + data fit ---- */}
+                    <div className="hidden lg:block overflow-x-auto">
                         <table className="w-full border-collapse">
                             <thead>
                                 <tr>
-                                    <th className="text-left text-xs font-semibold text-white/60 uppercase tracking-wider pb-3 px-4">Asset</th>
-                                    <th className="text-left text-xs font-semibold text-white/60 uppercase tracking-wider pb-3 px-4">Category</th>
-                                    <th className="text-right text-xs font-semibold text-white/60 uppercase tracking-wider pb-3 px-4">Acquisition Cost</th>
-                                    <th className="text-left text-xs font-semibold text-white/60 uppercase tracking-wider pb-3 px-4">Method</th>
-                                    <th className="text-right text-xs font-semibold text-white/60 uppercase tracking-wider pb-3 px-4">Current Book Value</th>
+                                    <th className="text-left text-[10px] font-semibold text-white/60 uppercase tracking-wider pb-3 pl-0 pr-3 whitespace-nowrap">
+                                        Asset
+                                    </th>
+                                    <th className="text-left text-[10px] font-semibold text-white/60 uppercase tracking-wider pb-3 pl-3 pr-3 whitespace-nowrap">
+                                        Category
+                                    </th>
+                                    <th className="text-left text-[10px] font-semibold text-white/60 uppercase tracking-wider pb-3 pl-3 pr-3 whitespace-nowrap">
+                                        Acquisition Cost
+                                    </th>
+                                    <th className="text-left text-[10px] font-semibold text-white/60 uppercase tracking-wider pb-3 pl-3 pr-3 whitespace-nowrap">
+                                        Method
+                                    </th>
+                                    <th className="text-left text-[10px] font-semibold text-white/60 uppercase tracking-wider pb-3 pl-3 pr-3 whitespace-nowrap">
+                                        Current Book Value
+                                    </th>
                                     {canRevalue && (
-                                        <th className="text-right text-xs font-semibold text-white/60 uppercase tracking-wider pb-3 px-4">Actions</th>
+                                        <th className="text-left text-[10px] font-semibold text-white/60 uppercase tracking-wider pb-3 pl-3 pr-0 whitespace-nowrap">
+                                            Actions
+                                        </th>
                                     )}
                                 </tr>
                             </thead>
@@ -233,63 +244,69 @@ const AssetsValuationTable = ({
                                     const isDepreciable = a.depreciationMethod !== 'NONE';
 
                                     return (
-                                        <tr key={a.id} className="border-b border-b-[#3a3a3a]">
-                                            <td className="py-3 px-4">
-                                                <p className="text-sm font-medium text-white truncate max-w-xs">
+                                        <tr key={a.id} className="border-b border-b-[#3a3a3a] align-top">
+                                            <td className="py-3 pl-0 pr-3 overflow-hidden">
+                                                <p className="text-xs font-medium text-white leading-snug">
                                                     {a.title}
                                                 </p>
-                                                <p className="text-xs text-white/40 mt-0.5">
-                                                    {a.assetCode}
+                                                <p className="text-[10px] text-white/40 mt-0.5 flex items-center gap-2">
+                                                    <span className="truncate">{a.assetCode}</span>
                                                     {wasRevalued && (
-                                                        <span className="ml-2 text-[10px] font-medium text-[#7c8cff] uppercase tracking-wider">
+                                                        <span className="text-[10px] font-medium text-[#7c8cff] uppercase tracking-wider shrink-0">
                                                             Revalued
                                                         </span>
                                                     )}
                                                 </p>
                                             </td>
 
-                                            <td className="py-3 px-4">
-                                                <p className="text-sm text-white/80">{a.categoryName}</p>
+                                            <td className="py-3 pl-3 pr-3 overflow-hidden">
+                                                <p className="text-xs text-white/80 leading-snug">
+                                                    {a.categoryName}
+                                                </p>
                                             </td>
 
-                                            <td className="py-3 px-4 text-right">
-                                                <p className="text-sm text-white/80">{formatNprShort(cost)}</p>
+                                            <td className="py-3 pl-3 pr-3 overflow-hidden">
+                                                <p className="text-xs text-white/80 whitespace-nowrap">
+                                                    {formatNprShort(cost)}
+                                                </p>
                                             </td>
 
-                                            <td className="py-3 px-4">
-                                                <p className="text-sm text-white/80">{methodLabel(a.depreciationMethod)}</p>
+                                            <td className="py-3 pl-3 pr-3 overflow-hidden">
+                                                <p className="text-xs text-white/80 leading-snug whitespace-nowrap">
+                                                    {methodLabel(a.depreciationMethod)}
+                                                </p>
                                                 {isDepreciable && a.usefulLifeYears && (
-                                                    <p className="text-xs text-white/40 mt-0.5">
+                                                    <p className="text-[10px] text-white/40 mt-0.5 whitespace-nowrap">
                                                         {a.usefulLifeYears} yr life
                                                     </p>
                                                 )}
                                             </td>
 
-                                            <td className="py-3 px-4 text-right">
-                                                <p className="text-sm font-medium text-white">{formatNprShort(book)}</p>
+                                            <td className="py-3 pl-3 pr-3 overflow-hidden">
+                                                <p className="text-xs font-medium text-white whitespace-nowrap">
+                                                    {formatNprShort(book)}
+                                                </p>
                                                 {isDepreciable && deprecated > 0 && (
-                                                    <p className="text-xs text-red-300 mt-0.5">
+                                                    <p className="text-[10px] text-red-300 mt-0.5 whitespace-nowrap">
                                                         −{formatNprShort(deprecated)} depreciated
                                                     </p>
                                                 )}
                                                 {!isDepreciable && (
-                                                    <p className="text-xs text-white/40 mt-0.5">
+                                                    <p className="text-[10px] text-white/40 mt-0.5 whitespace-nowrap">
                                                         Non-depreciable
                                                     </p>
                                                 )}
                                             </td>
 
                                             {canRevalue && (
-                                                <td className="py-3 px-4">
-                                                    <div className="flex items-center justify-end gap-1 whitespace-nowrap">
-                                                        <button
-                                                            onClick={() => onRevalue(a.id)}
-                                                            className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 text-white/70 hover:text-white hover:bg-white/5 transition-colors"
-                                                        >
-                                                            <FaEdit className="w-3 h-3" />
-                                                            Revalue
-                                                        </button>
-                                                    </div>
+                                                <td className="py-3 pl-3 pr-0 overflow-hidden">
+                                                    <button
+                                                        onClick={() => onRevalue(a.id)}
+                                                        className="inline-flex items-center gap-1 text-xs font-medium px-2 py-1.5 text-white/70 hover:text-white hover:bg-white/5 transition-colors whitespace-nowrap"
+                                                    >
+                                                        <FaEdit className="w-3 h-3" />
+                                                        Revalue
+                                                    </button>
                                                 </td>
                                             )}
                                         </tr>

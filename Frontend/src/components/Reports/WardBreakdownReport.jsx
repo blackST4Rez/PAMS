@@ -6,12 +6,12 @@ import { formatNprShort } from '../mock/mockValuation';
 import { MOCK_WARDS } from '../mock/mockAssets';
 
 const COLUMNS = [
-    { key: 'wardName', label: 'Ward', align: 'left' },
-    { key: 'count', label: 'Assets', align: 'right' },
-    { key: 'costFormatted', label: 'Total Acquisition Cost', align: 'right' },
-    { key: 'bookFormatted', label: 'Current Book Value', align: 'right' },
-    { key: 'depreciationFormatted', label: 'Depreciation', align: 'right' },
-    { key: 'percentOfTotal', label: '% of Total Assets', align: 'right' },
+    { key: 'wardName', label: 'Ward' },
+    { key: 'count', label: 'Assets' },
+    { key: 'costFormatted', label: 'Total Acquisition Cost' },
+    { key: 'bookFormatted', label: 'Current Book Value' },
+    { key: 'depreciationFormatted', label: 'Depreciation' },
+    { key: 'percentOfTotal', label: '% of Total Assets' },
 ];
 
 const CSV_COLUMNS = [
@@ -133,7 +133,6 @@ const WardBreakdownReport = () => {
 
     return (
         <div>
-            {/* Header + export */}
             <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
                 <div>
                     <h2 className="text-lg font-semibold text-white">
@@ -150,7 +149,7 @@ const WardBreakdownReport = () => {
                 />
             </div>
 
-            {/* ---- Mobile cards (paginated) ---- */}
+            {/* ---- Mobile cards ---- */}
             <div className="sm:hidden space-y-3">
                 {paged.map((r) => (
                     <div
@@ -188,7 +187,7 @@ const WardBreakdownReport = () => {
                 ))}
             </div>
 
-            {/* ---- Desktop table (paginated) ---- */}
+            {/* ---- Desktop table — all left-aligned ---- */}
             <div className="hidden sm:block overflow-x-auto">
                 <table className="w-full border-collapse">
                     <thead>
@@ -196,7 +195,7 @@ const WardBreakdownReport = () => {
                             {COLUMNS.map((c) => (
                                 <th
                                     key={c.key}
-                                    className={`text-${c.align} text-xs font-semibold text-white/60 uppercase tracking-wider pb-3 px-4`}
+                                    className="text-left text-xs font-semibold text-white/60 uppercase tracking-wider pb-3 px-4"
                                 >
                                     {c.label}
                                 </th>
@@ -209,19 +208,19 @@ const WardBreakdownReport = () => {
                                 <td className="py-3 px-4 text-sm text-white font-medium">
                                     {r.wardName}
                                 </td>
-                                <td className="py-3 px-4 text-sm text-white text-right">
+                                <td className="py-3 px-4 text-sm text-white">
                                     {r.count}
                                 </td>
-                                <td className="py-3 px-4 text-sm text-white/80 text-right">
+                                <td className="py-3 px-4 text-sm text-white/80">
                                     {r.costFormatted}
                                 </td>
-                                <td className="py-3 px-4 text-sm text-white text-right">
+                                <td className="py-3 px-4 text-sm text-white">
                                     {r.bookFormatted}
                                 </td>
-                                <td className="py-3 px-4 text-sm text-red-300 text-right">
+                                <td className="py-3 px-4 text-sm text-red-300">
                                     {r.depreciationFormatted}
                                 </td>
-                                <td className="py-3 px-4 text-sm text-emerald-400 font-medium text-right">
+                                <td className="py-3 px-4 text-sm text-emerald-400 font-medium">
                                     {r.percentOfTotal}%
                                 </td>
                             </tr>
@@ -230,12 +229,8 @@ const WardBreakdownReport = () => {
                 </table>
             </div>
 
-            {/*
-              Totals — outside the paginated slice, always visible.
-              Tinted background, blue left accent.
-            */}
+            {/* Totals — unchanged */}
             <div className="mt-4 bg-white/3 border-l-2 border-l-[#173ef0]">
-                {/* Mobile totals */}
                 <div className="sm:hidden p-4 space-y-3">
                     <div className="flex items-start justify-between gap-3">
                         <div>
@@ -271,7 +266,6 @@ const WardBreakdownReport = () => {
                     </div>
                 </div>
 
-                {/* Desktop totals */}
                 <div className="hidden sm:flex items-center px-4 py-4 gap-4">
                     <div className="shrink-0">
                         <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">

@@ -18,7 +18,10 @@ export const currentFY = () => {
     return `FY ${fyStart}/${(fyStart + 1).toString().slice(-2)}`;
 };
 
-/** Relative time helper: "2 min ago", "1 hour ago", "3 days ago". */
+/**
+ * Relative time helper.
+ *   timeAgo('2026-01-01T10:00:00Z') → "2 min ago" | "1 hour ago" | "3 days ago"
+ */
 export const timeAgo = (dateStr) => {
     const then = new Date(dateStr).getTime();
     const diff = Math.floor((Date.now() - then) / 1000);

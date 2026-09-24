@@ -208,7 +208,6 @@ const AssetRegisterReport = () => {
                                     key={r.id}
                                     className="bg-[#1a1a1a] border border-white/10 p-4 space-y-3"
                                 >
-                                    {/* Top — code + status */}
                                     <div className="flex items-start justify-between gap-3">
                                         <p className="text-[10px] uppercase tracking-wider text-white/50 truncate">
                                             {r.assetCode}
@@ -218,12 +217,10 @@ const AssetRegisterReport = () => {
                                         </span>
                                     </div>
 
-                                    {/* Title */}
                                     <p className="text-sm font-semibold text-white leading-snug">
                                         {r.title}
                                     </p>
 
-                                    {/* Fields */}
                                     <div className="grid grid-cols-2 gap-x-4 gap-y-3">
                                         <div className="text-left">
                                             <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">
@@ -271,17 +268,15 @@ const AssetRegisterReport = () => {
                         })}
                     </div>
 
-                    {/* ---- Desktop table ---- */}
+                    {/* ---- Desktop table — smaller font so headers + data fit ---- */}
                     <div className="hidden sm:block overflow-x-auto">
                         <table className="w-full border-collapse">
                             <thead>
                                 <tr>
-                                    {COLUMNS.map((c, i) => (
+                                    {COLUMNS.map((c) => (
                                         <th
                                             key={c.key}
-                                            className={`text-xs font-semibold text-white/60 uppercase tracking-wider pb-3 px-4 ${
-                                                i >= 4 && i <= 5 ? 'text-right' : 'text-left'
-                                            }`}
+                                            className="text-left text-[10px] font-semibold text-white/60 uppercase tracking-wider pb-3 px-3 whitespace-nowrap"
                                         >
                                             {c.label}
                                         </th>
@@ -291,30 +286,30 @@ const AssetRegisterReport = () => {
                             <tbody>
                                 {paged.map((r) => (
                                     <tr key={r.id} className="border-b border-b-[#3a3a3a]">
-                                        <td className="py-3 px-4 text-sm text-white">
+                                        <td className="py-3 px-3 text-xs text-white whitespace-nowrap">
                                             {r.assetCode}
                                         </td>
-                                        <td className="py-3 px-4 text-sm text-white truncate max-w-xs">
+                                        <td className="py-3 px-3 text-xs text-white max-w-xs">
                                             {r.title}
                                         </td>
-                                        <td className="py-3 px-4 text-sm text-white/80">
+                                        <td className="py-3 px-3 text-xs text-white/80 truncate max-w-xs">
                                             {r.categoryName}
                                         </td>
-                                        <td className="py-3 px-4 text-sm text-white/80">
+                                        <td className="py-3 px-3 text-xs text-white/80 whitespace-nowrap">
                                             {r.wardName}
                                         </td>
-                                        <td className="py-3 px-4 text-sm text-white/80 text-right">
+                                        <td className="py-3 px-3 text-xs text-white/80 whitespace-nowrap">
                                             {r.acquisitionCostFormatted}
                                         </td>
-                                        <td className="py-3 px-4 text-sm text-white text-right">
+                                        <td className="py-3 px-3 text-xs text-white whitespace-nowrap">
                                             {r.currentBookValueFormatted}
                                         </td>
-                                        <td className="py-3 px-4 text-sm text-white/80">
+                                        <td className="py-3 px-3 text-xs text-white/80 whitespace-nowrap">
                                             {r.depreciationMethod}
                                         </td>
-                                        <td className="py-3 px-4">
+                                        <td className="py-3 px-3">
                                             <span
-                                                className={`text-sm font-medium ${
+                                                className={`text-xs font-medium whitespace-nowrap ${
                                                     STATUS_TEXT[r.status] ?? 'text-white/80'
                                                 }`}
                                             >

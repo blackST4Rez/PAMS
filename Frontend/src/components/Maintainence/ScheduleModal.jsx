@@ -1,5 +1,7 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import toast from 'react-hot-toast';
+import { FaTimes, FaCheck } from 'react-icons/fa';
 import { useAuth } from '../Context/AuthContext';
 import { useAssets } from '../Context/AssetsContext';
 import { useMaintenance } from '../Context/MaintenanceContext';
@@ -80,154 +82,204 @@ const ScheduleModal = ({ scheduleId, onClose, onSaved }) => {
         }
     };
 
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
-            <div className="bg-[#242424] rounded-xl border border-white/10 w-full max-w-2xl max-h-[90vh] overflow-y-auto hide-scrollbar">
-                {/* Header */}
-                <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between">
-                    <h2 className="text-lg font-semibold text-white">
-                        {isEdit ? 'Edit Schedule' : 'New Maintenance Schedule'}
-                    </h2>
-                    <button
-                        onClick={onClose}
-                        className="text-white/50 hover:text-white text-2xl leading-none"
-                        aria-label="Close"
-                    >
-                        ×
-                    </button>
-                </div>
-
-                {/* Form */}
-                <form onSubmit={onSubmit} className="p-6 space-y-4">
-                    {/* Asset */}
-                    <div>
-                        <label className="block text-xs font-medium text-white/60 mb-1.5 uppercase tracking-wider">
-                            Asset
-                        </label>
-                        <select
-                            name="assetId"
-                            value={form.assetId}
-                            onChange={onChange}
-                            disabled={isEdit}
-                            className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer disabled:opacity-60"
-                        >
-                            <option value="" className="bg-[#242424]">
-                                — Select an asset —
-                            </option>
-                            {allAssets().map((a) => (
-                                <option key={a.id} value={a.id} className="bg-[#242424]">
-                                    {a.assetCode} — {a.title}
-                                </option>
-                            ))}
-                        </select>
-                        {isEdit && (
-                            <p className="text-xs text-white/40 mt-1">
-                                The asset cannot be changed after a schedule is created.
+    return createPortal(
+        <div
+            className="fixed inset-0 z-9999 flex justify-end bg-black/80 backdrop-blur-sm"
+            onClick={onClose}
+        >
+            <div
+                className="bg-[#161616] border-l border-white/10 w-full sm:max-w-2xl h-full flex flex-col shadow-2xl"
+                onClick={(e) => e.stopPropagation()}
+            >
+                {/* ==================== HEADER ==================== */}
+                <header className="shrink-0 border-b border-white/10">
+                    <div className="px-6 sm:px-8 py-5 flex items-start justify-between gap-6">
+                        <div className="min-w-0 flex-1 space-y-3">
+                            <p className="text-xs font-mono text-white/40 uppercase tracking-widest leading-none">
+                                {isEdit ? 'Edit Schedule' : 'New Schedule'}
                             </p>
-                        )}
-                    </div>
 
-                    {/* Title */}
-                    <Field
-                        label="Title"
-                        name="title"
-                        value={form.title}
-                        onChange={onChange}
-                        placeholder="e.g. Annual engine service"
-                        required
-                    />
-
-                    {/* Description */}
-                    <div>
-                        <label className="block text-xs font-medium text-white/60 mb-1.5 uppercase tracking-wider">
-                            Description
-                        </label>
-                        <textarea
-                            name="description"
-                            value={form.description}
-                            onChange={onChange}
-                            rows={3}
-                            placeholder="What this maintenance covers…"
-                            className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] resize-none"
-                        />
-                    </div>
-
-                    {/* Frequency */}
-                    <div>
-                        <label className="block text-xs font-medium text-white/60 mb-1.5 uppercase tracking-wider">
-                            Frequency (days)
-                        </label>
-                        <div className="flex flex-wrap gap-2 mb-3">
-                            {FREQUENCY_PRESETS.map((p) => (
-                                <button
-                                    key={p.days}
-                                    type="button"
-                                    onClick={() => setFrequency(p.days)}
-                                    className={`px-3 py-1.5 text-xs font-medium transition-colors ${
-                                        Number(form.frequencyDays) === p.days
-                                            ? 'text-[#7c8cff]'
-                                            : 'text-white/60 hover:text-white'
-                                    }`}
-                                >
-                                    {p.label} ({p.days})
-                                </button>
-                            ))}
+                            <h2 className="text-2xl sm:text-3xl font-semibold text-white leading-snug tracking-tight wrap-break-words">
+                                {isEdit
+                                    ? (existing?.title ?? 'Maintenance Schedule')
+                                    : 'Create Maintenance Schedule'}
+                            </h2>
                         </div>
-                        <input
-                            type="number"
-                            name="frequencyDays"
-                            value={form.frequencyDays}
-                            onChange={onChange}
-                            min={1}
-                            className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0]"
-                        />
+
+                        <button
+                            onClick={onClose}
+                            className="shrink-0 inline-flex items-center gap-1.5 h-8 px-3 text-red-400 bg-[#161616] border border-[#161616] hover:border-red-400 transition-colors text-sm font-medium"
+                            aria-label="Close"
+                        >
+                            <FaTimes className="w-3.5 h-3.5" />
+                            <span className="hidden sm:inline">Close</span>
+                        </button>
+                    </div>
+                </header>
+
+                {/* ==================== BODY ==================== */}
+                <form
+                    onSubmit={onSubmit}
+                    className="flex-1 min-h-0 flex flex-col"
+                >
+                    <div className="flex-1 overflow-y-auto hide-scrollbar">
+                        <div className="px-6 sm:px-8 py-6">
+                            {/* Asset */}
+                            <section>
+                                <SectionHeading>Asset</SectionHeading>
+
+                                <select
+                                    name="assetId"
+                                    value={form.assetId}
+                                    onChange={onChange}
+                                    disabled={isEdit}
+                                    className="w-full px-3 py-2.5 bg-white/5 border border-white/10 text-white text-base focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer disabled:opacity-60"
+                                >
+                                    <option value="" className="bg-[#242424]">
+                                        — Select an asset —
+                                    </option>
+                                    {allAssets().map((a) => (
+                                        <option key={a.id} value={a.id} className="bg-[#242424]">
+                                            {a.assetCode} — {a.title}
+                                        </option>
+                                    ))}
+                                </select>
+
+                                {isEdit && (
+                                    <p className="text-sm text-white/50 mt-2">
+                                        The asset cannot be changed after a schedule is created.
+                                    </p>
+                                )}
+                            </section>
+
+                            <div className="h-px bg-white/10 my-8" />
+
+                            {/* Details */}
+                            <section>
+                                <SectionHeading>Schedule Details</SectionHeading>
+
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="block text-xs uppercase tracking-widest text-white/40 mb-1.5">
+                                            Title
+                                        </label>
+                                        <input
+                                            type="text"
+                                            name="title"
+                                            value={form.title}
+                                            onChange={onChange}
+                                            placeholder="e.g. Annual engine service"
+                                            required
+                                            className="w-full px-3 py-2.5 bg-white/5 border border-white/10 text-white placeholder-white/40 text-base focus:outline-none focus:ring-2 focus:ring-[#173ef0]"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-xs uppercase tracking-widest text-white/40 mb-1.5">
+                                            Description
+                                        </label>
+                                        <textarea
+                                            name="description"
+                                            value={form.description}
+                                            onChange={onChange}
+                                            rows={3}
+                                            placeholder="What this maintenance covers…"
+                                            className="w-full px-3 py-2.5 bg-white/5 border border-white/10 text-white placeholder-white/40 text-base focus:outline-none focus:ring-2 focus:ring-[#173ef0] resize-none"
+                                        />
+                                    </div>
+                                </div>
+                            </section>
+
+                            <div className="h-px bg-white/10 my-8" />
+
+                            {/* Frequency */}
+                            <section>
+                                <SectionHeading>Frequency</SectionHeading>
+
+                                <div className="flex flex-wrap gap-2 mb-3">
+                                    {FREQUENCY_PRESETS.map((p) => (
+                                        <button
+                                            key={p.days}
+                                            type="button"
+                                            onClick={() => setFrequency(p.days)}
+                                            className={`px-3 py-1.5 text-sm font-medium transition-colors ${
+                                                Number(form.frequencyDays) === p.days
+                                                    ? 'text-[#7c8cff]'
+                                                    : 'text-white/60 hover:text-white'
+                                            }`}
+                                        >
+                                            {p.label} ({p.days})
+                                        </button>
+                                    ))}
+                                </div>
+
+                                <label className="block text-xs uppercase tracking-widest text-white/40 mb-1.5">
+                                    Days between maintenance
+                                </label>
+                                <input
+                                    type="number"
+                                    name="frequencyDays"
+                                    value={form.frequencyDays}
+                                    onChange={onChange}
+                                    min={1}
+                                    className="w-full px-3 py-2.5 bg-white/5 border border-white/10 text-white text-base focus:outline-none focus:ring-2 focus:ring-[#173ef0]"
+                                />
+                            </section>
+
+                            <div className="h-px bg-white/10 my-8" />
+
+                            {/* Last done */}
+                            <section>
+                                <SectionHeading>Last Completed</SectionHeading>
+
+                                <input
+                                    type="date"
+                                    name="lastDoneAt"
+                                    value={form.lastDoneAt}
+                                    onChange={onChange}
+                                    className="w-full px-3 py-2.5 bg-white/5 border border-white/10 text-white text-base focus:outline-none focus:ring-2 focus:ring-[#173ef0]"
+                                />
+                                <p className="text-sm text-white/50 mt-2">
+                                    Leave blank if this has never been done. The next due date
+                                    will be calculated from today.
+                                </p>
+                            </section>
+                        </div>
                     </div>
 
-                    {/* Last done at */}
-                    <Field
-                        label="Last Completed (optional)"
-                        name="lastDoneAt"
-                        type="date"
-                        value={form.lastDoneAt}
-                        onChange={onChange}
-                    />
-                    <p className="text-xs text-white/40 -mt-2">
-                        Leave blank if this has never been done. The next due date will
-                        be calculated from today.
-                    </p>
-
-                    {/* Actions */}
-                    <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
+                    {/* ==================== FOOTER ==================== */}
+                    <div className="shrink-0 bg-[#161616] border-t border-white/10 px-6 sm:px-8 py-4 flex flex-wrap justify-end gap-3">
                         <button
                             type="button"
                             onClick={onClose}
-                            className="px-5 py-2.5 text-white/70 font-medium rounded-lg hover:bg-white/5 transition-colors"
+                            className="px-5 py-2.5 text-base font-medium text-white/70 hover:bg-white/5 transition-colors"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             disabled={busy}
-                            className="px-5 py-2.5 bg-[#173ef0] text-white font-medium rounded-lg hover:bg-[#0020ad] disabled:opacity-50 transition-colors"
+                            className="inline-flex items-center gap-2 px-5 py-2.5 text-base font-medium bg-[#173ef0] text-white hover:bg-[#0020ad] disabled:opacity-50 transition-colors"
                         >
+                            <FaCheck className="w-4 h-4" />
                             {busy ? 'Saving…' : isEdit ? 'Save Changes' : 'Create Schedule'}
                         </button>
                     </div>
                 </form>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
 
-const Field = ({ label, ...props }) => (
-    <div>
-        <label className="block text-xs font-medium text-white/60 mb-1.5 uppercase tracking-wider">
-            {label}
-        </label>
-        <input
-            {...props}
-            className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0]"
-        />
+/* ---------------- sub-components ---------------- */
+
+const SectionHeading = ({ children }) => (
+    <div className="flex items-center gap-2.5 mb-4">
+        <span className="w-0.5 h-4 bg-[#173ef0]" />
+        <h3 className="text-xs font-semibold text-white/60 uppercase tracking-widest">
+            {children}
+        </h3>
     </div>
 );
 

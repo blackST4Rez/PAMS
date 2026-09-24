@@ -24,7 +24,6 @@ const AssetsTable = ({ assets, onRowClick }) => {
 
     const [page, setPage] = useState(1);
 
-    /* Pagination over the assets passed in (already filtered by AssetFilters) */
     const totalPages = Math.max(1, Math.ceil(assets.length / pageSize));
     const safePage = Math.min(page, totalPages);
     const paged = useMemo(
@@ -86,7 +85,7 @@ const AssetsTable = ({ assets, onRowClick }) => {
                                         {a.categoryName}
                                     </p>
                                 </div>
-                                <div>
+                                <div className="text-right">
                                     <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">
                                         Ward
                                     </p>
@@ -127,27 +126,13 @@ const AssetsTable = ({ assets, onRowClick }) => {
                 <table className="w-full border-collapse">
                     <thead>
                         <tr>
-                            <th className="text-left text-xs font-semibold text-white/60 uppercase tracking-wider pb-3 px-4">
-                                Code
-                            </th>
-                            <th className="text-left text-xs font-semibold text-white/60 uppercase tracking-wider pb-3 px-4">
-                                Title
-                            </th>
-                            <th className="text-left text-xs font-semibold text-white/60 uppercase tracking-wider pb-3 px-4">
-                                Category
-                            </th>
-                            <th className="text-left text-xs font-semibold text-white/60 uppercase tracking-wider pb-3 px-4">
-                                Ward
-                            </th>
-                            <th className="text-right text-xs font-semibold text-white/60 uppercase tracking-wider pb-3 px-4">
-                                Cost
-                            </th>
-                            <th className="text-left text-xs font-semibold text-white/60 uppercase tracking-wider pb-3 px-4">
-                                Status
-                            </th>
-                            <th className="text-right text-xs font-semibold text-white/60 uppercase tracking-wider pb-3 px-4">
-                                Actions
-                            </th>
+                            <th className="text-left text-xs font-semibold text-white/60 uppercase tracking-wider pb-3 px-4">Code</th>
+                            <th className="text-left text-xs font-semibold text-white/60 uppercase tracking-wider pb-3 px-4">Title</th>
+                            <th className="text-left text-xs font-semibold text-white/60 uppercase tracking-wider pb-3 px-4">Category</th>
+                            <th className="text-left text-xs font-semibold text-white/60 uppercase tracking-wider pb-3 px-4">Ward</th>
+                            <th className="text-right text-xs font-semibold text-white/60 uppercase tracking-wider pb-3 px-4">Cost</th>
+                            <th className="text-left text-xs font-semibold text-white/60 uppercase tracking-wider pb-3 px-4">Status</th>
+                            <th className="text-right text-xs font-semibold text-white/60 uppercase tracking-wider pb-3 px-4">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -183,7 +168,7 @@ const AssetsTable = ({ assets, onRowClick }) => {
                                 >
                                     <button
                                         onClick={() => onRowClick(a.id)}
-                                        className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-md text-white/70 hover:text-white hover:bg-white/5 transition-colors"
+                                        className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 text-white/70 hover:text-white hover:bg-white/5 transition-colors"
                                     >
                                         <FaEye className="w-3 h-3" />
                                         View
@@ -191,7 +176,7 @@ const AssetsTable = ({ assets, onRowClick }) => {
                                     {canApprove && a.status === 'AWAITING_REVIEW' && (
                                         <button
                                             onClick={() => onRowClick(a.id)}
-                                            className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 ml-2 rounded-md text-green-400 hover:bg-green-500/10 transition-colors"
+                                            className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 ml-2 text-green-400 hover:bg-green-500/10 transition-colors"
                                         >
                                             <FaCheck className="w-3 h-3" />
                                             Review

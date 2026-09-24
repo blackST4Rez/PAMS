@@ -84,7 +84,6 @@ const UsersPage = () => {
                 <RegisterUserModal onClose={() => setShowRegister(false)} />
             )}
 
-            <Footer />
         </div>
     );
 };

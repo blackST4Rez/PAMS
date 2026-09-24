@@ -2,7 +2,6 @@ import { FaExclamationTriangle, FaClock, FaCheck } from 'react-icons/fa';
 import { daysUntil } from '../mock/mockMaintenance';
 import { useAssets } from '../Context/AssetsContext';
 
-/* Human label for "how far past/future the due date is" */
 const dueLabel = (days) => {
     if (days < 0) {
         const n = Math.abs(days);
@@ -16,10 +15,8 @@ const dueLabel = (days) => {
 const DueSoonPanel = ({ schedules, canLog, onLog }) => {
     const { getAsset } = useAssets();
 
-    /* Auto-hide when nothing is due */
     if (!schedules || schedules.length === 0) return null;
 
-    /* Split for the header counts */
     const overdueCount = schedules.filter(
         (s) => daysUntil(s.nextDueAt) < 0
     ).length;
@@ -27,7 +24,6 @@ const DueSoonPanel = ({ schedules, canLog, onLog }) => {
 
     return (
         <div className="p-6 mb-6">
-            {/* Header */}
             <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
                 <h2 className="text-lg font-semibold text-white flex items-center gap-2">
                     <FaExclamationTriangle className="text-yellow-400" />
@@ -47,7 +43,6 @@ const DueSoonPanel = ({ schedules, canLog, onLog }) => {
                 </div>
             </div>
 
-            {/* List */}
             <div className="space-y-2">
                 {schedules.map((schedule) => {
                     const days = daysUntil(schedule.nextDueAt);
@@ -59,7 +54,6 @@ const DueSoonPanel = ({ schedules, canLog, onLog }) => {
                             key={schedule.id}
                             className="flex items-start gap-3 py-3 border-b border-white/5 last:border-b-0"
                         >
-                            {/* Status dot */}
                             <div className="shrink-0 mt-1">
                                 {isOverdue ? (
                                     <span className="inline-block w-2 h-2 bg-red-400" />
@@ -68,7 +62,6 @@ const DueSoonPanel = ({ schedules, canLog, onLog }) => {
                                 )}
                             </div>
 
-                            {/* Body */}
                             <div className="flex-1 min-w-0">
                                 <p className="text-sm font-medium text-white truncate">
                                     {schedule.title}
@@ -90,7 +83,6 @@ const DueSoonPanel = ({ schedules, canLog, onLog }) => {
                                 </div>
                             </div>
 
-                            {/* Log button */}
                             {canLog && (
                                 <button
                                     onClick={() => onLog(schedule.id)}
@@ -105,7 +97,6 @@ const DueSoonPanel = ({ schedules, canLog, onLog }) => {
                 })}
             </div>
 
-            {/* Footer note */}
             <p className="italic text-sm text-gray-400 mt-4 pt-3 border-t border-white/5">
                 * Showing schedules due within 30 days, including overdue items.
             </p>

@@ -1,10 +1,11 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import toast from 'react-hot-toast';
 import {
     FaPlay,
     FaCheckCircle,
-    FaExclamationTriangle,
     FaLevelDownAlt,
+    FaSortAmountDownAlt,
 } from 'react-icons/fa';
 import { useAuth } from '../Context/AuthContext';
 import { useAssets } from '../Context/AssetsContext';
@@ -59,11 +60,11 @@ const DepreciationRunPanel = ({ canRun, latestRun }) => {
     };
 
     return (
-        <div className="rounded-xl p-6 mb-6">
+        <div className="p-6 mb-6">
             {/* Header */}
             <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
                 <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-                    <FaLevelDownAlt className="text-red-400" />
+                    <FaSortAmountDownAlt className="text-red-400" />
                     Depreciation
                 </h2>
                 <span className="text-xs font-medium text-white/60">
@@ -127,52 +128,113 @@ const DepreciationRunPanel = ({ canRun, latestRun }) => {
                 {/* Action column */}
                 {canRun && (
                     <div className="lg:col-span-1 flex items-start justify-end">
-                        {!confirming ? (
-                            <button
-                                onClick={() => setConfirming(true)}
-                                className="w-full lg:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#173ef0] text-white font-medium hover:bg-[#0020ad] transition-colors"
-                            >
-                                <FaPlay className="w-3.5 h-3.5" />
-                                Run Depreciation
-                            </button>
-                        ) : (
-                            <div className="w-full border border-yellow-500/30 bg-yellow-500/5 p-5">
-                                <div className="flex items-start gap-3 mb-4">
-                                    <FaExclamationTriangle className="text-yellow-400 w-4 h-4 mt-0.5 shrink-0" />
-                                    <div>
-                                        <p className="text-sm font-semibold text-white">
-                                            Run depreciation for {currentFYLabel()}?
-                                        </p>
-                                        <p className="text-xs text-white/60 mt-1 leading-relaxed">
-                                            This applies one year of depreciation to
-                                            every eligible asset. Book values will be
-                                            reduced and a permanent run record will be
-                                            created.
-                                        </p>
-                                    </div>
-                                </div>
-                                <div className="flex justify-end gap-2">
-                                    <button
-                                        onClick={() => setConfirming(false)}
-                                        disabled={busy}
-                                        className="px-3.5 py-2 text-xs font-medium text-white/70 hover:bg-white/5 transition-colors disabled:opacity-50"
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        onClick={runNow}
-                                        disabled={busy}
-                                        className="px-3.5 py-2 text-xs font-medium bg-[#173ef0] text-white hover:bg-[#0020ad] transition-colors disabled:opacity-50"
-                                    >
-                                        {busy ? 'Running…' : 'Confirm'}
-                                    </button>
-                                </div>
-                            </div>
-                        )}
+                        <button
+                            onClick={() => setConfirming(true)}
+                            className="w-full lg:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#173ef0] text-white font-medium hover:bg-[#0020ad] transition-colors"
+                        >
+                            <FaPlay className="w-3.5 h-3.5" />
+                            Run Depreciation
+                        </button>
                     </div>
                 )}
             </div>
+
+            {confirming && (
+                <RunDepreciationDialog
+                    fyLabel={currentFYLabel()}
+                    busy={busy}
+                    onCancel={() => setConfirming(false)}
+                    onConfirm={runNow}
+                />
+            )}
         </div>
+    );
+};
+
+/* ==================================================================
+   RunDepreciationDialog — audit-themed confirmation, matches the
+   Activate/Deactivate dialog used in the Maintenance schedules table.
+   ================================================================== */
+
+const RunDepreciationDialog = ({ fyLabel, busy, onCancel, onConfirm }) => {
+    return createPortal(
+        <div
+            className="fixed inset-0 z-9999 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+            onClick={onCancel}
+        >
+            <div
+                className="bg-[#161616] border border-white/10 w-full max-w-md shadow-2xl"
+                onClick={(e) => e.stopPropagation()}
+            >
+                {/* Accent bar — yellow since it's a compute action */}
+                <div className="h-0.5 w-full bg-yellow-500" />
+
+                <div className="px-6 sm:px-8 pt-8 pb-6">
+                    {/* Icon well */}
+                    <div className="flex justify-center mb-5">
+                        <div className="w-12 h-12 flex items-center justify-center border border-yellow-500/30 text-yellow-400">
+                            <FaLevelDownAlt className="w-5 h-5" />
+                        </div>
+                    </div>
+
+                    {/* Eyebrow + title, centered */}
+                    <div className="text-center mb-6">
+                        <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/40 mb-2">
+                            Run Depreciation
+                        </p>
+                        <h2 className="text-xl font-semibold text-white leading-snug tracking-tight">
+                            {fyLabel}
+                        </h2>
+                        <p className="text-sm text-white/60 mt-3 leading-relaxed max-w-xs mx-auto">
+                            This applies one year of depreciation to every eligible asset.
+                            Book values will be reduced and a permanent run record will be
+                            created.
+                        </p>
+                    </div>
+
+                    {/* Warning strip */}
+                    <div className="border border-yellow-500/20 bg-yellow-500/5 divide-y divide-yellow-500/10">
+                        <div className="flex items-center justify-between gap-4 px-4 py-3">
+                            <span className="text-[10px] font-mono uppercase tracking-[0.15em] text-yellow-200/70">
+                                Effect
+                            </span>
+                            <span className="text-sm text-yellow-100 font-medium text-right">
+                                Reduces current book value
+                            </span>
+                        </div>
+                        <div className="flex items-center justify-between gap-4 px-4 py-3">
+                            <span className="text-[10px] font-mono uppercase tracking-[0.15em] text-yellow-200/70">
+                                Reversible
+                            </span>
+                            <span className="text-sm text-yellow-100 font-medium text-right">
+                                No — logged permanently
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Footer buttons */}
+                <div className="border-t border-white/10 px-6 sm:px-8 py-4 flex gap-3">
+                    <button
+                        type="button"
+                        onClick={onCancel}
+                        disabled={busy}
+                        className="flex-1 px-5 py-2.5 text-sm font-medium text-white/70 border border-white/10 hover:bg-white/5 hover:text-white transition-colors disabled:opacity-50"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="button"
+                        onClick={onConfirm}
+                        disabled={busy}
+                        className="flex-1 px-5 py-2.5 text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700 transition-colors disabled:opacity-50"
+                    >
+                        {busy ? 'Running…' : 'Run Now'}
+                    </button>
+                </div>
+            </div>
+        </div>,
+        document.body
     );
 };
 

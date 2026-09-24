@@ -312,11 +312,11 @@ const RegisterPage = () => {
                             />
                             <label className="block text-sm text-white/60 leading-snug">
                                 I agree to the{' '}
-                                <Link to="#" className="text-[#7c8cff] hover:underline">
+                                <Link to="#" className="text-[#374df7] hover:underline">
                                     Terms &amp; Conditions
                                 </Link>{' '}
                                 and{' '}
-                                <Link to="#" className="text-[#7c8cff] hover:underline">
+                                <Link to="#" className="text-[#374df7] hover:underline">
                                     Privacy Policy
                                 </Link>
                             </label>
@@ -340,7 +340,7 @@ const RegisterPage = () => {
                             Already have an account?{' '}
                             <Link
                                 to="/login"
-                                className="text-[#7c8cff] font-semibold hover:text-[#173ef0] hover:underline"
+                                className="text-[#374df7] font-semibold hover:text-[#173ef0] hover:underline"
                             >
                                 Sign in
                             </Link>

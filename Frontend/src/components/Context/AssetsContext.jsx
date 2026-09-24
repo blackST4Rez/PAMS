@@ -2,20 +2,17 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import {
   MOCK_ASSETS,
   MOCK_ASSET_LIFECYCLE,
-  MOCK_ASSET_CATEGORIES,
   MOCK_WARDS,
   MOCK_MUNICIPALITY,
   generateAssetCode,
-  getCategoryById,
   getWardById,
   getStatusMeta,
 } from '../mock/mockAssets';
+import { useCategories } from './CategoriesContext';
 import { logAuditEvent } from './AuditContext';
 
-/* Create the assets context */
 const AssetsContext = createContext(null);
 
-/* localStorage keys — all under one namespace */
 const LS = {
   assets: () => 'mock_assets',
   lifecycle: () => 'mock_asset_lifecycle',
@@ -38,11 +35,16 @@ const writeJSON = (key, value) => {
   }
 };
 
-/* Small unique id — enough for client-side keys */
 const makeId = (prefix) =>
   `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
 
 export const AssetsProvider = ({ children }) => {
+  const {
+    getCategoryById,
+    allCategories: categoriesAll,
+    version: categoriesVersion,
+  } = useCategories();
+
   const [assets, setAssets] = useState([]);
   const [lifecycle, setLifecycle] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -106,6 +108,8 @@ export const AssetsProvider = ({ children }) => {
   const allAssets = ({ includeDeleted = false } = {}) => {
     /* eslint-disable-next-line no-unused-vars */
     const _v = version;
+    /* eslint-disable-next-line no-unused-vars */
+    const _cv = categoriesVersion;
 
     const rows = assets
       .filter((a) => includeDeleted || !a.deletedAt)
@@ -129,6 +133,8 @@ export const AssetsProvider = ({ children }) => {
   const getAsset = (id) => {
     /* eslint-disable-next-line no-unused-vars */
     const _v = version;
+    /* eslint-disable-next-line no-unused-vars */
+    const _cv = categoriesVersion;
 
     const a = assets.find((x) => x.id === id);
     if (!a) return null;
@@ -155,6 +161,11 @@ export const AssetsProvider = ({ children }) => {
   const addAsset = (payload) => {
     const category = getCategoryById(payload.categoryId);
     if (!category) throw new Error('Category not found');
+    if (category.deactivatedAt) {
+      throw new Error(
+        `Category "${category.name}" is deactivated and cannot be selected.`
+      );
+    }
 
     const assetCode = generateAssetCode(category.code, assets);
 
@@ -235,9 +246,6 @@ export const AssetsProvider = ({ children }) => {
       appendLifecycle(lifecycle, entry)
     );
 
-    /*
-      Build before/after snapshots from only the changed keys.
-    */
     const before = {};
     const after = {};
     for (const k of changed) {
@@ -271,10 +279,6 @@ export const AssetsProvider = ({ children }) => {
     });
 
     persist(next, lifecycle);
-    /*
-      Note: no audit event per asset here.
-      The Valuation module logs a single RUN event covering the whole batch.
-    */
   };
 
   const softDeleteAsset = (id, by) => {
@@ -374,7 +378,7 @@ export const AssetsProvider = ({ children }) => {
 
   /* ===== REFERENCE DATA ===== */
 
-  const allCategories = () => MOCK_ASSET_CATEGORIES;
+  const allCategories = () => categoriesAll();
   const allWards = () => MOCK_WARDS;
   const municipality = () => MOCK_MUNICIPALITY;
 

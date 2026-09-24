@@ -26,7 +26,6 @@ const AssetFilters = ({ filters, onChange }) => {
     return (
         <div className="p-4 mb-6">
             <div className="flex flex-col lg:flex-row gap-3">
-                {/* Search — with clear button inside */}
                 <div className="relative flex-1 min-w-50">
                     <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white pointer-events-none" />
                     <input
@@ -48,7 +47,6 @@ const AssetFilters = ({ filters, onChange }) => {
                     )}
                 </div>
 
-                {/* Category */}
                 <select
                     value={filters.categoryId}
                     onChange={(e) => setField('categoryId', e.target.value)}
@@ -62,7 +60,6 @@ const AssetFilters = ({ filters, onChange }) => {
                     ))}
                 </select>
 
-                {/* Ward */}
                 <select
                     value={filters.wardId}
                     onChange={(e) => setField('wardId', e.target.value)}
@@ -76,7 +73,6 @@ const AssetFilters = ({ filters, onChange }) => {
                     ))}
                 </select>
 
-                {/* Status */}
                 <select
                     value={filters.status}
                     onChange={(e) => setField('status', e.target.value)}
@@ -90,7 +86,6 @@ const AssetFilters = ({ filters, onChange }) => {
                     ))}
                 </select>
             </div>
-
         </div>
     );
 };

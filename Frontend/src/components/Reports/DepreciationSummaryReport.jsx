@@ -6,13 +6,13 @@ import { formatNprShort, methodLabel } from '../mock/mockValuation';
 import { MOCK_ASSET_CATEGORIES } from '../mock/mockAssets';
 
 const COLUMNS = [
-    { key: 'categoryName', label: 'Category', align: 'left' },
-    { key: 'methodLabel', label: 'Method', align: 'left' },
-    { key: 'count', label: 'Assets', align: 'right' },
-    { key: 'costFormatted', label: 'Total Cost', align: 'right' },
-    { key: 'depreciationFormatted', label: 'Depreciation', align: 'right' },
-    { key: 'bookFormatted', label: 'Current Book Value', align: 'right' },
-    { key: 'depreciationRate', label: 'Rate', align: 'right' },
+    { key: 'categoryName', label: 'Category' },
+    { key: 'methodLabel', label: 'Method' },
+    { key: 'count', label: 'Assets' },
+    { key: 'costFormatted', label: 'Total Cost' },
+    { key: 'depreciationFormatted', label: 'Depreciation' },
+    { key: 'bookFormatted', label: 'Current Book Value' },
+    { key: 'depreciationRate', label: 'Rate' },
 ];
 
 const CSV_COLUMNS = [
@@ -130,7 +130,6 @@ const DepreciationSummaryReport = () => {
 
     return (
         <div>
-            {/* Header + export */}
             <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
                 <div>
                     <h2 className="text-lg font-semibold text-white">
@@ -147,7 +146,7 @@ const DepreciationSummaryReport = () => {
                 />
             </div>
 
-            {/* ---- Mobile cards (paginated) ---- */}
+            {/* ---- Mobile cards ---- */}
             <div className="sm:hidden space-y-3">
                 {paged.map((r) => (
                     <div
@@ -191,7 +190,7 @@ const DepreciationSummaryReport = () => {
                 ))}
             </div>
 
-            {/* ---- Desktop table (paginated) ---- */}
+            {/* ---- Desktop table — all left-aligned ---- */}
             <div className="hidden sm:block overflow-x-auto">
                 <table className="w-full border-collapse">
                     <thead>
@@ -199,7 +198,7 @@ const DepreciationSummaryReport = () => {
                             {COLUMNS.map((c) => (
                                 <th
                                     key={c.key}
-                                    className={`text-${c.align} text-xs font-semibold text-white/60 uppercase tracking-wider pb-3 px-4`}
+                                    className="text-left text-xs font-semibold text-white/60 uppercase tracking-wider pb-3 px-4"
                                 >
                                     {c.label}
                                 </th>
@@ -215,19 +214,19 @@ const DepreciationSummaryReport = () => {
                                 <td className="py-3 px-4 text-sm text-white/60">
                                     {r.methodLabel}
                                 </td>
-                                <td className="py-3 px-4 text-sm text-white text-right">
+                                <td className="py-3 px-4 text-sm text-white">
                                     {r.count}
                                 </td>
-                                <td className="py-3 px-4 text-sm text-white/80 text-right">
+                                <td className="py-3 px-4 text-sm text-white/80">
                                     {r.costFormatted}
                                 </td>
-                                <td className="py-3 px-4 text-sm text-red-300 text-right">
+                                <td className="py-3 px-4 text-sm text-red-300">
                                     {r.depreciationFormatted}
                                 </td>
-                                <td className="py-3 px-4 text-sm text-white text-right">
+                                <td className="py-3 px-4 text-sm text-white">
                                     {r.bookFormatted}
                                 </td>
-                                <td className="py-3 px-4 text-sm text-emerald-400 font-medium text-right">
+                                <td className="py-3 px-4 text-sm text-emerald-400 font-medium">
                                     {r.depreciationRate}%
                                 </td>
                             </tr>
@@ -236,12 +235,8 @@ const DepreciationSummaryReport = () => {
                 </table>
             </div>
 
-            {/*
-              Totals — outside pagination, always visible.
-              Tinted background, blue left accent.
-            */}
+            {/* Totals — unchanged */}
             <div className="mt-4 bg-white/3 border-l-2 border-l-[#173ef0]">
-                {/* Mobile totals */}
                 <div className="sm:hidden p-4 space-y-3">
                     <div className="flex items-start justify-between gap-3">
                         <div>
@@ -277,7 +272,6 @@ const DepreciationSummaryReport = () => {
                     </div>
                 </div>
 
-                {/* Desktop totals */}
                 <div className="hidden sm:flex items-center px-4 py-4 gap-4">
                     <div className="shrink-0">
                         <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">

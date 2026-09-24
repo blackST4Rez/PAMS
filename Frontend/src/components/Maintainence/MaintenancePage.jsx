@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react';
 import Header from '../Common/Header';
-import Footer from '../Common/Footer';
 import UnifiedSidebar from '../Sidebars/UnifiedSidebar';
 import DueSoonPanel from './DueSoonPanel';
 import SchedulesTable from './SchedulesTable';
@@ -28,10 +27,7 @@ const MaintenancePage = () => {
         bucket: '',
     });
 
-    const dueSoon = useMemo(
-        () => dueSoonSchedules(30),
-        [dueSoonSchedules]
-    );
+    const dueSoon = useMemo(() => dueSoonSchedules(30), [dueSoonSchedules]);
 
     const filteredSchedules = useMemo(() => {
         const rows = allSchedules();
@@ -47,9 +43,7 @@ const MaintenancePage = () => {
 
             if (q) {
                 const haystack = [s.title, s.description]
-                    .filter(Boolean)
-                    .join(' ')
-                    .toLowerCase();
+                    .filter(Boolean).join(' ').toLowerCase();
                 if (!haystack.includes(q)) return false;
             }
             return true;
@@ -66,7 +60,6 @@ const MaintenancePage = () => {
                         <p className="text-white/50 text-sm">Loading…</p>
                     </div>
                 </div>
-                <Footer />
             </div>
         );
     }
@@ -78,7 +71,7 @@ const MaintenancePage = () => {
                 <div className="flex-1 flex">
                     <UnifiedSidebar />
                     <div className="flex-1 p-4 sm:p-6 lg:p-8 bg-[#1a1a1a]">
-                        <div className="bg-[#242424] rounded-xl p-8 max-w-xl">
+                        <div className="bg-[#242424] p-8 max-w-xl">
                             <h2 className="text-lg font-semibold text-white mb-2">
                                 Access Denied
                             </h2>
@@ -88,7 +81,6 @@ const MaintenancePage = () => {
                         </div>
                     </div>
                 </div>
-                <Footer />
             </div>
         );
     }
@@ -164,8 +156,6 @@ const MaintenancePage = () => {
                     onSaved={() => setLoggingScheduleId(null)}
                 />
             )}
-
-            <Footer />
         </div>
     );
 };

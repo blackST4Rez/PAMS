@@ -111,7 +111,6 @@ const GisPage = () => {
                 </div>
             </div>
 
-            <Footer />
         </div>
     );
 };

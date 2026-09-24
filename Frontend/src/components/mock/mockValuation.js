@@ -206,16 +206,22 @@ export const makeRevaluationId = () =>
     `rev-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
 
 /*
-  Format a numeric NPR amount for display, using lakh/crore units.
-  Same logic as formatNPR in utils — duplicated here so the mock file
-  is self-contained.
+  Format a compact amount for narrow cells.
+  Uses English abbreviations so it never overflows.
+
+  Examples:
+    24000000  → "NPR 2.40 Cr"
+    850000    → "NPR 8.50 L"
+    42500     → "NPR 42.5 K"
+    950       → "NPR 950"
+    -120000   → "-NPR 1.20 L"
 */
 export const formatNprShort = (value) => {
     const n = Number(value) || 0;
     const abs = Math.abs(n);
     const sign = n < 0 ? '-' : '';
-    if (abs >= 10000000) return `${sign}रू ${(abs / 10000000).toFixed(2)} करोड`;
-    if (abs >= 100000) return `${sign}रू ${(abs / 100000).toFixed(2)} लाख`;
-    if (abs >= 1000) return `${sign}रू ${(abs / 1000).toFixed(1)} हजार`;
-    return `${sign}रू ${abs}`;
+    if (abs >= 1_00_00_000) return `${sign}NPR ${(abs / 1_00_00_000).toFixed(2)} Cr`;
+    if (abs >= 1_00_000) return `${sign}NPR ${(abs / 1_00_000).toFixed(2)} L`;
+    if (abs >= 1_000) return `${sign}NPR ${(abs / 1_000).toFixed(1)} K`;
+    return `${sign}NPR ${abs}`;
 };

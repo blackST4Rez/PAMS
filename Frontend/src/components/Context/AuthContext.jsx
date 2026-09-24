@@ -1,6 +1,8 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { MOCK_MENUS } from '../mock/mockData';
 import { logAuditEvent } from './AuditContext';
+import { useRoles } from './RolesContext';
+import { DEFAULT_ROLE_CODE } from '../mock/mockRoles';
 
 /* Create the auth context */
 const AuthContext = createContext(null);
@@ -28,17 +30,7 @@ const UNIVERSAL_ADMIN = {
     phone: '',
     avatar: null,
     roles: ['SYS_ADMIN'],
-    permissions: [
-      'asset.view', 'asset.create', 'asset.edit', 'asset.delete',
-      'asset.approve', 'asset.transfer', 'gis.view',
-      'maintenance.view', 'maintenance.create',
-      'valuation.view', 'valuation.edit',
-      'verification.verify',
-      'disposal.create', 'disposal.approve',
-      'report.view', 'report.export',
-      'audit.view',
-      'admin.users', 'admin.roles', 'admin.config',
-    ],
+    permissions: [], // ← filled dynamically from RolesContext on login
     status: 'Active',
     municipality: 'Gaurishankar Rural Municipality',
     ward: '',
@@ -71,8 +63,10 @@ const readJSON = (key, fallback) => {
 const writeJSON = (key, value) => {
   try {
     localStorage.setItem(key, JSON.stringify(value));
-  } catch {
-    /* quota exceeded or private mode — ignore */
+    return true;
+  } catch (err) {
+    console.error('[AuthContext] localStorage write failed:', key, err);
+    return false;
   }
 };
 
@@ -94,55 +88,55 @@ const mergeWithOverrides = (baseUser, username) => {
   const storedAvatar = localStorage.getItem(LS.avatar(username));
   const storedProfile = readJSON(LS.profile(username), null);
 
+  const cleanedProfile = {};
+  if (storedProfile && typeof storedProfile === 'object') {
+    for (const [k, v] of Object.entries(storedProfile)) {
+      if (v !== '' && v !== null && v !== undefined) {
+        cleanedProfile[k] = v;
+      }
+    }
+  }
+
   return {
     ...baseUser,
-    ...(storedProfile || {}),
+    ...cleanedProfile,
     ...(storedAvatar ? { avatar: storedAvatar } : {}),
   };
 };
 
-const ROLE_PERMISSIONS = {
-  SYS_ADMIN: [
-    'asset.view', 'asset.create', 'asset.edit', 'asset.delete',
-    'asset.approve', 'asset.transfer', 'gis.view',
-    'maintenance.view', 'maintenance.create',
-    'valuation.view', 'valuation.edit',
-    'verification.verify',
-    'disposal.create', 'disposal.approve',
-    'report.view', 'report.export',
-    'audit.view',
-    'admin.users', 'admin.roles', 'admin.config',
-  ],
-  ASSET_MANAGER: [
-    'asset.view', 'asset.create', 'asset.edit', 'asset.delete',
-    'asset.approve', 'asset.transfer', 'gis.view',
-    'maintenance.view', 'maintenance.create',
-    'verification.verify',
-    'disposal.create',
-    'report.view', 'report.export',
-  ],
-  FINANCE_OFFICER: [
-    'asset.view',
-    'valuation.view', 'valuation.edit',
-    'report.view', 'report.export',
-  ],
-  FIELD_OFFICER: [
-    'asset.view', 'asset.create', 'asset.edit',
-    'gis.view',
-    'maintenance.view', 'maintenance.create',
-    'verification.verify',
-  ],
-  AUDITOR: [
-    'asset.view', 'gis.view',
-    'maintenance.view',
-    'valuation.view',
-    'report.view', 'report.export',
-    'audit.view',
-  ],
-  PUBLIC_USER: ['asset.view', 'gis.view'],
+/* ============================================================
+   PERMISSION LOOKUP HELPER
+   Reads from mock_roles localStorage directly so it works
+   inside AuthContext without depending on RolesContext hooks.
+   RolesContext writes to the same key, so they stay in sync.
+   ============================================================ */
+const readRolesFromStorage = () => {
+  const stored = readJSON('mock_roles', null);
+  return Array.isArray(stored) ? stored : [];
 };
 
+const permissionsForRoleCode = (roleCode) => {
+  const roles = readRolesFromStorage();
+  const role = roles.find((r) => r.code === roleCode);
+  return role?.permissions ?? [];
+};
+
+/* Given an array of role codes, union their permissions */
+const permissionsForRoles = (roleCodes) => {
+  if (!Array.isArray(roleCodes)) return [];
+  const set = new Set();
+  for (const code of roleCodes) {
+    for (const p of permissionsForRoleCode(code)) set.add(p);
+  }
+  return [...set];
+};
+
+/* ============================================================
+   PROVIDER
+   ============================================================ */
 export const AuthProvider = ({ children }) => {
+  const rolesCtx = useRoles(); // for version-bumping on role edits
+
   const [user, setUser] = useState(null);
   const [permissions, setPermissions] = useState([]);
   const [menu, setMenu] = useState([]);
@@ -152,6 +146,8 @@ export const AuthProvider = ({ children }) => {
   const [pendingRegistrations, setPendingRegistrations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [profileVersion, setProfileVersion] = useState(0);
+
+  /* ============ BOOT ============ */
 
   useEffect(() => {
     const storedUsers = readJSON(LS.extraUsers(), []);
@@ -171,12 +167,12 @@ export const AuthProvider = ({ children }) => {
     const username = token.replace('mock:', '');
 
     if (username === UNIVERSAL_ADMIN.username) {
-      const merged = mergeWithOverrides(
-        { ...UNIVERSAL_ADMIN.user, username },
-        username
-      );
-      setUser(merged);
-      setPermissions(merged.permissions ?? []);
+      const base = { ...UNIVERSAL_ADMIN.user, username };
+      const merged = mergeWithOverrides(base, username);
+      const perms = permissionsForRoles(merged.roles);
+
+      setUser({ ...merged, permissions: perms });
+      setPermissions(perms);
       setMenu(MOCK_MENUS[merged.roles?.[0]] ?? []);
       setNotifications(readJSON(LS.notifications(username), []));
       setLoginHistory(readJSON(LS.loginHistory(username), []));
@@ -192,16 +188,15 @@ export const AuthProvider = ({ children }) => {
     const found = map[username];
 
     if (found && found.user.status !== 'Inactive') {
-      const merged = mergeWithOverrides(
-        { ...found.user, username },
-        username
-      );
+      const base = { ...found.user, username };
+      const merged = mergeWithOverrides(base, username);
+      const perms = permissionsForRoles(merged.roles);
 
       const storedNotifs = readJSON(LS.notifications(username), []);
       const storedHistory = readJSON(LS.loginHistory(username), []);
 
-      setUser(merged);
-      setPermissions(merged.permissions ?? []);
+      setUser({ ...merged, permissions: perms });
+      setPermissions(perms);
       setMenu(MOCK_MENUS[merged.roles?.[0]] ?? []);
       setNotifications(storedNotifs);
       setLoginHistory(storedHistory);
@@ -213,12 +208,31 @@ export const AuthProvider = ({ children }) => {
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
   }, []);
 
+  /* ============ RE-COMPUTE PERMISSIONS WHEN ROLES CHANGE ============ */
   /*
-    Cross-tab sync.
-    Watches users, pending registrations, logout broadcast, AND
-    any per-user profile/avatar key. The last two trigger a bump to
-    profileVersion so consumers re-merge records from localStorage.
+    When an admin edits a role's permissions on the Roles page,
+    every user holding that role should pick up the change
+    immediately — without a reload. We watch the RolesContext
+    version and re-derive the current user's permissions.
   */
+  useEffect(() => {
+    setUser((prev) => {
+      if (!prev) return prev;
+      const perms = permissionsForRoles(prev.roles);
+      return { ...prev, permissions: perms };
+    });
+    setPermissions((prev) => {
+      // Recompute from current user's roles (below) — but we need
+      // the fresh role codes. Use the user object directly.
+      // Simpler: recompute is handled by the setUser above;
+      // we just also refresh `permissions` from the current user.
+      return prev;
+    });
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+  }, [rolesCtx.version]);
+
+  /* ============ CROSS-TAB SYNC ============ */
+
   useEffect(() => {
     const onStorage = (e) => {
       if (!e.key) return;
@@ -240,21 +254,52 @@ export const AuthProvider = ({ children }) => {
         e.key.startsWith('mock_avatar_') ||
         e.key.startsWith('mock_profile_')
       ) {
-        /* Another tab updated someone's profile or avatar. */
         setProfileVersion((v) => v + 1);
+        refreshCurrentUser();
+      } else if (e.key === 'mock_roles') {
+        // Roles edited in another tab — recompute permissions
+        setUser((prev) => {
+          if (!prev) return prev;
+          const perms = permissionsForRoles(prev.roles);
+          return { ...prev, permissions: perms };
+        });
       }
     };
 
     window.addEventListener('storage', onStorage);
     return () => window.removeEventListener('storage', onStorage);
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
   }, []);
+
+  /* ============ HELPERS ============ */
+
+  const refreshCurrentUser = () => {
+    setUser((prev) => {
+      if (!prev) return prev;
+      const username = prev.username;
+
+      if (username === UNIVERSAL_ADMIN.username) {
+        const base = { ...UNIVERSAL_ADMIN.user, username };
+        const merged = mergeWithOverrides(base, username);
+        const perms = permissionsForRoles(merged.roles);
+        return { ...merged, permissions: perms };
+      }
+
+      const users = readJSON(LS.extraUsers(), []);
+      const entry = users.find((u) => u.user.username === username);
+      if (!entry) return prev;
+
+      const base = { ...entry.user, username };
+      const merged = mergeWithOverrides(base, username);
+      const perms = permissionsForRoles(merged.roles);
+      return { ...merged, permissions: perms };
+    });
+  };
 
   const getAllUsersMap = () => {
     const map = {};
     const storedExtra = readJSON(LS.extraUsers(), []);
-    const source = Array.isArray(storedExtra) && storedExtra.length
-      ? storedExtra
-      : extraUsers;
+    const source = Array.isArray(storedExtra) ? storedExtra : extraUsers;
 
     for (const entry of source) {
       if (entry?.user?.username) {
@@ -271,13 +316,16 @@ export const AuthProvider = ({ children }) => {
     const storedHistory = readJSON(LS.loginHistory(username), []);
 
     const mergedUser = mergeWithOverrides(baseUser, username);
+    const perms = permissionsForRoles(mergedUser.roles);
 
-    setUser(mergedUser);
-    setPermissions(mergedUser.permissions ?? []);
+    setUser({ ...mergedUser, permissions: perms });
+    setPermissions(perms);
     setMenu(MOCK_MENUS[mergedUser.roles?.[0]] ?? []);
     setNotifications(storedNotifs);
     setLoginHistory(storedHistory);
   };
+
+  /* ============ AUTH ACTIONS ============ */
 
   const login = async (typedUsername, password) => {
     if (
@@ -386,6 +434,8 @@ export const AuthProvider = ({ children }) => {
 
   const hasPermission = (code) => !code || permissions.includes(code);
 
+  /* ============ NOTIFICATIONS ============ */
+
   const markNotificationRead = (id) => {
     setNotifications((prev) => {
       const next = prev.map((n) => (n.id === id ? { ...n, read: true } : n));
@@ -402,10 +452,16 @@ export const AuthProvider = ({ children }) => {
     });
   };
 
+  /* ============ PROFILE ============ */
+
   const updateProfile = (patch) => {
     setUser((prev) => {
+      if (!prev) return prev;
       const next = { ...prev, ...patch };
-      writeJSON(LS.profile(prev.username), patch);
+      const ok = writeJSON(LS.profile(prev.username), patch);
+      if (!ok) {
+        console.error('[AuthContext] Profile save failed — storage may be full.');
+      }
       return next;
     });
     setProfileVersion((v) => v + 1);
@@ -413,10 +469,13 @@ export const AuthProvider = ({ children }) => {
 
   const updateAvatar = (avatarDataUrl) => {
     setUser((prev) => {
+      if (!prev) return prev;
       const next = { ...prev, avatar: avatarDataUrl };
       try {
         localStorage.setItem(LS.avatar(prev.username), avatarDataUrl);
-      } catch { /* quota exceeded */ }
+      } catch (err) {
+        console.error('[AuthContext] Avatar save failed — storage may be full.', err);
+      }
       return next;
     });
     setProfileVersion((v) => v + 1);
@@ -433,7 +492,8 @@ export const AuthProvider = ({ children }) => {
       throw new Error('Current password is incorrect');
     }
 
-    const next = extraUsers.map((e) =>
+    const stored = readJSON(LS.extraUsers(), []);
+    const next = stored.map((e) =>
       e.user.username === user.username ? { ...e, password: newPassword } : e
     );
     setExtraUsers(next);
@@ -441,13 +501,18 @@ export const AuthProvider = ({ children }) => {
     return true;
   };
 
+  /* ============ USER MANAGEMENT ============ */
+
   const allUsers = () => {
     /* eslint-disable-next-line no-unused-vars */
     const _v = profileVersion;
 
-    return extraUsers.map((entry) => {
+    const map = getAllUsersMap();
+
+    return Object.values(map).map((entry) => {
       const username = entry.user.username;
       const merged = mergeWithOverrides({ ...entry.user, username }, username);
+      const perms = permissionsForRoles(merged.roles);
       return {
         id: merged.id,
         username,
@@ -457,6 +522,7 @@ export const AuthProvider = ({ children }) => {
         avatar: merged.avatar ?? null,
         designation: merged.designation,
         roles: merged.roles,
+        permissions: perms,
         status: merged.status ?? 'Active',
         source: 'extra',
       };
@@ -466,10 +532,14 @@ export const AuthProvider = ({ children }) => {
   const addUser = (payload) => {
     const { username, password, role, ...rest } = payload;
 
+    const stored = readJSON(LS.extraUsers(), []);
     const takenByUser =
       username === UNIVERSAL_ADMIN.username ||
-      extraUsers.some((e) => e.user.username === username);
+      stored.some((e) => e.user.username === username);
     if (takenByUser) throw new Error('Username already exists');
+
+    const roleCode = role || DEFAULT_ROLE_CODE;
+    const perms = permissionsForRoleCode(roleCode);
 
     const newUser = {
       password,
@@ -477,19 +547,19 @@ export const AuthProvider = ({ children }) => {
         id: `u-${Date.now()}`,
         username,
         fullName: rest.fullName,
-        designation: role.replace(/_/g, ' '),
+        designation: roleCode.replace(/_/g, ' '),
         email: rest.email,
         phone: rest.phone,
         avatar: null,
-        roles: [role],
-        permissions: ROLE_PERMISSIONS[role] ?? [],
+        roles: [roleCode],
+        permissions: perms,
         status: 'Active',
         municipality: rest.municipality,
         ward: rest.ward,
       },
     };
 
-    const next = [...extraUsers, newUser];
+    const next = [...stored, newUser];
     setExtraUsers(next);
     writeJSON(LS.extraUsers(), next);
 
@@ -498,21 +568,29 @@ export const AuthProvider = ({ children }) => {
       entityId: username,
       action: 'CREATE',
       actor: user?.username ?? 'unknown',
-      summary: `Created user @${username} (${rest.fullName}) with role ${role}`,
+      summary: `Created user @${username} (${rest.fullName}) with role ${roleCode}`,
       before: null,
-      after: { username, fullName: rest.fullName, roles: [role], status: 'Active' },
+      after: {
+        username,
+        fullName: rest.fullName,
+        roles: [roleCode],
+        status: 'Active',
+      },
     });
 
     return newUser.user;
   };
 
   const submitRegistration = (payload) => {
+    const stored = readJSON(LS.extraUsers(), []);
+    const pending = readJSON(LS.pendingRegistrations(), []);
+
     const takenByUser =
       payload.username === UNIVERSAL_ADMIN.username ||
-      extraUsers.some((e) => e.user.username === payload.username);
+      stored.some((e) => e.user.username === payload.username);
     if (takenByUser) throw new Error('Username already exists');
 
-    const alreadyPending = pendingRegistrations.some(
+    const alreadyPending = pending.some(
       (p) => p.username === payload.username
     );
     if (alreadyPending) throw new Error('You already have a pending registration');
@@ -530,7 +608,7 @@ export const AuthProvider = ({ children }) => {
       requestedAt: new Date().toISOString(),
     };
 
-    const next = [record, ...pendingRegistrations];
+    const next = [record, ...pending];
     setPendingRegistrations(next);
     writeJSON(LS.pendingRegistrations(), next);
 
@@ -541,7 +619,11 @@ export const AuthProvider = ({ children }) => {
       actor: payload.username,
       summary: `Self-registration submitted by @${payload.username} (pending approval)`,
       before: null,
-      after: { username: payload.username, fullName: payload.fullName, status: 'Pending' },
+      after: {
+        username: payload.username,
+        fullName: payload.fullName,
+        status: 'Pending',
+      },
     });
 
     return record;
@@ -551,25 +633,29 @@ export const AuthProvider = ({ children }) => {
     const pending = pendingRegistrations.find((p) => p.username === username);
     if (!pending) throw new Error('Pending registration not found');
 
+    const roleCode = role || DEFAULT_ROLE_CODE;
+    const perms = permissionsForRoleCode(roleCode);
+
     const newUser = {
       password: pending.password,
       user: {
         id: `u-${Date.now()}`,
         username: pending.username,
         fullName: pending.fullName,
-        designation: role.replace(/_/g, ' '),
+        designation: roleCode.replace(/_/g, ' '),
         email: pending.email,
         phone: pending.phone,
         avatar: null,
-        roles: [role],
-        permissions: ROLE_PERMISSIONS[role] ?? [],
+        roles: [roleCode],
+        permissions: perms,
         status: 'Active',
         municipality: pending.municipality,
         ward: pending.ward,
       },
     };
 
-    const nextUsers = [...extraUsers, newUser];
+    const stored = readJSON(LS.extraUsers(), []);
+    const nextUsers = [...stored, newUser];
     setExtraUsers(nextUsers);
     writeJSON(LS.extraUsers(), nextUsers);
 
@@ -582,9 +668,9 @@ export const AuthProvider = ({ children }) => {
       entityId: username,
       action: 'APPROVE',
       actor: user?.username ?? 'unknown',
-      summary: `Approved registration of @${username} as ${role}`,
+      summary: `Approved registration of @${username} as ${roleCode}`,
       before: { status: 'Pending' },
-      after: { status: 'Active', roles: [role] },
+      after: { status: 'Active', roles: [roleCode] },
     });
 
     return newUser.user;
@@ -607,17 +693,20 @@ export const AuthProvider = ({ children }) => {
   };
 
   const updateUserRole = (username, newRole) => {
-    const existing = extraUsers.find((e) => e.user.username === username);
+    const stored = readJSON(LS.extraUsers(), []);
+    const existing = stored.find((e) => e.user.username === username);
     const previousRoles = existing?.user?.roles ?? [];
 
-    const next = extraUsers.map((e) =>
+    const perms = permissionsForRoleCode(newRole);
+
+    const next = stored.map((e) =>
       e.user.username === username
         ? {
           ...e,
           user: {
             ...e.user,
             roles: [newRole],
-            permissions: ROLE_PERMISSIONS[newRole] ?? [],
+            permissions: perms,
           },
         }
         : e
@@ -625,9 +714,11 @@ export const AuthProvider = ({ children }) => {
     setExtraUsers(next);
     writeJSON(LS.extraUsers(), next);
 
+    /* If the current user is editing their own role, refresh permissions */
     if (user?.username === username) {
-      setUser((prev) => ({ ...prev, roles: [newRole] }));
-      setPermissions(ROLE_PERMISSIONS[newRole] ?? []);
+      const newPerms = permissionsForRoles([newRole]);
+      setUser((prev) => ({ ...prev, roles: [newRole], permissions: newPerms }));
+      setPermissions(newPerms);
       setMenu(MOCK_MENUS[newRole] ?? []);
     }
 
@@ -643,10 +734,11 @@ export const AuthProvider = ({ children }) => {
   };
 
   const updateUserStatus = (username, newStatus) => {
-    const existing = extraUsers.find((e) => e.user.username === username);
+    const stored = readJSON(LS.extraUsers(), []);
+    const existing = stored.find((e) => e.user.username === username);
     const previousStatus = existing?.user?.status ?? 'Active';
 
-    const next = extraUsers.map((e) =>
+    const next = stored.map((e) =>
       e.user.username === username
         ? { ...e, user: { ...e.user, status: newStatus } }
         : e
@@ -675,9 +767,10 @@ export const AuthProvider = ({ children }) => {
   };
 
   const deleteUser = (username) => {
-    const existing = extraUsers.find((e) => e.user.username === username);
+    const stored = readJSON(LS.extraUsers(), []);
+    const existing = stored.find((e) => e.user.username === username);
 
-    const next = extraUsers.filter((e) => e.user.username !== username);
+    const next = stored.filter((e) => e.user.username !== username);
     setExtraUsers(next);
     writeJSON(LS.extraUsers(), next);
 
@@ -712,6 +805,8 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem(LS.loginHistory(username));
   };
 
+  /* ============ PROVIDER ============ */
+
   return (
     <AuthContext.Provider
       value={{
@@ -721,6 +816,7 @@ export const AuthProvider = ({ children }) => {
         notifications,
         loginHistory,
         loading,
+        profileVersion,
         login,
         logout,
         logoutEverywhere,

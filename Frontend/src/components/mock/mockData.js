@@ -7,7 +7,7 @@
    ============================================================ */
 export const MOCK_MENUS = {
   SYS_ADMIN: [
-    { label: 'Overview', path: '/dashboard', icon: 'FaTachometerAlt' },
+    { label: 'Overview', path: '/dashboard', icon: 'FaQuestionCircle' },
     { label: 'Users', path: '/users', icon: 'FaUsers' },
     { label: 'All Assets', path: '/assets', icon: 'FaBox' },
     { label: 'Maintenance', path: '/maintenance', icon: 'FaWrench' },

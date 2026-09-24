@@ -19,7 +19,7 @@ const UnifiedSidebar = () => {
             <div className="sticky top-4 p-4 flex flex-col flex-1">
                 <div className="mb-4 px-4 py-3 border-b border-white/10">
                     <h3 className="font-semibold text-white flex items-center gap-2">
-                        <Fa.FaTachometerAlt className="text-[#173ef0]" />
+                        <Fa.FaTh className="text-[#173ef0]" />
                         {roleLabel} Menu
                     </h3>
                 </div>
@@ -45,17 +45,15 @@ const UnifiedSidebar = () => {
                             </NavLink>
                         );
                     })}
-                </nav>
 
-                <div className="mt-4 px-2 pt-4 border-t border-white/10">
                     <button
                         onClick={handleLogout}
-                        className="w-full flex justify-center items-center gap-3 px-4 py-3 font-semibold text-white bg-red-600 hover:bg-red-700 transition-colors ease-in-out duration-300 cursor-pointer"
+                        className="w-full flex items-center gap-3 px-4 py-3 text-white bg-red-700 hover:bg-red-800 transition-colors ease-in-out duration-300"
                     >
-                        <Fa.FaSignOutAlt className="w-5 h-5" />
+                        <Fa.FaPowerOff className="w-5 h-5" />
                         <span>Log Out</span>
                     </button>
-                </div>
+                </nav>
             </div>
         </div>
     );
@@ -73,13 +71,11 @@ const UnifiedSidebar = () => {
                         : 'opacity-0 pointer-events-none'
                 }`}
             >
-                {/* Backdrop — blocks all interaction with the map behind */}
                 <div
                     className="absolute inset-0 bg-black/60 touch-none overscroll-contain"
                     onClick={closeMenu}
                 />
 
-                {/* Drawer — own scroll, blocks pass-through */}
                 <div
                     className={`absolute top-0 left-0 h-full transition-transform duration-250 ease-out touch-pan-y overscroll-contain ${
                         mobileMenuOpen
