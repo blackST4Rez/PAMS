@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Polygon, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import AssetPopup from './AssetPopup';
@@ -9,12 +9,13 @@ import {
     MAP_MIN_ZOOM,
     MAP_MAX_ZOOM,
     pinColorFor,
+    polygonForAsset,
 } from '../mock/mockGis';
 
 /*
   Leaflet's default marker icon relies on asset imports that break under
   Vite. Rather than patch the defaults, we build a custom divIcon per
-  marker — a colored circle.
+  point marker — a colored circle.
 */
 const buildDivIcon = (color, isRetired) => {
     const fill = isRetired ? '#6b7280' : color;
@@ -40,7 +41,8 @@ const buildDivIcon = (color, isRetired) => {
 };
 
 /*
-  Fit the map bounds to the currently visible markers when they change.
+  Fit the map bounds to the currently visible assets — both point
+  markers and polygon footprints — whenever the list changes.
 */
 const FitBounds = ({ assets }) => {
     const map = useMap();
@@ -48,12 +50,25 @@ const FitBounds = ({ assets }) => {
     useEffect(() => {
         if (!assets || assets.length === 0) return;
 
-        if (assets.length === 1) {
-            map.setView(assets[0].coords, MAP_DEFAULT_ZOOM);
+        /* Collect all [lat, lng] points from both markers and polygons */
+        const allPoints = [];
+        for (const a of assets) {
+            const polygon = polygonForAsset(a.id);
+            if (polygon) {
+                allPoints.push(...polygon);
+            } else if (a.coords) {
+                allPoints.push(a.coords);
+            }
+        }
+
+        if (allPoints.length === 0) return;
+
+        if (allPoints.length === 1) {
+            map.setView(allPoints[0], MAP_DEFAULT_ZOOM);
             return;
         }
 
-        const bounds = L.latLngBounds(assets.map((a) => a.coords));
+        const bounds = L.latLngBounds(allPoints);
         map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
     }, [assets, map]);
 
@@ -84,7 +99,36 @@ const GisMap = ({ assets }) => {
 
                 {assets.map((a) => {
                     const isRetired = a.status === 'RETIRED';
-                    const icon = buildDivIcon(pinColorFor(a.categoryId), isRetired);
+                    const color = pinColorFor(a.categoryId);
+
+                    /* --- Polygon footprint (land, buildings, big parcels) --- */
+                    const polygon = polygonForAsset(a.id);
+                    if (polygon) {
+                        const fillColor = isRetired ? '#6b7280' : color;
+
+                        return (
+                            <Polygon
+                                key={a.id}
+                                positions={polygon}
+                                pathOptions={{
+                                    color: fillColor,
+                                    fillColor: fillColor,
+                                    fillOpacity: isRetired ? 0.12 : 0.25,
+                                    weight: 2,
+                                    opacity: isRetired ? 0.5 : 1,
+                                }}
+                            >
+                                <Popup>
+                                    <AssetPopup asset={a} />
+                                </Popup>
+                            </Polygon>
+                        );
+                    }
+
+                    /* --- Point marker fallback (vehicles, equipment, etc.) --- */
+                    if (!a.coords) return null;
+
+                    const icon = buildDivIcon(color, isRetired);
 
                     return (
                         <Marker key={a.id} position={a.coords} icon={icon}>

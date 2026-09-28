@@ -1,13 +1,12 @@
 import { useMemo, useState } from 'react';
 import Header from '../Common/Header';
-import Footer from '../Common/Footer';
 import UnifiedSidebar from '../Sidebars/UnifiedSidebar';
 import GisMap from './GisMap';
 import GisFilters from './GisFilters';
 import GisLegend from './GisLegend';
 import { useAuth } from '../Context/AuthContext';
 import { useAssets } from '../Context/AssetsContext';
-import { coordsForAsset } from '../mock/mockGis';
+import { coordsForAsset, polygonForAsset } from '../mock/mockGis';
 
 const GisPage = () => {
     const { hasPermission, loading: authLoading } = useAuth();
@@ -19,24 +18,26 @@ const GisPage = () => {
         status: '',
     });
 
-    const allWithCoords = useMemo(() => {
+    /* Keep assets that have either a point coord or a polygon */
+    const allOnMap = useMemo(() => {
         return allAssets()
             .map((a) => {
                 const coords = coordsForAsset(a.id);
-                if (!coords) return null;
-                return { ...a, coords };
+                const polygon = polygonForAsset(a.id);
+                if (!coords && !polygon) return null;
+                return { ...a, coords, polygon };
             })
             .filter(Boolean);
     }, [allAssets]);
 
     const filteredAssets = useMemo(() => {
-        return allWithCoords.filter((a) => {
+        return allOnMap.filter((a) => {
             if (filters.categoryId && a.categoryId !== filters.categoryId) return false;
             if (filters.wardId && a.wardId !== filters.wardId) return false;
             if (filters.status && a.status !== filters.status) return false;
             return true;
         });
-    }, [allWithCoords, filters]);
+    }, [allOnMap, filters]);
 
     if (authLoading || assetsLoading) {
         return (
@@ -48,7 +49,6 @@ const GisPage = () => {
                         <p className="text-white/50 text-sm">Loading…</p>
                     </div>
                 </div>
-                <Footer />
             </div>
         );
     }
@@ -60,7 +60,7 @@ const GisPage = () => {
                 <div className="flex-1 flex">
                     <UnifiedSidebar />
                     <div className="flex-1 p-4 sm:p-6 lg:p-8 bg-[#1a1a1a]">
-                        <div className="bg-[#242424] rounded-xl p-8 max-w-xl">
+                        <div className="bg-[#242424] p-8 max-w-xl">
                             <h2 className="text-lg font-semibold text-white mb-2">
                                 Access Denied
                             </h2>
@@ -70,7 +70,6 @@ const GisPage = () => {
                         </div>
                     </div>
                 </div>
-                <Footer />
             </div>
         );
     }
@@ -101,7 +100,7 @@ const GisPage = () => {
                         filters={filters}
                         onChange={setFilters}
                         resultCount={filteredAssets.length}
-                        totalCount={allWithCoords.length}
+                        totalCount={allOnMap.length}
                     />
 
                     <div className="relative w-full px-4">
@@ -110,7 +109,6 @@ const GisPage = () => {
                     </div>
                 </div>
             </div>
-
         </div>
     );
 };

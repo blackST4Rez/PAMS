@@ -1,14 +1,16 @@
 import { formatNprShort } from '../mock/mockValuation';
 import { getStatusMeta } from '../mock/mockAssets';
+import { areaForAsset } from '../mock/mockGis';
 
 const AssetPopup = ({ asset }) => {
     if (!asset) return null;
 
     const statusMeta = getStatusMeta(asset.status);
+    const area = areaForAsset(asset.id);
 
     return (
         <div className="text-white" style={{ minWidth: '260px' }}>
-            {/* Header — title + code, with bottom divider inset to match text */}
+            {/* Header — category + title + code */}
             <div className="px-4 pt-3 pb-3">
                 <p className="text-[10px] uppercase tracking-wider text-white/50 font-medium mb-1">
                     {asset.categoryName ?? '—'}
@@ -32,6 +34,12 @@ const AssetPopup = ({ asset }) => {
                     value={statusMeta.label}
                     valueClass={statusMeta.color}
                 />
+                {area != null && (
+                    <Row
+                        label="Area"
+                        value={`${area.toLocaleString('en-IN')} sqm`}
+                    />
+                )}
                 <Row
                     label="Book Value"
                     value={formatNprShort(asset.currentBookValue)}
