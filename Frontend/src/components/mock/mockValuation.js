@@ -207,21 +207,21 @@ export const makeRevaluationId = () =>
 
 /*
   Format a compact amount for narrow cells.
-  Uses English abbreviations so it never overflows.
+  Uses Devanagari rupee symbol and Nepali lakh/crore units.
 
   Examples:
-    24000000  → "NPR 2.40 Cr"
-    850000    → "NPR 8.50 L"
-    42500     → "NPR 42.5 K"
-    950       → "NPR 950"
-    -120000   → "-NPR 1.20 L"
+    24000000  → "रू 2.40 करोड"
+    850000    → "रू 8.50 लाख"
+    42500     → "रू 42.5 हजार"
+    950       → "रू 950"
+    -120000   → "-रू 1.20 लाख"
 */
 export const formatNprShort = (value) => {
     const n = Number(value) || 0;
     const abs = Math.abs(n);
     const sign = n < 0 ? '-' : '';
-    if (abs >= 1_00_00_000) return `${sign}NPR ${(abs / 1_00_00_000).toFixed(2)} Cr`;
-    if (abs >= 1_00_000) return `${sign}NPR ${(abs / 1_00_000).toFixed(2)} L`;
-    if (abs >= 1_000) return `${sign}NPR ${(abs / 1_000).toFixed(1)} K`;
-    return `${sign}NPR ${abs}`;
+    if (abs >= 1_00_00_000) return `${sign}रू ${(abs / 1_00_00_000).toFixed(2)} करोड`;
+    if (abs >= 1_00_000) return `${sign}रू ${(abs / 1_00_000).toFixed(2)} लाख`;
+    if (abs >= 1_000) return `${sign}रू ${(abs / 1_000).toFixed(1)} हजार`;
+    return `${sign}रू ${abs}`;
 };

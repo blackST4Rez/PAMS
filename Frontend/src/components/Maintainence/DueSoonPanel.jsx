@@ -56,9 +56,9 @@ const DueSoonPanel = ({ schedules, canLog, onLog }) => {
                         >
                             <div className="shrink-0 mt-1">
                                 {isOverdue ? (
-                                    <span className="inline-block w-2 h-2 bg-red-400" />
+                                    <span className="inline-block w-2 h-2 rounded-full bg-red-400" />
                                 ) : (
-                                    <span className="inline-block w-2 h-2 bg-yellow-400" />
+                                    <span className="inline-block w-2 h-2 rounded-full bg-yellow-400" />
                                 )}
                             </div>
 

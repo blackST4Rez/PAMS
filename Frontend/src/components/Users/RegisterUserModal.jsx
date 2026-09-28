@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import toast from 'react-hot-toast';
 import { useAuth } from '../Context/AuthContext';
 
@@ -53,7 +54,6 @@ const RegisterUserModal = ({ onClose }) => {
     const onSubmit = async (e) => {
         e.preventDefault();
 
-        /* Required field validation */
         for (const field of TEXT_FIELDS) {
             if (field.required && !form[field.name]?.trim()) {
                 toast.error(`${field.label} is required`);
@@ -61,13 +61,11 @@ const RegisterUserModal = ({ onClose }) => {
             }
         }
 
-        /* Password length */
         if (form.password.length < 8) {
             toast.error('Password must be at least 8 characters');
             return;
         }
 
-        /* Password confirmation */
         if (form.password !== form.confirmPassword) {
             toast.error('Passwords do not match');
             return;
@@ -94,9 +92,16 @@ const RegisterUserModal = ({ onClose }) => {
         }
     };
 
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
-            <div className="bg-[#242424] rounded-xl border border-white/10 w-full max-w-2xl max-h-[90vh] overflow-y-auto hide-scrollbar">
+    return createPortal(
+        <div className="fixed inset-0 z-9999 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+            <div
+                className="bg-[#161616] border border-white/10 w-full max-w-2xl overflow-hidden"
+                style={{
+                    maxHeight: '90vh',
+                    display: 'grid',
+                    gridTemplateRows: 'auto 1fr auto',
+                }}
+            >
                 {/* Header */}
                 <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between">
                     <h2 className="text-lg font-semibold text-white">Register New User</h2>
@@ -109,93 +114,96 @@ const RegisterUserModal = ({ onClose }) => {
                     </button>
                 </div>
 
-                {/* Form */}
-                <form onSubmit={onSubmit} className="p-6 space-y-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {/* Text fields */}
-                        {TEXT_FIELDS.map((field) => (
-                            <Field
-                                key={field.name}
-                                label={field.label}
-                                name={field.name}
-                                type={field.type}
-                                value={form[field.name]}
-                                onChange={onChange}
-                                required={field.required}
-                            />
-                        ))}
+                {/* Form — scrollable middle */}
+                <div className="overflow-y-auto hide-scrollbar">
+                    <form onSubmit={onSubmit} id="register-user-form" className="p-6 space-y-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {TEXT_FIELDS.map((field) => (
+                                <Field
+                                    key={field.name}
+                                    label={field.label}
+                                    name={field.name}
+                                    type={field.type}
+                                    value={form[field.name]}
+                                    onChange={onChange}
+                                    required={field.required}
+                                />
+                            ))}
 
-                        {/* Municipality — read-only */}
-                        <div>
-                            <label className="block text-xs font-medium text-white/60 mb-1.5 uppercase tracking-wider">
-                                Municipality
-                            </label>
-                            <input
-                                type="text"
-                                value={form.municipality}
-                                disabled
-                                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white/60 text-sm focus:outline-none disabled:opacity-60"
-                            />
+                            {/* Municipality — read-only */}
+                            <div>
+                                <label className="block text-xs font-medium text-white/60 mb-1.5 uppercase tracking-wider">
+                                    Municipality
+                                </label>
+                                <input
+                                    type="text"
+                                    value={form.municipality}
+                                    disabled
+                                    className="w-full px-3 py-2.5 bg-white/5 border border-white/10 text-white/60 text-sm focus:outline-none disabled:opacity-60"
+                                />
+                            </div>
+
+                            {/* Ward — dropdown */}
+                            <div>
+                                <label className="block text-xs font-medium text-white/60 mb-1.5 uppercase tracking-wider">
+                                    Ward
+                                </label>
+                                <select
+                                    name="ward"
+                                    value={form.ward}
+                                    onChange={onChange}
+                                    className="w-full px-3 py-2.5 bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
+                                >
+                                    {WARD_OPTIONS.map((w) => (
+                                        <option key={w} value={w} className="bg-[#242424]">
+                                            {w}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* Role — dropdown */}
+                            <div className="sm:col-span-2">
+                                <label className="block text-xs font-medium text-white/60 mb-1.5 uppercase tracking-wider">
+                                    Role
+                                </label>
+                                <select
+                                    value={role}
+                                    onChange={(e) => setRole(e.target.value)}
+                                    className="w-full px-3 py-2.5 bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
+                                >
+                                    {ROLE_OPTIONS.map((opt) => (
+                                        <option key={opt.code} value={opt.code} className="bg-[#242424]">
+                                            {opt.label}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
                         </div>
+                    </form>
+                </div>
 
-                        {/* Ward — dropdown */}
-                        <div>
-                            <label className="block text-xs font-medium text-white/60 mb-1.5 uppercase tracking-wider">
-                                Ward
-                            </label>
-                            <select
-                                name="ward"
-                                value={form.ward}
-                                onChange={onChange}
-                                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
-                            >
-                                {WARD_OPTIONS.map((w) => (
-                                    <option key={w} value={w} className="bg-[#242424]">
-                                        {w}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-
-                        {/* Role — dropdown */}
-                        <div className="sm:col-span-2">
-                            <label className="block text-xs font-medium text-white/60 mb-1.5 uppercase tracking-wider">
-                                Role
-                            </label>
-                            <select
-                                value={role}
-                                onChange={(e) => setRole(e.target.value)}
-                                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
-                            >
-                                {ROLE_OPTIONS.map((opt) => (
-                                    <option key={opt.code} value={opt.code} className="bg-[#242424]">
-                                        {opt.label}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            className="px-5 py-2.5 text-white/70 font-medium rounded-lg hover:bg-white/5 transition-colors"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            type="submit"
-                            disabled={busy}
-                            className="px-5 py-2.5 bg-[#173ef0] text-white font-medium rounded-lg hover:bg-[#0020ad] disabled:opacity-50 transition-colors"
-                        >
-                            {busy ? 'Creating…' : 'Create User'}
-                        </button>
-                    </div>
-                </form>
+                {/* Footer — pinned, outside the form, submits via form="…" */}
+                <div className="px-6 py-4 border-t border-white/10 flex justify-end gap-3 bg-[#161616]">
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        className="px-5 py-2.5 text-white/70 font-medium hover:bg-white/5 transition-colors"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="submit"
+                        form="register-user-form"
+                        disabled={busy}
+                        className="px-5 py-2.5 bg-[#173ef0] text-white font-medium hover:bg-[#0020ad] disabled:opacity-50 transition-colors"
+                    >
+                        {busy ? 'Creating…' : 'Create User'}
+                    </button>
+                </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
 
@@ -207,7 +215,7 @@ const Field = ({ label, ...props }) => (
         </label>
         <input
             {...props}
-            className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0]"
+            className="w-full px-3 py-2.5 bg-white/5 border border-white/10 text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0]"
         />
     </div>
 );
