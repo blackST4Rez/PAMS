@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import toast from 'react-hot-toast';
 import {
@@ -11,6 +11,7 @@ import {
     FaTimes,
     FaTags,
 } from 'react-icons/fa';
+import Pagination, { useIsMobile } from '../Common/Pagination';
 import { useCategories } from '../Context/CategoriesContext';
 import { useAssets } from '../Context/AssetsContext';
 import { useAuth } from '../Context/AuthContext';
@@ -21,11 +22,11 @@ import { DEPRECIATION_METHODS } from '../mock/mockAssets';
 const methodLabel = (code) =>
     DEPRECIATION_METHODS.find((m) => m.code === code)?.label ?? code;
 
-/*
-  Count how many non-deleted assets reference a given category.
-*/
 const countAssetsForCategory = (assets, categoryId) =>
     assets.filter((a) => a.categoryId === categoryId && !a.deletedAt).length;
+
+const MOBILE_PAGE_SIZE = 5;
+const DESKTOP_PAGE_SIZE = 10;
 
 /* ---------------- main section ---------------- */
 
@@ -41,14 +42,26 @@ const CategoriesSection = () => {
     } = useCategories();
     const { allAssets } = useAssets();
 
+    const isMobile = useIsMobile();
+    const pageSize = isMobile ? MOBILE_PAGE_SIZE : DESKTOP_PAGE_SIZE;
+
     const categories = allCategories();
     const assets = allAssets();
 
-    const [editing, setEditing] = useState(null);       // category being edited, or null for new
+    const [editing, setEditing] = useState(null);
     const [showCreate, setShowCreate] = useState(false);
     const [confirmAction, setConfirmAction] = useState(null);
+    const [page, setPage] = useState(1);
 
     const actor = user?.username ?? 'unknown';
+
+    /* Pagination */
+    const totalPages = Math.max(1, Math.ceil(categories.length / pageSize));
+    const safePage = Math.min(page, totalPages);
+    const paged = categories.slice(
+        (safePage - 1) * pageSize,
+        safePage * pageSize
+    );
 
     const openCreate = () => {
         setEditing(null);
@@ -132,149 +145,167 @@ const CategoriesSection = () => {
 
             {/* Table */}
             {categories.length === 0 ? (
-                <p className="text-white/50 text-sm py-8 text-center bg-[#1a1a1a] border border-white/10">
+                <p className="text-white/50 text-sm py-8 text-center bg-[#1a1a1a] border-b border-white/10">
                     No categories defined yet.
                 </p>
             ) : (
-                <div className="bg-[#1a1a1a] border border-white/10 overflow-hidden">
-                    {/* Mobile cards */}
-                    <div className="lg:hidden divide-y divide-white/5">
-                        {categories.map((c) => (
-                            <CategoryCard
-                                key={c.id}
-                                category={c}
-                                assetCount={countAssetsForCategory(assets, c.id)}
-                                onEdit={() => openEdit(c)}
-                                onDeactivate={() => askDeactivate(c)}
-                                onReactivate={() => askReactivate(c)}
-                                onDelete={() => askDelete(c)}
-                            />
-                        ))}
+                <>
+                    <div className="bg-[#1a1a1a] border-b border-white/10 overflow-hidden">
+                        {/* Mobile cards */}
+                        <div className="lg:hidden divide-y divide-white/5">
+                            {paged.map((c) => (
+                                <CategoryCard
+                                    key={c.id}
+                                    category={c}
+                                    assetCount={countAssetsForCategory(assets, c.id)}
+                                    onEdit={() => openEdit(c)}
+                                    onDeactivate={() => askDeactivate(c)}
+                                    onReactivate={() => askReactivate(c)}
+                                    onDelete={() => askDelete(c)}
+                                />
+                            ))}
+                        </div>
+
+                        {/* Desktop table */}
+                        <div className="hidden lg:block overflow-x-auto">
+                            <table className="w-full min-w-280 border-collapse table-fixed">
+                                <colgroup>
+                                    <col className="w-[8%]" />
+                                    <col className="w-[18%]" />
+                                    <col className="w-[20%]" />
+                                    <col className="w-[12%]" />
+                                    <col className="w-[8%]" />
+                                    <col className="w-[10%]" />
+                                    <col className="w-[24%]" />
+                                </colgroup>
+                                <thead>
+                                    <tr>
+                                        <th className="text-left text-[10px] font-semibold text-white/60 uppercase tracking-wider pb-3 pl-0 pr-6 whitespace-nowrap">
+                                            Code
+                                        </th>
+                                        <th className="text-left text-[10px] font-semibold text-white/60 uppercase tracking-wider pb-3 pl-0 pr-6 whitespace-nowrap">
+                                            Name
+                                        </th>
+                                        <th className="text-left text-[10px] font-semibold text-white/60 uppercase tracking-wider pb-3 pl-6 pr-6 whitespace-nowrap">
+                                            Depreciation
+                                        </th>
+                                        <th className="text-left text-[10px] font-semibold text-white/60 uppercase tracking-wider pb-3 pl-6 pr-6 whitespace-nowrap">
+                                            Useful Life
+                                        </th>
+                                        <th className="text-right text-[10px] font-semibold text-white/60 uppercase tracking-wider pb-3 pl-6 pr-6 whitespace-nowrap">
+                                            Assets
+                                        </th>
+                                        <th className="text-left text-[10px] font-semibold text-white/60 uppercase tracking-wider pb-3 pl-6 pr-6 whitespace-nowrap">
+                                            Status
+                                        </th>
+                                        <th className="text-right text-[10px] font-semibold text-white/60 uppercase tracking-wider pb-3 pl-6 pr-0 whitespace-nowrap">
+                                            Actions
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {paged.map((c) => {
+                                        const isInactive = Boolean(c.deactivatedAt);
+                                        const assetCount = countAssetsForCategory(assets, c.id);
+                                        const deletable = assetCount === 0;
+                                        return (
+                                            <tr
+                                                key={c.id}
+                                                className="border-b border-b-[#3a3a3a] align-top"
+                                            >
+                                                <td className="py-3 pl-0 pr-6 overflow-hidden">
+                                                    <p className="text-xs font-mono text-white whitespace-nowrap">
+                                                        {c.code}
+                                                    </p>
+                                                </td>
+                                                <td className="py-3 pl-0 pr-6 overflow-hidden">
+                                                    <p className="text-xs text-white leading-snug">
+                                                        {c.name}
+                                                    </p>
+                                                </td>
+                                                <td className="py-3 pl-6 pr-6 overflow-hidden">
+                                                    <p className="text-xs text-white/80 leading-snug">
+                                                        {methodLabel(c.defaultDepreciationMethod)}
+                                                    </p>
+                                                </td>
+                                                <td className="py-3 pl-6 pr-6 overflow-hidden">
+                                                    <p className="text-xs text-white/80 whitespace-nowrap">
+                                                        {c.usefulLifeYears != null
+                                                            ? `${c.usefulLifeYears} yr`
+                                                            : '—'}
+                                                    </p>
+                                                </td>
+                                                <td className="py-3 pl-6 pr-6 text-right overflow-hidden">
+                                                    <p className="text-xs text-white/80 whitespace-nowrap">
+                                                        {assetCount}
+                                                    </p>
+                                                </td>
+                                                <td className="py-3 pl-6 pr-6 overflow-hidden">
+                                                    {isInactive ? (
+                                                        <span className="text-xs font-medium text-red-300 whitespace-nowrap">
+                                                            Inactive
+                                                        </span>
+                                                    ) : (
+                                                        <span className="text-xs font-medium text-green-300 whitespace-nowrap">
+                                                            Active
+                                                        </span>
+                                                    )}
+                                                </td>
+                                                <td className="py-3 pl-6 pr-0 overflow-hidden">
+                                                    <div className="flex items-center justify-end gap-2 whitespace-nowrap">
+                                                        <button
+                                                            onClick={() => openEdit(c)}
+                                                            className="inline-flex items-center gap-1 text-xs font-medium px-2 py-1.5 text-white/70 hover:text-white hover:bg-white/5 transition-colors"
+                                                        >
+                                                            <FaEdit className="w-3 h-3" />
+                                                            Edit
+                                                        </button>
+                                                        {isInactive ? (
+                                                            <button
+                                                                onClick={() => askReactivate(c)}
+                                                                className="inline-flex items-center gap-1 text-xs font-medium px-2 py-1.5 text-green-400 hover:text-green-300 hover:bg-green-500/10 transition-colors"
+                                                            >
+                                                                <FaPlay className="w-3 h-3" />
+                                                                Activate
+                                                            </button>
+                                                        ) : (
+                                                            <button
+                                                                onClick={() => askDeactivate(c)}
+                                                                className="inline-flex items-center gap-1 text-xs font-medium px-2 py-1.5 text-yellow-400 hover:text-yellow-300 hover:bg-yellow-500/10 transition-colors"
+                                                            >
+                                                                <FaBan className="w-3 h-3" />
+                                                                Deactivate
+                                                            </button>
+                                                        )}
+                                                        <button
+                                                            onClick={() => askDelete(c)}
+                                                            disabled={!deletable}
+                                                            title={
+                                                                deletable
+                                                                    ? 'Delete category'
+                                                                    : 'In use by assets — deactivate instead'
+                                                            }
+                                                            className="inline-flex items-center gap-1 text-xs font-medium px-2 py-1.5 text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+                                                        >
+                                                            <FaTrash className="w-3 h-3" />
+                                                            Delete
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
 
-                    {/* Desktop table */}
-                    <div className="hidden lg:block overflow-x-auto">
-                        <table className="w-full border-collapse table-fixed">
-                            <colgroup>
-                                <col className="w-[10%]" />
-                                <col className="w-[22%]" />
-                                <col className="w-[20%]" />
-                                <col className="w-[12%]" />
-                                <col className="w-[10%]" />
-                                <col className="w-[10%]" />
-                                <col className="w-[16%]" />
-                            </colgroup>
-                            <thead>
-                                <tr>
-                                    <th className="text-left text-[10px] font-semibold text-white/60 uppercase tracking-wider pb-3 px-3 whitespace-nowrap">
-                                        Code
-                                    </th>
-                                    <th className="text-left text-[10px] font-semibold text-white/60 uppercase tracking-wider pb-3 px-3 whitespace-nowrap">
-                                        Name
-                                    </th>
-                                    <th className="text-left text-[10px] font-semibold text-white/60 uppercase tracking-wider pb-3 px-3 whitespace-nowrap">
-                                        Depreciation
-                                    </th>
-                                    <th className="text-left text-[10px] font-semibold text-white/60 uppercase tracking-wider pb-3 px-3 whitespace-nowrap">
-                                        Useful Life
-                                    </th>
-                                    <th className="text-left text-[10px] font-semibold text-white/60 uppercase tracking-wider pb-3 px-3 whitespace-nowrap">
-                                        Assets
-                                    </th>
-                                    <th className="text-left text-[10px] font-semibold text-white/60 uppercase tracking-wider pb-3 px-3 whitespace-nowrap">
-                                        Status
-                                    </th>
-                                    <th className="text-left text-[10px] font-semibold text-white/60 uppercase tracking-wider pb-3 px-3 whitespace-nowrap">
-                                        Actions
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {categories.map((c) => {
-                                    const isInactive = Boolean(c.deactivatedAt);
-                                    const assetCount = countAssetsForCategory(assets, c.id);
-                                    const deletable = assetCount === 0;
-                                    return (
-                                        <tr
-                                            key={c.id}
-                                            className="border-b border-b-[#3a3a3a] align-top"
-                                        >
-                                            <td className="py-3 px-3 text-xs font-mono text-white whitespace-nowrap">
-                                                {c.code}
-                                            </td>
-                                            <td className="py-3 px-3 text-xs text-white">
-                                                {c.name}
-                                            </td>
-                                            <td className="py-3 px-3 text-xs text-white/80 whitespace-nowrap">
-                                                {methodLabel(c.defaultDepreciationMethod)}
-                                            </td>
-                                            <td className="py-3 px-3 text-xs text-white/80 whitespace-nowrap">
-                                                {c.usefulLifeYears != null
-                                                    ? `${c.usefulLifeYears} yr`
-                                                    : '—'}
-                                            </td>
-                                            <td className="py-3 px-3 text-xs text-white/80">
-                                                {assetCount}
-                                            </td>
-                                            <td className="py-3 px-3">
-                                                {isInactive ? (
-                                                    <span className="text-xs font-medium text-red-300 whitespace-nowrap">
-                                                        Inactive
-                                                    </span>
-                                                ) : (
-                                                    <span className="text-xs font-medium text-green-300 whitespace-nowrap">
-                                                        Active
-                                                    </span>
-                                                )}
-                                            </td>
-                                            <td className="py-3 px-3">
-                                                <div className="flex items-center gap-1 flex-wrap whitespace-nowrap">
-                                                    <button
-                                                        onClick={() => openEdit(c)}
-                                                        className="inline-flex items-center gap-1 text-xs font-medium px-2 py-1.5 text-white/70 hover:text-white hover:bg-white/5 transition-colors"
-                                                    >
-                                                        <FaEdit className="w-3 h-3" />
-                                                        Edit
-                                                    </button>
-                                                    {isInactive ? (
-                                                        <button
-                                                            onClick={() => askReactivate(c)}
-                                                            className="inline-flex items-center gap-1 text-xs font-medium px-2 py-1.5 text-green-400 hover:text-green-300 hover:bg-green-500/10 transition-colors"
-                                                        >
-                                                            <FaPlay className="w-3 h-3" />
-                                                            Activate
-                                                        </button>
-                                                    ) : (
-                                                        <button
-                                                            onClick={() => askDeactivate(c)}
-                                                            className="inline-flex items-center gap-1 text-xs font-medium px-2 py-1.5 text-yellow-400 hover:text-yellow-300 hover:bg-yellow-500/10 transition-colors"
-                                                        >
-                                                            <FaBan className="w-3 h-3" />
-                                                            Deactivate
-                                                        </button>
-                                                    )}
-                                                    <button
-                                                        onClick={() => askDelete(c)}
-                                                        disabled={!deletable}
-                                                        title={
-                                                            deletable
-                                                                ? 'Delete category'
-                                                                : 'In use by assets — deactivate instead'
-                                                        }
-                                                        className="inline-flex items-center gap-1 text-xs font-medium px-2 py-1.5 text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent"
-                                                    >
-                                                        <FaTrash className="w-3 h-3" />
-                                                        Delete
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                    <Pagination
+                        page={safePage}
+                        totalPages={totalPages}
+                        onPage={setPage}
+                    />
+                </>
             )}
 
             {/* Create / Edit drawer */}
@@ -418,7 +449,7 @@ const CategoryCard = ({
 };
 
 /* ==================================================================
-   Create / Edit drawer — audit drawer theme
+   Create / Edit drawer
    ================================================================== */
 
 const CategoryDrawer = ({ category, onClose, onSave }) => {
@@ -460,7 +491,6 @@ const CategoryDrawer = ({ category, onClose, onSave }) => {
                 className="bg-[#161616] border-l border-white/10 w-full sm:max-w-2xl h-full flex flex-col shadow-2xl"
                 onClick={(e) => e.stopPropagation()}
             >
-                {/* Header */}
                 <header className="shrink-0 border-b border-white/10">
                     <div className="px-6 sm:px-8 py-5 flex items-start justify-between gap-6">
                         <div className="min-w-0 flex-1 space-y-3">
@@ -486,14 +516,12 @@ const CategoryDrawer = ({ category, onClose, onSave }) => {
                     </div>
                 </header>
 
-                {/* Body */}
                 <form
                     onSubmit={onSubmit}
                     className="flex-1 min-h-0 flex flex-col"
                 >
                     <div className="flex-1 overflow-y-auto hide-scrollbar">
                         <div className="px-6 sm:px-8 py-6 space-y-6">
-                            {/* Identity */}
                             <section>
                                 <SectionHeading>Identity</SectionHeading>
 
@@ -537,7 +565,6 @@ const CategoryDrawer = ({ category, onClose, onSave }) => {
 
                             <div className="h-px bg-white/10 my-8" />
 
-                            {/* Depreciation */}
                             <section>
                                 <SectionHeading>Depreciation Defaults</SectionHeading>
 
@@ -581,7 +608,6 @@ const CategoryDrawer = ({ category, onClose, onSave }) => {
                         </div>
                     </div>
 
-                    {/* Footer */}
                     <div className="shrink-0 bg-[#161616] border-t border-white/10 px-6 sm:px-8 py-4 flex flex-wrap justify-end gap-3">
                         <button
                             type="button"
@@ -606,7 +632,7 @@ const CategoryDrawer = ({ category, onClose, onSave }) => {
 };
 
 /* ==================================================================
-   Confirm dialog — audit drawer theme
+   Confirm dialog
    ================================================================== */
 
 const ConfirmDialog = ({ action, assetCount, onCancel, onConfirm }) => {

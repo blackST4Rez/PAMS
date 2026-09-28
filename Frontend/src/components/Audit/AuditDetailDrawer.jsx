@@ -3,14 +3,88 @@ import { useAudit } from '../Context/AuditContext';
 import {
     getEntityMeta,
     getActionMeta,
-    fmtAuditTime,
 } from '../mock/mockAudit';
 
+/* ISO timestamp → "28 Sep 2026, 14:37:12" */
+const fmtIso = (iso) => {
+    if (!iso) return iso;
+    try {
+        return new Date(iso).toLocaleString('en-GB', {
+            year: 'numeric',
+            month: 'short',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+        });
+    } catch {
+        return iso;
+    }
+};
+
+/* Keys that should always be treated as timestamps */
+const TIMESTAMP_KEYS = new Set([
+    'at', 'createdAt', 'updatedAt', 'deletedAt', 'deactivatedAt',
+    'runAt', 'actedAt', 'completedAt', 'nextDueAt', 'lastDoneAt',
+    'requestedAt', 'lastActive', 'acquiredAt', 'expiresAt',
+]);
+
+/* True if a key name looks like a timestamp */
+const isTimestampKey = (key) => {
+    if (TIMESTAMP_KEYS.has(key)) return true;
+    if (typeof key !== 'string') return false;
+    if (!key.endsWith('At') && !key.endsWith('Date') && !key.endsWith('Time')) return false;
+    return true;
+};
+
+/* True if the value looks like an ISO-8601 timestamp */
+const looksLikeIso = (value) =>
+    typeof value === 'string' &&
+    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(value);
+
 /*
-  Pretty-print a JSON value.
+  Recursively walk an object and reformat timestamp values
+  to a readable date/time string. Handles nested objects and
+  arrays. Returns a new value; does not mutate the input.
+*/
+const prettifyTimestamps = (value, keyHint = null) => {
+    if (value == null) return value;
+
+    /* Arrays — walk each element */
+    if (Array.isArray(value)) {
+        return value.map((v) => prettifyTimestamps(v, keyHint));
+    }
+
+    /* Objects — walk each key */
+    if (typeof value === 'object') {
+        const next = {};
+        for (const [k, v] of Object.entries(value)) {
+            if (isTimestampKey(k) && typeof v === 'string') {
+                next[k] = fmtIso(v);
+            } else if (looksLikeIso(v)) {
+                next[k] = fmtIso(v);
+            } else {
+                next[k] = prettifyTimestamps(v, k);
+            }
+        }
+        return next;
+    }
+
+    /* Primitive — if it's a timestamp under a known key, format it */
+    if (keyHint && isTimestampKey(keyHint) && typeof value === 'string') {
+        return fmtIso(value);
+    }
+
+    return value;
+};
+
+/*
+  Pretty-print a JSON value with timestamps reformatted.
 */
 const JsonBlock = ({ label, value, accent, accentBg }) => {
     if (value === null || value === undefined) return null;
+
+    const pretty = prettifyTimestamps(value);
 
     return (
         <div className="min-w-0">
@@ -23,7 +97,7 @@ const JsonBlock = ({ label, value, accent, accentBg }) => {
             <pre
                 className={`text-sm p-4 bg-[#1c1c1c] overflow-x-auto whitespace-pre-wrap wrap-break-words leading-relaxed font-mono ${accent}`}
             >
-                {JSON.stringify(value, null, 2)}
+                {JSON.stringify(pretty, null, 2)}
             </pre>
         </div>
     );
@@ -54,19 +128,15 @@ const AuditDetailDrawer = ({ entryId, onClose }) => {
                 {/* ==================== HEADER ==================== */}
                 <header className="shrink-0 border-b border-white/10">
                     <div className="px-6 sm:px-8 py-5 flex items-start justify-between gap-6">
-                        {/* Left — id + title + chips, evenly stacked */}
                         <div className="min-w-0 flex-1 space-y-3">
-                            {/* Entry ID */}
                             <p className="text-xs font-mono text-white/40 uppercase tracking-widest leading-none">
                                 {entry.id}
                             </p>
 
-                            {/* Title */}
                             <h2 className="text-2xl sm:text-3xl font-semibold text-white leading-snug tracking-tight wrap-break-words">
                                 {entry.summary || 'Audit entry'}
                             </h2>
 
-                            {/* Chips row */}
                             <div className="flex items-center gap-2 flex-wrap pt-0.5">
                                 <span className="inline-flex items-center px-2.5 py-1 bg-[#1c1c1c] text-sm font-medium">
                                     <span className={entityMeta.color}>
@@ -77,12 +147,11 @@ const AuditDetailDrawer = ({ entryId, onClose }) => {
                                     {actionMeta.label}
                                 </span>
                                 <span className="inline-flex items-center px-2.5 py-1 text-sm text-white">
-                                    {fmtAuditTime(entry.at)}
+                                    {fmtIso(entry.at)}
                                 </span>
                             </div>
                         </div>
 
-                        {/* Right — close button, aligned to top */}
                         <button
                             onClick={onClose}
                             className="shrink-0 inline-flex items-center gap-1.5 h-8 px-3 text-red-400 bg-[#161616] border border-[#161616] hover:border-red-400 transition-colors text-sm font-medium"
@@ -111,7 +180,7 @@ const AuditDetailDrawer = ({ entryId, onClose }) => {
                                 <DetailItem label="Actor" value={entry.actor} />
                                 <DetailItem
                                     label="Timestamp"
-                                    value={fmtAuditTime(entry.at)}
+                                    value={fmtIso(entry.at)}
                                 />
                                 <DetailItem label="Entry ID" value={entry.id} mono />
                             </div>
@@ -157,7 +226,7 @@ const AuditDetailDrawer = ({ entryId, onClose }) => {
     );
 };
 
-/* Section heading — accent bar + uppercase label, tighter bottom margin */
+/* Section heading — accent bar + uppercase label */
 const SectionHeading = ({ children }) => (
     <div className="flex items-center gap-2.5 mb-4">
         <span className="w-0.5 h-4 bg-[#173ef0] rounded-full" />
@@ -167,10 +236,7 @@ const SectionHeading = ({ children }) => (
     </div>
 );
 
-/*
-  Detail item — label and value both left-aligned, with a
-  consistent baseline so the 2-column grid reads as a table.
-*/
+/* Detail item — label above, value below */
 const DetailItem = ({ label, value, mono = false }) => (
     <div className="min-w-0">
         <p className="text-xs uppercase tracking-widest text-white/40 mb-1.5 leading-none">
