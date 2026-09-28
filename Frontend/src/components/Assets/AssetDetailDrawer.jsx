@@ -10,9 +10,9 @@ import {
 } from 'react-icons/fa';
 import { useAuth } from '../Context/AuthContext';
 import { useAssets } from '../Context/AssetsContext';
+import { useCategories } from '../Context/CategoriesContext';
 import { formatNPR } from '../Utils/formatCurrency';
 import {
-    MOCK_ASSET_CATEGORIES,
     MOCK_WARDS,
     DEPRECIATION_METHODS,
 } from '../mock/mockAssets';
@@ -62,10 +62,11 @@ const AssetDetailDrawer = ({ assetId, onClose }) => {
         approveAsset,
         rejectAsset,
     } = useAssets();
+    const { getCategoryById, allCategories } = useCategories();
 
     const asset = getAsset(assetId);
 
-    const [mode, setMode] = useState('view'); // 'view' | 'edit' | 'reject'
+    const [mode, setMode] = useState('view'); // 'view' | 'edit'
     const [editForm, setEditForm] = useState(() =>
         asset
             ? {
@@ -80,8 +81,8 @@ const AssetDetailDrawer = ({ assetId, onClose }) => {
             }
             : {}
     );
-    const [rejectReason, setRejectReason] = useState('');
     const [busy, setBusy] = useState(false);
+    const [confirmAction, setConfirmAction] = useState(null); // { type, reason? }
 
     if (!asset) {
         return null;
@@ -145,17 +146,21 @@ const AssetDetailDrawer = ({ assetId, onClose }) => {
         }
     };
 
-    const handleReject = () => {
-        if (!rejectReason.trim()) {
-            toast.error('Please provide a reason for rejection');
-            return;
-        }
+    const runConfirmedAction = () => {
+        if (!confirmAction) return;
+        const { type, reason } = confirmAction;
         setBusy(true);
         try {
-            rejectAsset(asset.id, rejectReason.trim(), user?.username ?? 'unknown');
-            toast.success('Asset rejected');
-            setMode('view');
-            setRejectReason('');
+            if (type === 'delete') {
+                softDeleteAsset(asset.id, user?.username ?? 'unknown');
+                toast.success('Asset soft-deleted');
+                setConfirmAction(null);
+                onClose();
+            } else if (type === 'reject') {
+                rejectAsset(asset.id, reason, user?.username ?? 'unknown');
+                toast.success('Asset rejected');
+                setConfirmAction(null);
+            }
         } catch (err) {
             toast.error(err.message);
         } finally {
@@ -163,21 +168,7 @@ const AssetDetailDrawer = ({ assetId, onClose }) => {
         }
     };
 
-    const handleDelete = () => {
-        if (!confirm(`Soft-delete "${asset.title}"? This keeps the record for audit.`)) return;
-        setBusy(true);
-        try {
-            softDeleteAsset(asset.id, user?.username ?? 'unknown');
-            toast.success('Asset soft-deleted');
-            onClose();
-        } catch (err) {
-            toast.error(err.message);
-        } finally {
-            setBusy(false);
-        }
-    };
-
-    const cat = MOCK_ASSET_CATEGORIES.find((c) => c.id === asset.categoryId);
+    const cat = getCategoryById(asset.categoryId);
     const ward = MOCK_WARDS.find((w) => w.id === asset.wardId);
     const depr = DEPRECIATION_METHODS.find(
         (m) => m.code === asset.depreciationMethod
@@ -342,19 +333,7 @@ const AssetDetailDrawer = ({ assetId, onClose }) => {
                                 onCancel={() => setMode('view')}
                                 onSave={handleSaveEdit}
                                 busy={busy}
-                            />
-                        )}
-
-                        {mode === 'reject' && (
-                            <RejectMode
-                                reason={rejectReason}
-                                setReason={setRejectReason}
-                                onCancel={() => {
-                                    setMode('view');
-                                    setRejectReason('');
-                                }}
-                                onConfirm={handleReject}
-                                busy={busy}
+                                categories={allCategories()}
                             />
                         )}
                     </div>
@@ -365,7 +344,7 @@ const AssetDetailDrawer = ({ assetId, onClose }) => {
                     <div className="shrink-0 bg-[#161616] border-t border-white/10 px-6 sm:px-8 py-4 flex flex-wrap justify-end gap-3">
                         {canDelete && !isDeleted && (
                             <button
-                                onClick={handleDelete}
+                                onClick={() => setConfirmAction({ type: 'delete' })}
                                 disabled={busy}
                                 className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-50"
                             >
@@ -387,7 +366,7 @@ const AssetDetailDrawer = ({ assetId, onClose }) => {
                         {canApprove && isPending && !isDeleted && (
                             <>
                                 <button
-                                    onClick={() => setMode('reject')}
+                                    onClick={() => setConfirmAction({ type: 'reject' })}
                                     disabled={busy}
                                     className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-50"
                                 >
@@ -407,6 +386,27 @@ const AssetDetailDrawer = ({ assetId, onClose }) => {
                     </div>
                 )}
             </div>
+
+            {/* ==================== CONFIRM DIALOGS ==================== */}
+            {confirmAction?.type === 'delete' && (
+                <DeleteConfirm
+                    asset={asset}
+                    busy={busy}
+                    onCancel={() => setConfirmAction(null)}
+                    onConfirm={runConfirmedAction}
+                />
+            )}
+            {confirmAction?.type === 'reject' && (
+                <RejectConfirm
+                    asset={asset}
+                    busy={busy}
+                    onCancel={() => setConfirmAction(null)}
+                    onConfirm={runConfirmedAction}
+                    onReasonChange={(reason) =>
+                        setConfirmAction((prev) => ({ ...prev, reason }))
+                    }
+                />
+            )}
         </div>,
         document.body
     );
@@ -438,44 +438,22 @@ const DetailItem = ({ label, value, mono = false }) => (
     </div>
 );
 
-const EditMode = ({ form, onChange, onCancel, onSave, busy }) => (
+const EditMode = ({ form, onChange, onCancel, onSave, busy, categories }) => (
     <div className="space-y-5">
         <SectionHeading>Edit Asset</SectionHeading>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="sm:col-span-2">
-                <Field
-                    label="Title"
-                    name="title"
-                    value={form.title}
-                    onChange={onChange}
-                />
+                <Field label="Title" name="title" value={form.title} onChange={onChange} />
             </div>
             <div className="sm:col-span-2">
-                <Field
-                    label="Description"
-                    name="description"
-                    value={form.description}
-                    onChange={onChange}
-                />
+                <Field label="Description" name="description" value={form.description} onChange={onChange} />
             </div>
             <div>
-                <Field
-                    label="Acquisition Date"
-                    name="acquisitionDate"
-                    type="date"
-                    value={form.acquisitionDate}
-                    onChange={onChange}
-                />
+                <Field label="Acquisition Date" name="acquisitionDate" type="date" value={form.acquisitionDate} onChange={onChange} />
             </div>
             <div>
-                <Field
-                    label="Acquisition Cost (NPR)"
-                    name="acquisitionCost"
-                    type="number"
-                    value={form.acquisitionCost}
-                    onChange={onChange}
-                />
+                <Field label="Acquisition Cost (NPR)" name="acquisitionCost" type="number" value={form.acquisitionCost} onChange={onChange} />
             </div>
             <div>
                 <label className="block text-xs font-medium text-white/60 mb-1.5 uppercase tracking-widest">
@@ -487,7 +465,7 @@ const EditMode = ({ form, onChange, onCancel, onSave, busy }) => (
                     onChange={onChange}
                     className="w-full px-3 py-2.5 bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] appearance-none cursor-pointer"
                 >
-                    {MOCK_ASSET_CATEGORIES.map((c) => (
+                    {categories.map((c) => (
                         <option key={c.id} value={c.id} className="bg-[#242424]">
                             {c.name}
                         </option>
@@ -529,13 +507,7 @@ const EditMode = ({ form, onChange, onCancel, onSave, busy }) => (
                 </select>
             </div>
             <div>
-                <Field
-                    label="Useful Life (years)"
-                    name="usefulLifeYears"
-                    type="number"
-                    value={form.usefulLifeYears}
-                    onChange={onChange}
-                />
+                <Field label="Useful Life (years)" name="usefulLifeYears" type="number" value={form.usefulLifeYears} onChange={onChange} />
             </div>
         </div>
 
@@ -559,48 +531,6 @@ const EditMode = ({ form, onChange, onCancel, onSave, busy }) => (
     </div>
 );
 
-const RejectMode = ({ reason, setReason, onCancel, onConfirm, busy }) => (
-    <div className="space-y-5">
-        <SectionHeading>Reject Asset</SectionHeading>
-
-        <p className="text-base text-white/60 leading-relaxed">
-            The asset will move to <span className="text-white/80">Cancelled</span> status.
-            The reason you give is recorded in the audit trail and shown on the asset's lifecycle.
-        </p>
-
-        <div>
-            <label className="block text-xs font-medium text-white/60 mb-1.5 uppercase tracking-widest">
-                Reason for rejection
-            </label>
-            <textarea
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-                rows={4}
-                placeholder="e.g. Duplicate entry, verification failed, wrong category…"
-                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] resize-none"
-            />
-        </div>
-
-        <div className="flex justify-end gap-3 pt-2">
-            <button
-                type="button"
-                onClick={onCancel}
-                className="px-5 py-2.5 text-base font-medium text-white/70 hover:bg-white/5 transition-colors"
-            >
-                Cancel
-            </button>
-            <button
-                type="button"
-                onClick={onConfirm}
-                disabled={busy}
-                className="px-5 py-2.5 text-base font-medium bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 transition-colors"
-            >
-                {busy ? 'Rejecting…' : 'Confirm Rejection'}
-            </button>
-        </div>
-    </div>
-);
-
 const Field = ({ label, ...props }) => (
     <div>
         <label className="block text-xs font-medium text-white/60 mb-1.5 uppercase tracking-widest">
@@ -610,6 +540,180 @@ const Field = ({ label, ...props }) => (
             {...props}
             className="w-full px-3 py-2.5 bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0]"
         />
+    </div>
+);
+
+/* ==================================================================
+   Delete confirmation — audit-drawer themed
+   ================================================================== */
+
+const DeleteConfirm = ({ asset, busy, onCancel, onConfirm }) => {
+    return createPortal(
+        <div
+            className="fixed inset-0 z-9999 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+            onClick={onCancel}
+        >
+            <div
+                className="bg-[#161616] border border-white/10 w-full max-w-md shadow-2xl"
+                onClick={(e) => e.stopPropagation()}
+            >
+                <div className="h-0.5 w-full bg-red-500" />
+
+                <div className="px-6 sm:px-8 pt-8 pb-6">
+                    <div className="flex justify-center mb-5">
+                        <div className="w-12 h-12 flex items-center justify-center border border-red-500/30 text-red-400">
+                            <FaTrash className="w-5 h-5" />
+                        </div>
+                    </div>
+
+                    <div className="text-center mb-6">
+                        <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/40 mb-2">
+                            Delete Asset
+                        </p>
+                        <h2 className="text-xl font-semibold text-white leading-snug tracking-tight">
+                            {asset.title}
+                        </h2>
+                        <p className="text-sm text-white/60 mt-3 leading-relaxed max-w-xs mx-auto">
+                            This soft-deletes the asset — the record is kept for audit
+                            but hidden from the register.
+                        </p>
+                    </div>
+
+                    <div className="border border-white/5 bg-white/2 divide-y divide-white/5">
+                        <MetadataRow label="Code" value={asset.assetCode} mono />
+                        <MetadataRow label="Category" value={asset.categoryName ?? '—'} />
+                        <MetadataRow label="Ward" value={asset.wardName ?? '—'} />
+                    </div>
+                </div>
+
+                <div className="border-t border-white/10 px-6 sm:px-8 py-4 flex gap-3">
+                    <button
+                        type="button"
+                        onClick={onCancel}
+                        disabled={busy}
+                        className="flex-1 px-5 py-2.5 text-sm font-medium text-white/70 border border-white/10 hover:bg-white/5 hover:text-white transition-colors disabled:opacity-50"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="button"
+                        onClick={onConfirm}
+                        disabled={busy}
+                        className="flex-1 px-5 py-2.5 text-sm font-medium bg-red-600 hover:bg-red-700 text-white transition-colors disabled:opacity-50"
+                    >
+                        {busy ? 'Deleting…' : 'Yes, delete'}
+                    </button>
+                </div>
+            </div>
+        </div>,
+        document.body
+    );
+};
+
+/* ==================================================================
+   Reject confirmation — audit-drawer themed, with reason textarea
+   ================================================================== */
+
+const RejectConfirm = ({ asset, busy, onCancel, onConfirm, onReasonChange }) => {
+    const [reason, setReason] = useState('');
+
+    const handleChange = (e) => {
+        setReason(e.target.value);
+        onReasonChange(e.target.value);
+    };
+
+    const handleConfirm = () => {
+        if (!reason.trim()) {
+            toast.error('Please provide a reason for rejection');
+            return;
+        }
+        onConfirm();
+    };
+
+    return createPortal(
+        <div
+            className="fixed inset-0 z-9999 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+            onClick={onCancel}
+        >
+            <div
+                className="bg-[#161616] border border-white/10 w-full max-w-md shadow-2xl"
+                onClick={(e) => e.stopPropagation()}
+            >
+                <div className="h-0.5 w-full bg-red-500" />
+
+                <div className="px-6 sm:px-8 pt-8 pb-6">
+                    <div className="flex justify-center mb-5">
+                        <div className="w-12 h-12 flex items-center justify-center border border-red-500/30 text-red-400">
+                            <FaTimes className="w-5 h-5" />
+                        </div>
+                    </div>
+
+                    <div className="text-center mb-6">
+                        <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/40 mb-2">
+                            Reject Asset
+                        </p>
+                        <h2 className="text-xl font-semibold text-white leading-snug tracking-tight">
+                            {asset.title}
+                        </h2>
+                        <p className="text-sm text-white/60 mt-3 leading-relaxed max-w-xs mx-auto">
+                            The asset moves to <span className="text-white/80">Cancelled</span>.
+                            The reason is recorded in the audit trail and shown on the
+                            asset's lifecycle.
+                        </p>
+                    </div>
+
+                    <div>
+                        <label className="block text-[10px] font-mono uppercase tracking-[0.15em] text-white/40 mb-2">
+                            Reason for rejection
+                        </label>
+                        <textarea
+                            value={reason}
+                            onChange={handleChange}
+                            rows={3}
+                            placeholder="e.g. Duplicate entry, verification failed…"
+                            autoFocus
+                            className="w-full px-3 py-2.5 bg-white/5 border border-white/10 text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-red-500/50 resize-none"
+                        />
+                    </div>
+                </div>
+
+                <div className="border-t border-white/10 px-6 sm:px-8 py-4 flex gap-3">
+                    <button
+                        type="button"
+                        onClick={onCancel}
+                        disabled={busy}
+                        className="flex-1 px-5 py-2.5 text-sm font-medium text-white/70 border border-white/10 hover:bg-white/5 hover:text-white transition-colors disabled:opacity-50"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="button"
+                        onClick={handleConfirm}
+                        disabled={busy || !reason.trim()}
+                        className="flex-1 px-5 py-2.5 text-sm font-medium bg-red-600 hover:bg-red-700 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        {busy ? 'Rejecting…' : 'Yes, reject'}
+                    </button>
+                </div>
+            </div>
+        </div>,
+        document.body
+    );
+};
+
+/* Compact label/value row for the confirmation dialogs */
+const MetadataRow = ({ label, value, mono = false }) => (
+    <div className="flex items-center justify-between gap-4 px-4 py-3">
+        <span className="text-[10px] font-mono uppercase tracking-[0.15em] text-white/40">
+            {label}
+        </span>
+        <span
+            className={`text-sm text-white font-medium truncate ${
+                mono ? 'font-mono' : ''
+            }`}
+        >
+            {value}
+        </span>
     </div>
 );
 
