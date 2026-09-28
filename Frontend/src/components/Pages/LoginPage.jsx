@@ -22,10 +22,12 @@ const LoginPage = () => {
         setError('');
         try {
             await login(username, password);
+            /* On success we navigate immediately. The LoginPage unmounts
+               and ProtectedRoute's loader takes over — no reset of `busy`
+               needed, since the component disappears. */
             navigate('/dashboard');
         } catch (err) {
             setError(err.message || 'Login failed');
-        } finally {
             setBusy(false);
         }
     };
@@ -43,7 +45,6 @@ const LoginPage = () => {
 
                 <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-10 sm:py-16 lg:py-20">
                     <div className="max-w-lg w-full bg-[#1a1a1a] rounded-2xl p-6 sm:p-10 lg:p-12">
-                        {/* Icon + Title + Message */}
                         <div className="flex flex-col items-center text-center mb-5">
                             <div className="w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center mb-4">
                                 <FaExclamationTriangle className="w-6 h-6 sm:w-7 sm:h-7 text-red-500" />
@@ -56,7 +57,6 @@ const LoginPage = () => {
                             </p>
                         </div>
 
-                        {/* Back */}
                         <div className="flex justify-center">
                             <button
                                 onClick={clearError}
@@ -120,7 +120,6 @@ const LoginPage = () => {
                             </div>
                         </div>
 
-                        {/* Non-deactivation errors */}
                         {error && (
                             <div
                                 role="alert"
@@ -134,9 +133,9 @@ const LoginPage = () => {
                         <button
                             disabled={busy}
                             type="submit"
-                            className="w-full flex items-center justify-center gap-2 bg-[#173ef0] text-white px-6 py-3 font-semibold text-base sm:text-lg hover:bg-[#264bee] disabled:opacity-50 transition-colors"
+                            className="w-full flex items-center justify-center gap-3 bg-[#173ef0] text-white px-6 py-3 font-semibold text-base sm:text-lg hover:bg-[#264bee] disabled:opacity-60 disabled:cursor-wait transition-colors min-h-13"
                         >
-                            {busy ? 'Signing in…' : 'Sign In'}
+                            <span>Sign In</span>
                             <BiArrowFromLeft className="w-5 h-5" />
                         </button>
                     </form>
@@ -146,7 +145,7 @@ const LoginPage = () => {
                             Don't have an account?{' '}
                             <Link
                                 to="/register"
-                                className="text-[#374df7] font-semibold hover:text-[#173ef0] hover:underline"
+                                className="text-[#7c8cff] font-semibold hover:text-[#173ef0]"
                             >
                                 Sign up
                             </Link>
