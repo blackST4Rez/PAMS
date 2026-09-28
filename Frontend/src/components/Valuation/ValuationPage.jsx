@@ -33,9 +33,7 @@ const ValuationPage = () => {
 
             if (q) {
                 const haystack = [a.assetCode, a.title, a.categoryName]
-                    .filter(Boolean)
-                    .join(' ')
-                    .toLowerCase();
+                    .filter(Boolean).join(' ').toLowerCase();
                 if (!haystack.includes(q)) return false;
             }
             return true;
@@ -50,25 +48,22 @@ const ValuationPage = () => {
             cost += Number(a.acquisitionCost) || 0;
             book += Number(a.currentBookValue) || 0;
         }
-        return {
-            count: rows.length,
-            cost,
-            book,
-            depreciation: cost - book,
-        };
+        return { count: rows.length, cost, book, depreciation: cost - book };
     }, [allAssets]);
 
     if (authLoading || assetsLoading || valuationLoading) {
         return (
             <div className="min-h-screen bg-gray-700 flex flex-col">
                 <Header />
-                <div className="flex-1 flex">
+                <div className="flex-1 flex flex-col lg:flex-row w-full">
                     <UnifiedSidebar />
-                    <div className="flex-1 p-4 sm:p-6 lg:p-8 bg-[#1a1a1a] flex items-center justify-center">
-                        <p className="text-white/50 text-sm">Loading…</p>
+                    <div className="flex-1 flex flex-col min-w-0">
+                        <div className="flex-1 p-4 sm:p-6 lg:p-8 bg-[#1a1a1a] flex items-center justify-center">
+                            <p className="text-white/50 text-sm">Loading…</p>
+                        </div>
+                        <Footer />
                     </div>
                 </div>
-                <Footer />
             </div>
         );
     }
@@ -77,20 +72,22 @@ const ValuationPage = () => {
         return (
             <div className="min-h-screen bg-gray-700 flex flex-col">
                 <Header />
-                <div className="flex-1 flex">
+                <div className="flex-1 flex flex-col lg:flex-row w-full">
                     <UnifiedSidebar />
-                    <div className="flex-1 p-4 sm:p-6 lg:p-8 bg-[#1a1a1a]">
-                        <div className="bg-[#242424] rounded-xl p-8 max-w-xl">
-                            <h2 className="text-lg font-semibold text-white mb-2">
-                                Access Denied
-                            </h2>
-                            <p className="text-white/60 text-sm">
-                                You do not have permission to view valuation data.
-                            </p>
+                    <div className="flex-1 flex flex-col min-w-0">
+                        <div className="flex-1 p-4 sm:p-6 lg:p-8 bg-[#1a1a1a]">
+                            <div className="bg-[#242424] p-8 max-w-xl">
+                                <h2 className="text-lg font-semibold text-white mb-2">
+                                    Access Denied
+                                </h2>
+                                <p className="text-white/60 text-sm">
+                                    You do not have permission to view valuation data.
+                                </p>
+                            </div>
                         </div>
+                        <Footer />
                     </div>
                 </div>
-                <Footer />
             </div>
         );
     }
@@ -104,59 +101,39 @@ const ValuationPage = () => {
             <div className="flex-1 flex flex-col lg:flex-row w-full">
                 <UnifiedSidebar />
 
-                <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto bg-[#1a1a1a]">
-                    <div className="mb-6 px-4">
-                        <div className="flex items-center gap-3 flex-wrap">
-                            <h1 className="text-3xl font-bold text-white">Valuation</h1>
-                            <span className="inline-flex items-center justify-center min-w-7 h-7 px-2 text-sm font-semibold rounded-full bg-[#173ef0] text-white">
-                                {filteredAssets.length}
-                            </span>
+                <div className="flex-1 flex flex-col min-w-0">
+                    <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto bg-[#1a1a1a]">
+                        <div className="mb-6 px-4">
+                            <div className="flex items-center gap-3 flex-wrap">
+                                <h1 className="text-3xl font-bold text-white">Valuation</h1>
+                                <span className="inline-flex items-center justify-center min-w-7 h-7 px-2 text-sm font-semibold rounded-full bg-[#173ef0] text-white">
+                                    {filteredAssets.length}
+                                </span>
+                            </div>
+                            <p className="text-white/60 text-lg mt-1">
+                                Run depreciation and revalue individual assets
+                            </p>
                         </div>
-                        <p className="text-white/60 text-lg mt-1">
-                            Run depreciation and revalue individual assets
-                        </p>
-                    </div>
 
-                    {/* Totals — 2×2 grid */}
-                    <div className="grid grid-cols-2 gap-4 mb-6 px-4">
-                        <Stat
-                            label="Assets"
-                            value={totals.count}
-                            accent="text-white"
-                            bg="bg-[#1c1c1c]"
-                        />
-                        <Stat
-                            label="Total Acquisition Cost"
-                            value={formatNprShort(totals.cost)}
-                            accent="text-white"
-                            bg="bg-[#1c1c1c]"
-                        />
-                        <Stat
-                            label="Current Book Value"
-                            value={formatNprShort(totals.book)}
-                            accent="text-emerald-400"
-                            bg="bg-[#1c1c1c]"
-                        />
-                        <Stat
-                            label="Cumulative Depreciation"
-                            value={formatNprShort(totals.depreciation)}
-                            accent="text-red-400"
-                            bg="bg-[#1c1c1c]"
+                        <div className="grid grid-cols-2 gap-4 mb-6 px-4">
+                            <Stat label="Assets" value={totals.count} accent="text-white" bg="bg-[#1c1c1c]" />
+                            <Stat label="Total Acquisition Cost" value={formatNprShort(totals.cost)} accent="text-white" bg="bg-[#1c1c1c]" />
+                            <Stat label="Current Book Value" value={formatNprShort(totals.book)} accent="text-emerald-400" bg="bg-[#1c1c1c]" />
+                            <Stat label="Cumulative Depreciation" value={formatNprShort(totals.depreciation)} accent="text-red-400" bg="bg-[#1c1c1c]" />
+                        </div>
+
+                        <DepreciationRunPanel canRun={canRun} latestRun={latestRun()} />
+
+                        <AssetsValuationTable
+                            assets={filteredAssets}
+                            filters={filters}
+                            onFiltersChange={setFilters}
+                            canRevalue={canRun}
+                            onRevalue={(id) => setRevalueAssetId(id)}
                         />
                     </div>
 
-                    <DepreciationRunPanel
-                        canRun={canRun}
-                        latestRun={latestRun()}
-                    />
-
-                    <AssetsValuationTable
-                        assets={filteredAssets}
-                        filters={filters}
-                        onFiltersChange={setFilters}
-                        canRevalue={canRun}
-                        onRevalue={(id) => setRevalueAssetId(id)}
-                    />
+                    <Footer />
                 </div>
             </div>
 
@@ -167,7 +144,6 @@ const ValuationPage = () => {
                     onSaved={() => setRevalueAssetId(null)}
                 />
             )}
-
         </div>
     );
 };
@@ -177,9 +153,7 @@ const Stat = ({ label, value, accent = 'text-white', bg = 'bg-[#1c1c1c]' }) => (
         <p className="text-xs font-medium text-white/50 uppercase tracking-wider mb-1.5">
             {label}
         </p>
-        <p className={`text-lg sm:text-xl font-bold ${accent}`}>
-            {value}
-        </p>
+        <p className={`text-lg sm:text-xl font-bold ${accent}`}>{value}</p>
     </div>
 );
 

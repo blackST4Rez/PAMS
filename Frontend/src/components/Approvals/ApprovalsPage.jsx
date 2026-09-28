@@ -37,13 +37,15 @@ const ApprovalsPage = () => {
         return (
             <div className="min-h-screen bg-gray-700 flex flex-col">
                 <Header />
-                <div className="flex-1 flex">
+                <div className="flex-1 flex flex-col lg:flex-row w-full">
                     <UnifiedSidebar />
-                    <div className="flex-1 p-4 sm:p-6 lg:p-8 bg-[#1a1a1a] flex items-center justify-center">
-                        <p className="text-white/50 text-sm">Loading…</p>
+                    <div className="flex-1 flex flex-col min-w-0">
+                        <div className="flex-1 p-4 sm:p-6 lg:p-8 bg-[#1a1a1a] flex items-center justify-center">
+                            <p className="text-white/50 text-sm">Loading…</p>
+                        </div>
+                        <Footer />
                     </div>
                 </div>
-                <Footer />
             </div>
         );
     }
@@ -54,20 +56,22 @@ const ApprovalsPage = () => {
         return (
             <div className="min-h-screen bg-gray-700 flex flex-col">
                 <Header />
-                <div className="flex-1 flex">
+                <div className="flex-1 flex flex-col lg:flex-row w-full">
                     <UnifiedSidebar />
-                    <div className="flex-1 p-4 sm:p-6 lg:p-8 bg-[#1a1a1a]">
-                        <div className="bg-[#242424] rounded-xl p-8 max-w-xl">
-                            <h2 className="text-lg font-semibold text-white mb-2">
-                                Access Denied
-                            </h2>
-                            <p className="text-white/60 text-sm">
-                                You do not have permission to view approvals.
-                            </p>
+                    <div className="flex-1 flex flex-col min-w-0">
+                        <div className="flex-1 p-4 sm:p-6 lg:p-8 bg-[#1a1a1a]">
+                            <div className="bg-[#242424] p-8 max-w-xl">
+                                <h2 className="text-lg font-semibold text-white mb-2">
+                                    Access Denied
+                                </h2>
+                                <p className="text-white/60 text-sm">
+                                    You do not have permission to view approvals.
+                                </p>
+                            </div>
                         </div>
+                        <Footer />
                     </div>
                 </div>
-                <Footer />
             </div>
         );
     }
@@ -79,64 +83,68 @@ const ApprovalsPage = () => {
             <div className="flex-1 flex flex-col lg:flex-row w-full">
                 <UnifiedSidebar />
 
-                <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto bg-[#1a1a1a]">
-                    <div className="mb-6 px-4">
-                        <h1 className="text-3xl font-bold text-white">Approvals</h1>
-                        <p className="text-white/60 text-lg mt-1">
-                            Review and act on requests waiting for your role
-                        </p>
-                    </div>
-
-                    <section className="mb-8">
-                        <div className="mb-4 flex items-center flex-wrap">
-                            <h2 className="text-xl font-semibold text-white px-4">
-                                My Approvals
-                            </h2>
-                            <span className="text-xs font-normal px-2.5 py-1 rounded-full bg-[#173ef0] text-white">
-                                {myQueue.length}
-                            </span>
+                <div className="flex-1 flex flex-col min-w-0">
+                    <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto bg-[#1a1a1a]">
+                        <div className="mb-6 px-4">
+                            <h1 className="text-3xl font-bold text-white">Approvals</h1>
+                            <p className="text-white/60 text-lg mt-1">
+                                Review and act on requests waiting for your role
+                            </p>
                         </div>
 
-                        {myQueue.length === 0 ? (
-                            <div className="bg-[#242424] p-8 mx-4 sm:mx-6">
-                                <p className="text-white/50 text-sm text-center">
-                                    Nothing waiting on your role right now.
-                                </p>
-                            </div>
-                        ) : (
-                            <ApprovalsTable
-                                requests={myQueue}
-                                onRowClick={(id) => setSelectedRequestId(id)}
-                            />
-                        )}
-                    </section>
-
-                    {canOversee && (
-                        <section>
+                        <section className="mb-8">
                             <div className="mb-4 flex items-center flex-wrap">
                                 <h2 className="text-xl font-semibold text-white px-4">
-                                    Oversight — All Requests
+                                    My Approvals
                                 </h2>
                                 <span className="text-xs font-normal px-2.5 py-1 rounded-full bg-[#173ef0] text-white">
-                                    {everyRequest.length}
+                                    {myQueue.length}
                                 </span>
                             </div>
 
-                            {everyRequest.length === 0 ? (
+                            {myQueue.length === 0 ? (
                                 <div className="bg-[#242424] p-8 mx-4 sm:mx-6">
                                     <p className="text-white/50 text-sm text-center">
-                                        No approval requests in the system.
+                                        Nothing waiting on your role right now.
                                     </p>
                                 </div>
                             ) : (
                                 <ApprovalsTable
-                                    requests={everyRequest}
+                                    requests={myQueue}
                                     onRowClick={(id) => setSelectedRequestId(id)}
-                                    showCurrentOwner
                                 />
                             )}
                         </section>
-                    )}
+
+                        {canOversee && (
+                            <section>
+                                <div className="mb-4 flex items-center flex-wrap">
+                                    <h2 className="text-xl font-semibold text-white px-4">
+                                        Oversight — All Requests
+                                    </h2>
+                                    <span className="text-xs font-normal px-2.5 py-1 rounded-full bg-[#173ef0] text-white">
+                                        {everyRequest.length}
+                                    </span>
+                                </div>
+
+                                {everyRequest.length === 0 ? (
+                                    <div className="bg-[#242424] p-8 mx-4 sm:mx-6">
+                                        <p className="text-white/50 text-sm text-center">
+                                            No approval requests in the system.
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <ApprovalsTable
+                                        requests={everyRequest}
+                                        onRowClick={(id) => setSelectedRequestId(id)}
+                                        showCurrentOwner
+                                    />
+                                )}
+                            </section>
+                        )}
+                    </div>
+
+                    <Footer />
                 </div>
             </div>
 
@@ -146,7 +154,6 @@ const ApprovalsPage = () => {
                     onClose={() => setSelectedRequestId(null)}
                 />
             )}
-
         </div>
     );
 };
