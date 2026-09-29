@@ -6,7 +6,6 @@ import {
     FaCheck,
     FaTimesCircle,
     FaBan,
-    FaUserShield,
 } from 'react-icons/fa';
 import { useAuth } from '../Context/AuthContext';
 import { useApprovals } from '../Context/ApprovalsContext';
@@ -162,18 +161,15 @@ const ApprovalDetailDrawer = ({ requestId, onClose }) => {
                             <h2 className="text-2xl font-semibold text-white truncate mt-1">
                                 {request.title}
                             </h2>
-                            <div className="flex items-center gap-2 mt-3 flex-wrap">
+                            <div className="flex items-center gap-2 mt-3 flex-wrap -ml-3">
                                 <span
                                     className={`inline-block text-sm font-medium px-3 py-1 rounded-full ${requestStatusMeta.color}`}
                                 >
                                     {requestStatusMeta.label}
                                 </span>
                                 {!isTerminal && (
-                                    <span className="inline-flex items-center gap-1.5 text-sm font-medium px-3 py-1 text-[#7c8cff]">
-                                        <FaUserShield className="w-3.5 h-3.5 shrink-0" />
-                                        <span className="truncate">
-                                            Waiting on {roleLabel(currentRole)}
-                                        </span>
+                                    <span className="inline-flex items-center text-sm font-medium px-3 py-1 text-[#7c8cff]">
+                                        Waiting on {roleLabel(currentRole)}
                                     </span>
                                 )}
                             </div>
@@ -230,7 +226,6 @@ const ApprovalDetailDrawer = ({ requestId, onClose }) => {
                                                     : 'border-white/10 bg-white/2'
                                             }`}
                                         >
-                                            {/* Level badge */}
                                             <div
                                                 className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold ${
                                                     isCurrent
@@ -241,7 +236,6 @@ const ApprovalDetailDrawer = ({ requestId, onClose }) => {
                                                 {step.level}
                                             </div>
 
-                                            {/* Body */}
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex items-center justify-between gap-3 flex-wrap">
                                                     <p className="text-base font-semibold text-white">

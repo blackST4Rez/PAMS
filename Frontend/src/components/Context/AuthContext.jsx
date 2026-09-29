@@ -108,7 +108,6 @@ const mergeWithOverrides = (baseUser, username) => {
    PERMISSION LOOKUP HELPER
    Reads from mock_roles localStorage directly so it works
    inside AuthContext without depending on RolesContext hooks.
-   RolesContext writes to the same key, so they stay in sync.
    ============================================================ */
 const readRolesFromStorage = () => {
   const stored = readJSON('mock_roles', null);
@@ -121,7 +120,6 @@ const permissionsForRoleCode = (roleCode) => {
   return role?.permissions ?? [];
 };
 
-/* Given an array of role codes, union their permissions */
 const permissionsForRoles = (roleCodes) => {
   if (!Array.isArray(roleCodes)) return [];
   const set = new Set();
@@ -209,12 +207,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   /* ============ RE-COMPUTE PERMISSIONS WHEN ROLES CHANGE ============ */
-  /*
-    When an admin edits a role's permissions on the Roles page,
-    every user holding that role should pick up the change
-    immediately — without a reload. We watch the RolesContext
-    version and re-derive the current user's permissions.
-  */
+
   useEffect(() => {
     setUser((prev) => {
       if (!prev) return prev;
@@ -222,10 +215,6 @@ export const AuthProvider = ({ children }) => {
       return { ...prev, permissions: perms };
     });
     setPermissions((prev) => {
-      // Recompute from current user's roles (below) — but we need
-      // the fresh role codes. Use the user object directly.
-      // Simpler: recompute is handled by the setUser above;
-      // we just also refresh `permissions` from the current user.
       return prev;
     });
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
@@ -257,7 +246,6 @@ export const AuthProvider = ({ children }) => {
         setProfileVersion((v) => v + 1);
         refreshCurrentUser();
       } else if (e.key === 'mock_roles') {
-        // Roles edited in another tab — recompute permissions
         setUser((prev) => {
           if (!prev) return prev;
           const perms = permissionsForRoles(prev.roles);
@@ -394,7 +382,7 @@ export const AuthProvider = ({ children }) => {
     return userWithUsername;
   };
 
-  const logout = () => {
+  const logout = async () => {
     if (user?.username) {
       appendLoginEvent(user.username, {
         action: 'Logout',
@@ -402,6 +390,9 @@ export const AuthProvider = ({ children }) => {
         at: new Date().toISOString(),
       });
     }
+
+    /* Brief delay so the loading state is visible before the app unmounts */
+    await new Promise((r) => setTimeout(r, 600));
 
     clearToken();
     setUser(null);
@@ -714,7 +705,6 @@ export const AuthProvider = ({ children }) => {
     setExtraUsers(next);
     writeJSON(LS.extraUsers(), next);
 
-    /* If the current user is editing their own role, refresh permissions */
     if (user?.username === username) {
       const newPerms = permissionsForRoles([newRole]);
       setUser((prev) => ({ ...prev, roles: [newRole], permissions: newPerms }));
@@ -804,8 +794,6 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem(LS.notifications(username));
     localStorage.removeItem(LS.loginHistory(username));
   };
-
-  /* ============ PROVIDER ============ */
 
   return (
     <AuthContext.Provider

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { FaSearch, FaEye, FaUserShield } from 'react-icons/fa';
+import { FaSearch, FaEye } from 'react-icons/fa';
 import Pagination, { useIsMobile } from '../Common/Pagination';
 import {
     REQUEST_STATUSES,
@@ -145,8 +145,7 @@ const ApprovalsTable = ({ requests, onRowClick, showCurrentOwner = false }) => {
                                         {showCurrentOwner && !isTerminal && ownerRole && (
                                             <div className="col-span-2">
                                                 <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Current Owner</p>
-                                                <p className="text-xs font-medium text-[#7c8cff] inline-flex items-center gap-1.5">
-                                                    <FaUserShield className="w-3 h-3" />
+                                                <p className="text-xs font-medium text-[#7c8cff]">
                                                     {roleLabel(ownerRole)}
                                                 </p>
                                             </div>
@@ -227,8 +226,7 @@ const ApprovalsTable = ({ requests, onRowClick, showCurrentOwner = false }) => {
                                                     {isTerminal ? (
                                                         <span className="text-xs text-white/40">—</span>
                                                     ) : (
-                                                        <span className="inline-flex items-center gap-1.5 text-xs font-medium text-[#7c8cff]">
-                                                            <FaUserShield className="w-3 h-3" />
+                                                        <span className="text-xs font-medium text-[#7c8cff]">
                                                             {roleLabel(ownerRole)}
                                                         </span>
                                                     )}

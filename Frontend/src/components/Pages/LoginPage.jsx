@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState } from 'react'
+import { GrLogin } from 'react-icons/gr';;
 import { useNavigate, Link } from 'react-router-dom';
-import { BiUser, BiLock, BiArrowFromLeft, BiArrowBack } from 'react-icons/bi';
+import { BiUser, BiLock, BiArrowBack } from 'react-icons/bi';
 import { FaExclamationTriangle } from 'react-icons/fa';
 import Header from '../Common/Header';
 import Footer from '../Common/Footer';
@@ -136,7 +137,7 @@ const LoginPage = () => {
                             className="w-full flex items-center justify-center gap-3 bg-[#173ef0] text-white px-6 py-3 font-semibold text-base sm:text-lg hover:bg-[#264bee] disabled:opacity-60 disabled:cursor-wait transition-colors min-h-13"
                         >
                             <span>Sign In</span>
-                            <BiArrowFromLeft className="w-5 h-5" />
+                            <GrLogin className="w-5 h-5" />
                         </button>
                     </form>
 

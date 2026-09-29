@@ -18,7 +18,7 @@ const GisFilters = ({ filters, onChange, resultCount, totalCount }) => {
         onChange({ categoryId: '', wardId: '', status: '' });
 
     return (
-        <div className="p-4 mb-6">
+        <div className="mb-6">
             <div className="flex flex-col lg:flex-row gap-3">
                 {/* Category */}
                 <select
@@ -62,7 +62,7 @@ const GisFilters = ({ filters, onChange, resultCount, totalCount }) => {
                     ))}
                 </select>
 
-                {/* Clear — icon only, at the end of the row on desktop */}
+                {/* Clear */}
                 {hasAnyFilter && (
                     <button
                         onClick={clearAll}
