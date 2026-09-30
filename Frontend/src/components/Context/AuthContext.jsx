@@ -8,10 +8,17 @@ import {
   pushNotification as pushNotificationModule,
   markNotificationRead as markNotificationReadModule,
   markAllNotificationsRead as markAllNotificationsReadModule,
-} from '../Context/Notifications';
+} from './notifications';
 
 /* Create the auth context */
 const AuthContext = createContext(null);
+
+/*
+  Module-level flag — set to true when a login succeeds, cleared
+  by ProtectedRoute once it has shown the transition loader.
+  Lives outside React state so it survives the unmount of LoginPage.
+*/
+let justLoggedIn = false;
 
 /* localStorage key builders — one namespace per user */
 const LS = {
@@ -253,7 +260,6 @@ export const AuthProvider = ({ children }) => {
           return { ...prev, permissions: perms };
         });
       } else if (user && e.key === LS.notifications(user.username)) {
-        /* Notifications list changed in another tab */
         setNotifications(readNotifications(user.username));
       }
     };
@@ -265,11 +271,6 @@ export const AuthProvider = ({ children }) => {
 
   /* ============ IN-TAB NOTIFICATION EVENT LISTENERS ============ */
 
-  /*
-    Any context that calls pushNotification() from the standalone
-    module fires a custom window event. When the target is the
-    current user, we refresh the in-memory list immediately.
-  */
   useEffect(() => {
     const me = user?.username;
     if (!me) return;
@@ -372,6 +373,10 @@ export const AuthProvider = ({ children }) => {
       hydrateUser(userWithUsername);
       setLoginHistory(updated);
 
+      /* Mark that a login just happened so ProtectedRoute can show
+         the transition loader on the destination page */
+      justLoggedIn = true;
+
       return userWithUsername;
     }
 
@@ -414,7 +419,25 @@ export const AuthProvider = ({ children }) => {
     hydrateUser(userWithUsername);
     setLoginHistory(updated);
 
+    /* Mark that a login just happened so ProtectedRoute can show
+       the transition loader on the destination page */
+    justLoggedIn = true;
+
     return userWithUsername;
+  };
+
+  /*
+    Called by ProtectedRoute to check whether the current mount
+    is a fresh login and should show the transition loader once.
+    Returns true the first time after a login, then false until
+    the next login.
+  */
+  const consumeLoginTransition = () => {
+    if (justLoggedIn) {
+      justLoggedIn = false;
+      return true;
+    }
+    return false;
   };
 
   const logout = async () => {
@@ -461,27 +484,17 @@ export const AuthProvider = ({ children }) => {
 
   /* ============ NOTIFICATIONS ============ */
 
-  /*
-    Expose a thin wrapper over the standalone module, so page
-    components can call useAuth().pushNotification(...) if they
-    want to push directly (e.g. from a UI action).
-
-    In-tab refresh is handled by the notifications:new event
-    listener above — no need to manually sync state here.
-  */
   const pushNotification = (username, payload) =>
     pushNotificationModule(username, payload);
 
   const markNotificationRead = (id) => {
     if (!user?.username || !id) return;
     markNotificationReadModule(user.username, id);
-    /* Event listener will refresh in-memory state */
   };
 
   const markAllNotificationsRead = () => {
     if (!user?.username) return;
     markAllNotificationsReadModule(user.username);
-    /* Event listener will refresh in-memory state */
   };
 
   /* ============ PROFILE ============ */
@@ -705,7 +718,6 @@ export const AuthProvider = ({ children }) => {
       after: { status: 'Active', roles: [roleCode] },
     });
 
-    /* Notify the newly-approved user */
     pushNotification(username, {
       title: 'Account approved',
       body: 'Your registration has been approved. You can now sign in.',
@@ -770,7 +782,6 @@ export const AuthProvider = ({ children }) => {
       after: { roles: [newRole] },
     });
 
-    /* Notify the user whose role changed */
     pushNotification(username, {
       title: 'Role updated',
       body: `Your role has been changed to ${newRole.replace(/_/g, ' ')}.`,
@@ -810,7 +821,6 @@ export const AuthProvider = ({ children }) => {
       after: { status: newStatus },
     });
 
-    /* Notify the affected user */
     pushNotification(username, {
       title:
         newStatus === 'Inactive'
@@ -885,6 +895,7 @@ export const AuthProvider = ({ children }) => {
         changePassword,
         resetLocalData,
         unreadCount: notifications.filter((n) => !n.read).length,
+        consumeLoginTransition,
         allUsers,
         addUser,
         pendingRegistrations,
