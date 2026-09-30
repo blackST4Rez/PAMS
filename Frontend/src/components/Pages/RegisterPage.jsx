@@ -3,6 +3,7 @@ import {
     BiUser, BiEnvelope, BiLock, BiArrowFromLeft, BiPhone, BiMapPin,
     BiCheckCircle,
 } from 'react-icons/bi';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import Header from '../Common/Header';
@@ -18,6 +19,8 @@ const RegisterPage = () => {
     const { submitRegistration } = useAuth();
     const [submitted, setSubmitted] = useState(false);
     const [busy, setBusy] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [form, setForm] = useState({
         firstName: '',
         lastName: '',
@@ -273,13 +276,26 @@ const RegisterPage = () => {
                                 <div className="relative">
                                     <BiLock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/40" />
                                     <input
-                                        type="password"
+                                        type={showPassword ? 'text' : 'password'}
                                         name="password"
                                         value={form.password}
                                         onChange={onChange}
                                         placeholder="Create a strong password"
-                                        className="w-full pl-10 pr-3 py-3 bg-white/5 border border-white/10 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#173ef0] transition"
+                                        className="w-full pl-10 pr-11 py-3 bg-white/5 border border-white/10 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#173ef0] transition"
                                     />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword((v) => !v)}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white transition-colors"
+                                        aria-label={showPassword ? 'Hide password' : 'Show password'}
+                                        tabIndex={-1}
+                                    >
+                                        {showPassword ? (
+                                            <FaEyeSlash className="w-4 h-4" />
+                                        ) : (
+                                            <FaEye className="w-4 h-4" />
+                                        )}
+                                    </button>
                                 </div>
                             </div>
 
@@ -290,13 +306,26 @@ const RegisterPage = () => {
                                 <div className="relative">
                                     <BiLock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/40" />
                                     <input
-                                        type="password"
+                                        type={showConfirmPassword ? 'text' : 'password'}
                                         name="confirmPassword"
                                         value={form.confirmPassword}
                                         onChange={onChange}
                                         placeholder="Confirm your password"
-                                        className="w-full pl-10 pr-3 py-3 bg-white/5 border border-white/10 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#173ef0] transition"
+                                        className="w-full pl-10 pr-11 py-3 bg-white/5 border border-white/10 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#173ef0] transition"
                                     />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowConfirmPassword((v) => !v)}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white transition-colors"
+                                        aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                                        tabIndex={-1}
+                                    >
+                                        {showConfirmPassword ? (
+                                            <FaEyeSlash className="w-4 h-4" />
+                                        ) : (
+                                            <FaEye className="w-4 h-4" />
+                                        )}
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -312,11 +341,11 @@ const RegisterPage = () => {
                             />
                             <label className="block text-sm text-white/60 leading-snug">
                                 I agree to the{' '}
-                                <Link to="#" className="text-[#374df7] hover:underline">
+                                <Link to="#" className="text-[#7c8cff] hover:underline">
                                     Terms &amp; Conditions
                                 </Link>{' '}
                                 and{' '}
-                                <Link to="#" className="text-[#374df7] hover:underline">
+                                <Link to="#" className="text-[#7c8cff] hover:underline">
                                     Privacy Policy
                                 </Link>
                             </label>
@@ -340,7 +369,7 @@ const RegisterPage = () => {
                             Already have an account?{' '}
                             <Link
                                 to="/login"
-                                className="text-[#374df7] font-semibold hover:text-[#173ef0] hover:underline"
+                                className="text-[#7c8cff] font-semibold hover:text-[#173ef0] hover:underline"
                             >
                                 Sign in
                             </Link>

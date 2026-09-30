@@ -1,8 +1,7 @@
-import { useState } from 'react'
-import { GrLogin } from 'react-icons/gr';;
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { BiUser, BiLock, BiArrowBack } from 'react-icons/bi';
-import { FaExclamationTriangle } from 'react-icons/fa';
+import { BiUser, BiLock, BiArrowFromLeft, BiArrowBack } from 'react-icons/bi';
+import { FaExclamationTriangle, FaEye, FaEyeSlash } from 'react-icons/fa';
 import Header from '../Common/Header';
 import Footer from '../Common/Footer';
 import { useAuth } from '../Context/AuthContext';
@@ -14,6 +13,7 @@ const LoginPage = () => {
     const navigate = useNavigate();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
     const [busy, setBusy] = useState(false);
 
@@ -23,12 +23,10 @@ const LoginPage = () => {
         setError('');
         try {
             await login(username, password);
-            /* On success we navigate immediately. The LoginPage unmounts
-               and ProtectedRoute's loader takes over — no reset of `busy`
-               needed, since the component disappears. */
             navigate('/dashboard');
         } catch (err) {
             setError(err.message || 'Login failed');
+        } finally {
             setBusy(false);
         }
     };
@@ -112,12 +110,25 @@ const LoginPage = () => {
                             <div className="relative">
                                 <BiLock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/40" />
                                 <input
-                                    type="password"
+                                    type={showPassword ? 'text' : 'password'}
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     placeholder="Password"
-                                    className="w-full pl-10 pr-3 py-3 bg-white/5 border border-white/10 text-white placeholder-white/40 focus:ring-2 focus:ring-[#173ef0] focus:outline-none transition"
+                                    className="w-full pl-10 pr-11 py-3 bg-white/5 border border-white/10 text-white placeholder-white/40 focus:ring-2 focus:ring-[#173ef0] focus:outline-none transition"
                                 />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword((v) => !v)}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white transition-colors"
+                                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                                    tabIndex={-1}
+                                >
+                                    {showPassword ? (
+                                        <FaEyeSlash className="w-4 h-4" />
+                                    ) : (
+                                        <FaEye className="w-4 h-4" />
+                                    )}
+                                </button>
                             </div>
                         </div>
 
@@ -134,10 +145,10 @@ const LoginPage = () => {
                         <button
                             disabled={busy}
                             type="submit"
-                            className="w-full flex items-center justify-center gap-3 bg-[#173ef0] text-white px-6 py-3 font-semibold text-base sm:text-lg hover:bg-[#264bee] disabled:opacity-60 disabled:cursor-wait transition-colors min-h-13"
+                            className="w-full flex items-center justify-center gap-3 bg-[#173ef0] text-white px-6 py-3 font-semibold text-base sm:text-lg hover:bg-[#264bee] disabled:opacity-60 transition-colors"
                         >
                             <span>Sign In</span>
-                            <GrLogin className="w-5 h-5" />
+                            <BiArrowFromLeft className="w-5 h-5" />
                         </button>
                     </form>
 
