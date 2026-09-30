@@ -18,7 +18,7 @@ const GisFilters = ({ filters, onChange, resultCount, totalCount }) => {
         onChange({ categoryId: '', wardId: '', status: '' });
 
     return (
-        <div className="mb-6">
+        <div className="mb-6 px-4">
             <div className="flex flex-col lg:flex-row gap-3">
                 {/* Category */}
                 <select

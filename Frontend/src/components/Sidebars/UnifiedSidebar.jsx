@@ -1,45 +1,27 @@
-import { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import * as Fa from 'react-icons/fa';
 import LogoImage from '../../assets/Logo.svg';
 import { useAuth } from '../Context/AuthContext';
 import { useUi } from '../Context/UiContext';
 
-/*
-  Module-level flag — persists for the lifetime of the page.
-  The sidebar's label animation should only play on the very
-  first mount of the app. On subsequent route changes (which
-  remount the sidebar), labels render without animation so the
-  "slide from left" effect doesn't replay on every click.
-*/
 let hasAnimatedOnce = false;
 
 const UnifiedSidebar = () => {
     const { menu } = useAuth();
     const {
         mobileMenuOpen,
-        openMenu,
         closeMenu,
         sidebarCollapsed,
     } = useUi();
-
-    /* Only animate labels the first time the sidebar mounts */
-    const [animateLabels] = useState(() => !hasAnimatedOnce);
-
-    useEffect(() => {
-        if (animateLabels) hasAnimatedOnce = true;
-    }, [animateLabels]);
 
     /* ---------- Collapsed rail (logo + icons, no text) ---------- */
     const collapsedNav = (
         <div className="sidebar-shell w-20 shrink-0 bg-[#1a1a1a] border-r border-white/10 min-h-full flex flex-col overflow-hidden">
             <div className="sticky top-0 px-3 pb-3 pt-3 lg:pt-4 flex flex-col flex-1 items-center">
-                {/* Logo — same size as expanded; only the wordmark is hidden */}
                 <div className="w-12 h-12 flex items-center justify-center mb-4">
                     <img src={LogoImage} alt="Logo" className="w-11 h-11" />
                 </div>
 
-                {/* Nav */}
                 <nav className="space-y-1.5 flex-1 w-full flex flex-col items-center">
                     {menu.map((item) => {
                         const Icon = Fa[item.icon] || Fa.FaCircle;
@@ -70,14 +52,9 @@ const UnifiedSidebar = () => {
     const expandedNav = (
         <div className="sidebar-shell w-72 shrink-0 bg-[#1a1a1a] border-r border-white/10 min-h-full flex flex-col overflow-hidden">
             <div className="sticky top-0 px-4 pb-4 pt-3 lg:pt-4 flex flex-col flex-1">
-                {/* Logo + wordmark */}
                 <div className="flex items-center gap-3 px-2 pb-5 mb-2 border-b border-white/10">
                     <img src={LogoImage} alt="Logo" className="w-11 h-11 shrink-0" />
-                    <div
-                        className={`flex flex-col leading-tight min-w-0 ${
-                            animateLabels ? 'fade-label' : ''
-                        }`}
-                    >
+                    <div className="flex flex-col leading-tight min-w-0">
                         <span className="font-bold text-xl text-[#173ef0] truncate">
                             PMS
                         </span>
@@ -104,13 +81,7 @@ const UnifiedSidebar = () => {
                                 }
                             >
                                 <Icon className="sidebar-icon w-5 h-5 shrink-0 group-hover:scale-110" />
-                                <span
-                                    className={`truncate ${
-                                        animateLabels ? 'fade-label' : ''
-                                    }`}
-                                >
-                                    {item.label}
-                                </span>
+                                <span className="truncate">{item.label}</span>
                             </NavLink>
                         );
                     })}
@@ -125,18 +96,6 @@ const UnifiedSidebar = () => {
         <>
             {/* Desktop — static sidebar */}
             <div className="hidden lg:block">{nav}</div>
-
-            {/* Mobile — floating hamburger to open the drawer */}
-            {!mobileMenuOpen && (
-                <button
-                    type="button"
-                    onClick={openMenu}
-                    aria-label="Open menu"
-                    className="lg:hidden fixed top-4 left-4 z-1000 w-10 h-10 flex items-center justify-center bg-[#1a1a1a] border border-white/10 text-white/80 hover:text-white hover:bg-[#242424] transition-colors"
-                >
-                    <Fa.FaBars className="w-4 h-4" />
-                </button>
-            )}
 
             {/* Mobile — slide-out drawer */}
             <div

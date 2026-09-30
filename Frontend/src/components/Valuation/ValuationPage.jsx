@@ -97,7 +97,7 @@ const ValuationPage = () => {
                 <div className="flex-1 p-4 sm:p-6 lg:px-8 lg:pt-4 lg:pb-8 overflow-y-auto bg-[#1a1a1a]">
                     <PageToolbar />
 
-                    <div className="mb-6">
+                    <div className="mb-6 px-4">
                         <div className="flex items-center gap-3 flex-wrap">
                             <h1 className="text-3xl font-bold text-white">Valuation</h1>
                             <span className="inline-flex items-center justify-center min-w-7 h-7 px-2 text-sm font-semibold rounded-full bg-[#173ef0] text-white">
@@ -109,7 +109,7 @@ const ValuationPage = () => {
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4 mb-6">
+                    <div className="grid grid-cols-2 gap-4 mb-6 px-4">
                         <Stat label="Assets" value={totals.count} accent="text-white" bg="bg-[#1c1c1c]" />
                         <Stat label="Total Acquisition Cost" value={formatNprShort(totals.cost)} accent="text-white" bg="bg-[#1c1c1c]" />
                         <Stat label="Current Book Value" value={formatNprShort(totals.book)} accent="text-emerald-400" bg="bg-[#1c1c1c]" />

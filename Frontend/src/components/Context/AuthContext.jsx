@@ -3,6 +3,12 @@ import { MOCK_MENUS } from '../mock/mockData';
 import { logAuditEvent } from './AuditContext';
 import { useRoles } from './RolesContext';
 import { DEFAULT_ROLE_CODE } from '../mock/mockRoles';
+import {
+  readNotifications,
+  pushNotification as pushNotificationModule,
+  markNotificationRead as markNotificationReadModule,
+  markAllNotificationsRead as markAllNotificationsReadModule,
+} from '../Context/Notifications';
 
 /* Create the auth context */
 const AuthContext = createContext(null);
@@ -30,7 +36,7 @@ const UNIVERSAL_ADMIN = {
     phone: '',
     avatar: null,
     roles: ['SYS_ADMIN'],
-    permissions: [], // ← filled dynamically from RolesContext on login
+    permissions: [],
     status: 'Active',
     municipality: 'Gaurishankar Rural Municipality',
     ward: '',
@@ -106,8 +112,6 @@ const mergeWithOverrides = (baseUser, username) => {
 
 /* ============================================================
    PERMISSION LOOKUP HELPER
-   Reads from mock_roles localStorage directly so it works
-   inside AuthContext without depending on RolesContext hooks.
    ============================================================ */
 const readRolesFromStorage = () => {
   const stored = readJSON('mock_roles', null);
@@ -133,7 +137,7 @@ const permissionsForRoles = (roleCodes) => {
    PROVIDER
    ============================================================ */
 export const AuthProvider = ({ children }) => {
-  const rolesCtx = useRoles(); // for version-bumping on role edits
+  const rolesCtx = useRoles();
 
   const [user, setUser] = useState(null);
   const [permissions, setPermissions] = useState([]);
@@ -172,7 +176,7 @@ export const AuthProvider = ({ children }) => {
       setUser({ ...merged, permissions: perms });
       setPermissions(perms);
       setMenu(MOCK_MENUS[merged.roles?.[0]] ?? []);
-      setNotifications(readJSON(LS.notifications(username), []));
+      setNotifications(readNotifications(username));
       setLoginHistory(readJSON(LS.loginHistory(username), []));
       setLoading(false);
       return;
@@ -190,7 +194,7 @@ export const AuthProvider = ({ children }) => {
       const merged = mergeWithOverrides(base, username);
       const perms = permissionsForRoles(merged.roles);
 
-      const storedNotifs = readJSON(LS.notifications(username), []);
+      const storedNotifs = readNotifications(username);
       const storedHistory = readJSON(LS.loginHistory(username), []);
 
       setUser({ ...merged, permissions: perms });
@@ -213,9 +217,6 @@ export const AuthProvider = ({ children }) => {
       if (!prev) return prev;
       const perms = permissionsForRoles(prev.roles);
       return { ...prev, permissions: perms };
-    });
-    setPermissions((prev) => {
-      return prev;
     });
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
   }, [rolesCtx.version]);
@@ -251,13 +252,47 @@ export const AuthProvider = ({ children }) => {
           const perms = permissionsForRoles(prev.roles);
           return { ...prev, permissions: perms };
         });
+      } else if (user && e.key === LS.notifications(user.username)) {
+        /* Notifications list changed in another tab */
+        setNotifications(readNotifications(user.username));
       }
     };
 
     window.addEventListener('storage', onStorage);
     return () => window.removeEventListener('storage', onStorage);
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
-  }, []);
+  }, [user?.username]);
+
+  /* ============ IN-TAB NOTIFICATION EVENT LISTENERS ============ */
+
+  /*
+    Any context that calls pushNotification() from the standalone
+    module fires a custom window event. When the target is the
+    current user, we refresh the in-memory list immediately.
+  */
+  useEffect(() => {
+    const me = user?.username;
+    if (!me) return;
+
+    const onNew = (e) => {
+      if (e.detail?.username === me) {
+        setNotifications(readNotifications(me));
+      }
+    };
+
+    const onChanged = (e) => {
+      if (e.detail?.username === me) {
+        setNotifications(readNotifications(me));
+      }
+    };
+
+    window.addEventListener('notifications:new', onNew);
+    window.addEventListener('notifications:changed', onChanged);
+    return () => {
+      window.removeEventListener('notifications:new', onNew);
+      window.removeEventListener('notifications:changed', onChanged);
+    };
+  }, [user?.username]);
 
   /* ============ HELPERS ============ */
 
@@ -300,7 +335,7 @@ export const AuthProvider = ({ children }) => {
   const hydrateUser = (baseUser) => {
     const username = baseUser.username;
 
-    const storedNotifs = readJSON(LS.notifications(username), []);
+    const storedNotifs = readNotifications(username);
     const storedHistory = readJSON(LS.loginHistory(username), []);
 
     const mergedUser = mergeWithOverrides(baseUser, username);
@@ -391,7 +426,6 @@ export const AuthProvider = ({ children }) => {
       });
     }
 
-    /* Brief delay so the loading state is visible before the app unmounts */
     await new Promise((r) => setTimeout(r, 600));
 
     clearToken();
@@ -427,20 +461,27 @@ export const AuthProvider = ({ children }) => {
 
   /* ============ NOTIFICATIONS ============ */
 
+  /*
+    Expose a thin wrapper over the standalone module, so page
+    components can call useAuth().pushNotification(...) if they
+    want to push directly (e.g. from a UI action).
+
+    In-tab refresh is handled by the notifications:new event
+    listener above — no need to manually sync state here.
+  */
+  const pushNotification = (username, payload) =>
+    pushNotificationModule(username, payload);
+
   const markNotificationRead = (id) => {
-    setNotifications((prev) => {
-      const next = prev.map((n) => (n.id === id ? { ...n, read: true } : n));
-      if (user) writeJSON(LS.notifications(user.username), next);
-      return next;
-    });
+    if (!user?.username || !id) return;
+    markNotificationReadModule(user.username, id);
+    /* Event listener will refresh in-memory state */
   };
 
   const markAllNotificationsRead = () => {
-    setNotifications((prev) => {
-      const next = prev.map((n) => ({ ...n, read: true }));
-      if (user) writeJSON(LS.notifications(user.username), next);
-      return next;
-    });
+    if (!user?.username) return;
+    markAllNotificationsReadModule(user.username);
+    /* Event listener will refresh in-memory state */
   };
 
   /* ============ PROFILE ============ */
@@ -664,6 +705,13 @@ export const AuthProvider = ({ children }) => {
       after: { status: 'Active', roles: [roleCode] },
     });
 
+    /* Notify the newly-approved user */
+    pushNotification(username, {
+      title: 'Account approved',
+      body: 'Your registration has been approved. You can now sign in.',
+      type: 'success',
+    });
+
     return newUser.user;
   };
 
@@ -721,6 +769,13 @@ export const AuthProvider = ({ children }) => {
       before: { roles: previousRoles },
       after: { roles: [newRole] },
     });
+
+    /* Notify the user whose role changed */
+    pushNotification(username, {
+      title: 'Role updated',
+      body: `Your role has been changed to ${newRole.replace(/_/g, ' ')}.`,
+      type: 'info',
+    });
   };
 
   const updateUserStatus = (username, newStatus) => {
@@ -753,6 +808,19 @@ export const AuthProvider = ({ children }) => {
       summary: `${newStatus === 'Inactive' ? 'Deactivated' : 'Activated'} user @${username}`,
       before: { status: previousStatus },
       after: { status: newStatus },
+    });
+
+    /* Notify the affected user */
+    pushNotification(username, {
+      title:
+        newStatus === 'Inactive'
+          ? 'Account deactivated'
+          : 'Account activated',
+      body:
+        newStatus === 'Inactive'
+          ? 'Your account has been deactivated by an administrator.'
+          : 'Your account has been reactivated. You can sign in again.',
+      type: newStatus === 'Inactive' ? 'warning' : 'success',
     });
   };
 
@@ -809,6 +877,7 @@ export const AuthProvider = ({ children }) => {
         logout,
         logoutEverywhere,
         hasPermission,
+        pushNotification,
         markNotificationRead,
         markAllNotificationsRead,
         updateProfile,

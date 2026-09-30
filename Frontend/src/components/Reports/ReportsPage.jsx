@@ -51,7 +51,7 @@ const ReportsPage = () => {
                     <PageToolbar />
 
                     {/* Page header */}
-                    <div className="mb-6">
+                    <div className="mb-6 px-4">
                         <h1 className="text-3xl font-bold text-white">Reports</h1>
                         <p className="text-white/60 text-lg mt-1">
                             Generate and export summary reports across the register
@@ -59,7 +59,7 @@ const ReportsPage = () => {
                     </div>
 
                     {/* Tab strip — matches System Config layout */}
-                    <div className="mb-6">
+                    <div className="mb-6 px-4">
                         <div className="overflow-x-auto hide-scrollbar">
                             <div className="flex gap-2 border-b border-white/10 min-w-max">
                                 {TABS.map(({ id, label, Icon }) => {
@@ -84,7 +84,7 @@ const ReportsPage = () => {
                     </div>
 
                     {/* Tab content */}
-                    <div className="w-full">
+                    <div className="w-full px-4">
                         {activeTab === 'register'     && <AssetRegisterReport />}
                         {activeTab === 'ward'         && <WardBreakdownReport />}
                         {activeTab === 'depreciation' && <DepreciationSummaryReport />}

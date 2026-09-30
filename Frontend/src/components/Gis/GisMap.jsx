@@ -78,7 +78,7 @@ const FitBounds = ({ assets }) => {
 const GisMap = ({ assets }) => {
     return (
         <div
-            className="relative w-full overflow-hidden border border-white/10"
+            className="relative px-4 w-full overflow-hidden"
             style={{ height: '70vh' }}
         >
             <MapContainer

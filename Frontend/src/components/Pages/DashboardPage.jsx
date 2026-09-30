@@ -15,7 +15,7 @@ const DashboardPage = () => {
                 <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto bg-[#1a1a1a]">
                     <PageToolbar />
 
-                    <div className="mt-5 mb-6">
+                    <div className="mt-5 mb-6 px-4">
                         <h1 className="text-3xl font-bold text-white">
                             Welcome, {user?.fullName || user?.username}
                         </h1>
@@ -24,7 +24,7 @@ const DashboardPage = () => {
                         </p>
                     </div>
 
-                    <div className="bg-[#1c1c1c] border border-white/10 p-6 lg:p-8 border-l-10 border-l-[#3849e8]">
+                    <div className="bg-[#1c1c1c] border border-white/10 ml-4 mr-4 p-6 lg:p-8 border-l-10 border-l-[#3849e8]">
                         <p className="text-white/80 text-base lg:text-lg leading-relaxed">
                             Use the sidebar to navigate to the features available to
                             you. Everything you have access to is listed there.

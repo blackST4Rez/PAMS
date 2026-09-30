@@ -1,5 +1,13 @@
 import { useMemo, useState } from 'react';
-import { FaExclamationTriangle, FaCheck, FaTrash, FaSearch, FaTimes } from 'react-icons/fa';
+import { createPortal } from 'react-dom';
+import toast from 'react-hot-toast';
+import {
+    FaTrash,
+    FaSearch,
+    FaTimes,
+    FaBan,
+    FaPlay,
+} from 'react-icons/fa';
 import Pagination from '../Common/Pagination';
 import { useAuth } from '../Context/AuthContext';
 
@@ -66,6 +74,7 @@ const UsersTable = () => {
 
     const handleRoleChange = (username, newRole) => {
         updateUserRole(username, newRole);
+        toast.success(`Role updated for @${username}`);
     };
 
     const askToggleStatus = (user) => {
@@ -89,11 +98,17 @@ const UsersTable = () => {
                     user.username,
                     type === 'deactivate' ? 'Inactive' : 'Active'
                 );
+                toast.success(
+                    type === 'deactivate'
+                        ? `Deactivated @${user.username}`
+                        : `Activated @${user.username}`
+                );
             } else if (type === 'delete') {
                 deleteUser(user.username);
+                toast.success(`Deleted @${user.username}`);
             }
         } catch (err) {
-            alert(err.message);
+            toast.error(err.message);
         } finally {
             setConfirmAction(null);
         }
@@ -326,87 +341,123 @@ const UsersTable = () => {
     );
 };
 
+/* ==================================================================
+   Confirm dialog — asset drawer theme
+   ================================================================== */
+
 const ConfirmDialog = ({ action, onCancel, onConfirm }) => {
     const { type, user } = action;
 
     const config = {
         deactivate: {
-            icon: <FaExclamationTriangle className="w-5 h-5" />,
-            tint: 'bg-[#1a1a1a] text-yellow-400',
-            title: 'Deactivate account?',
+            eyebrow: 'Deactivate User',
+            title: user.fullName || user.username,
             subtitle: 'The user will not be able to sign in until the account is reactivated.',
             confirmLabel: 'Yes, deactivate',
-            confirmClass: 'bg-yellow-600 hover:bg-yellow-700',
+            confirmClass: 'bg-yellow-600 hover:bg-yellow-700 text-white',
+            accentBar: 'bg-yellow-500',
+            iconBorder: 'border-yellow-500/30 text-yellow-400',
+            icon: <FaBan className="w-5 h-5" />,
         },
         activate: {
-            icon: <FaCheck className="w-5 h-5" />,
-            tint: 'bg-[#1a1a1a] text-green-400',
-            title: 'Activate account?',
+            eyebrow: 'Activate User',
+            title: user.fullName || user.username,
             subtitle: 'The user will regain access to the system immediately.',
             confirmLabel: 'Yes, activate',
-            confirmClass: 'bg-green-600 hover:bg-green-700',
+            confirmClass: 'bg-green-600 hover:bg-green-700 text-white',
+            accentBar: 'bg-green-500',
+            iconBorder: 'border-green-500/30 text-green-400',
+            icon: <FaPlay className="w-5 h-5" />,
         },
         delete: {
-            icon: <FaTrash className="w-5 h-5" />,
-            tint: 'bg-[#1a1a1a] text-red-400',
-            title: 'Delete user?',
-            subtitle: 'This action cannot be undone.',
+            eyebrow: 'Delete User',
+            title: user.fullName || user.username,
+            subtitle: 'This permanently removes the user. It cannot be undone.',
             confirmLabel: 'Yes, delete',
-            confirmClass: 'bg-red-600 hover:bg-red-700',
+            confirmClass: 'bg-red-600 hover:bg-red-700 text-white',
+            accentBar: 'bg-red-500',
+            iconBorder: 'border-red-500/30 text-red-400',
+            icon: <FaTrash className="w-5 h-5" />,
         },
     }[type];
 
-    return (
+    return createPortal(
         <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70"
+            className="fixed inset-0 z-9999 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
             onClick={onCancel}
         >
             <div
-                className="bg-[#242424] w-full max-w-md p-4 sm:p-6"
+                className="bg-[#161616] border border-white/10 w-full max-w-md shadow-2xl"
                 onClick={(e) => e.stopPropagation()}
             >
-                <div className="flex items-start gap-3 sm:gap-4 mb-4">
-                    <div className={`w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center shrink-0 ${config.tint}`}>
-                        {config.icon}
+                <div className={`h-0.5 w-full ${config.accentBar}`} />
+
+                <div className="px-6 sm:px-8 pt-8 pb-6">
+                    <div className="flex justify-center mb-5">
+                        <div
+                            className={`w-12 h-12 flex items-center justify-center border ${config.iconBorder}`}
+                        >
+                            {config.icon}
+                        </div>
                     </div>
-                    <div>
-                        <h3 className="text-base sm:text-lg font-semibold text-white">{config.title}</h3>
-                        <p className="text-sm text-white/60 mt-1">{config.subtitle}</p>
+
+                    <div className="text-center mb-6">
+                        <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/40 mb-2">
+                            {config.eyebrow}
+                        </p>
+                        <h2 className="text-xl font-semibold text-white leading-snug tracking-tight">
+                            {config.title}
+                        </h2>
+                        <p className="text-sm text-white/60 mt-3 leading-relaxed max-w-xs mx-auto">
+                            {config.subtitle}
+                        </p>
+                    </div>
+
+                    <div className="border border-white/5 bg-white/2 divide-y divide-white/5">
+                        <MetadataRow label="Username" value={`@${user.username}`} />
+                        <MetadataRow label="Email" value={user.email || '—'} />
+                        <MetadataRow
+                            label="Role"
+                            value={
+                                ROLE_SCHEMA[user.roles?.[0]]?.label ??
+                                user.roles?.[0] ??
+                                '—'
+                            }
+                        />
                     </div>
                 </div>
 
-                <div className="bg-[#1a1a1a] p-3 sm:p-4 mb-5 sm:mb-6 space-y-2">
-                    <div className="flex justify-between text-sm gap-4">
-                        <span className="text-white/50 shrink-0">Name</span>
-                        <span className="text-white font-medium text-right truncate">{user.fullName}</span>
-                    </div>
-                    <div className="flex justify-between text-sm gap-4">
-                        <span className="text-white/50 shrink-0">Username</span>
-                        <span className="text-white font-medium text-right truncate">@{user.username}</span>
-                    </div>
-                    <div className="flex justify-between text-sm gap-4">
-                        <span className="text-white/50 shrink-0">Email</span>
-                        <span className="text-white font-medium text-right truncate">{user.email}</span>
-                    </div>
-                </div>
-
-                <div className="flex justify-end gap-2 sm:gap-3">
+                <div className="border-t border-white/10 px-6 sm:px-8 py-4 flex gap-3">
                     <button
+                        type="button"
                         onClick={onCancel}
-                        className="px-4 py-2 text-sm font-medium text-white/70 hover:bg-white/5 transition-colors"
+                        className="flex-1 px-5 py-2.5 text-sm font-medium text-white/70 border border-white/10 hover:bg-white/5 hover:text-white transition-colors"
                     >
                         Cancel
                     </button>
                     <button
+                        type="button"
                         onClick={onConfirm}
-                        className={`px-4 py-2 text-sm font-medium text-white transition-colors ${config.confirmClass}`}
+                        className={`flex-1 px-5 py-2.5 text-sm font-medium transition-colors ${config.confirmClass}`}
                     >
                         {config.confirmLabel}
                     </button>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
+
+const MetadataRow = ({ label, value }) => (
+    <div className="flex items-center justify-between gap-4 px-4 py-3">
+        <span className="text-[10px] font-mono uppercase tracking-[0.15em] text-white/40">
+            {label}
+        </span>
+        <span className="text-sm text-white font-medium truncate">
+            {value}
+        </span>
+    </div>
+);
 
 export default UsersTable;

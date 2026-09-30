@@ -79,14 +79,14 @@ const ApprovalsPage = () => {
                 <div className="flex-1 p-4 sm:p-6 lg:px-8 lg:pt-4 lg:pb-8 overflow-y-auto bg-[#1a1a1a]">
                     <PageToolbar />
 
-                    <div className="mb-6">
+                    <div className="mb-6 px-4">
                         <h1 className="text-3xl font-bold text-white">Approvals</h1>
                         <p className="text-white/60 text-lg mt-1">
                             Review and act on requests waiting for your role
                         </p>
                     </div>
 
-                    <section className="mb-8">
+                    <section className="mb-8 px-4">
                         <div className="mb-4 flex items-center flex-wrap">
                             <h2 className="text-xl font-semibold text-white">
                                 My Approvals
@@ -112,7 +112,7 @@ const ApprovalsPage = () => {
 
                     {canOversee && (
                         <section>
-                            <div className="mb-4 flex items-center flex-wrap">
+                            <div className="mb-4 flex items-center flex-wrap px-4">
                                 <h2 className="text-xl font-semibold text-white">
                                     Oversight — All Requests
                                 </h2>

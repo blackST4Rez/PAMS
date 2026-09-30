@@ -83,7 +83,7 @@ const GisPage = () => {
                 <div className="flex-1 p-4 sm:p-6 lg:px-8 lg:pt-4 lg:pb-8 overflow-y-auto bg-[#1a1a1a]">
                     <PageToolbar />
 
-                    <div className="mb-6">
+                    <div className="mb-6 px-4">
                         <div className="flex items-center gap-3 flex-wrap">
                             <h1 className="text-3xl font-bold text-white">
                                 GIS Map

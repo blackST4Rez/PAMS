@@ -53,7 +53,7 @@ const UsersPage = () => {
                 <div className="flex-1 p-4 sm:p-6 lg:px-8 lg:pt-4 lg:pb-8 overflow-y-auto bg-[#1a1a1a]">
                     <PageToolbar />
 
-                    <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div className="mb-6 px-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                         <div>
                             <h1 className="text-3xl font-bold text-white">User Management</h1>
                             <p className="text-white/60 text-lg mt-1">

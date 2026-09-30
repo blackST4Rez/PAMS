@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import {
     FaCheck,
     FaTimes,
-    FaExclamationTriangle,
     FaSearch,
 } from 'react-icons/fa';
 import toast from 'react-hot-toast';
@@ -106,7 +106,7 @@ const PendingRegistrationsTable = () => {
         <div className="p-4 sm:p-6 mb-6">
             <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2 flex-wrap">
                 Pending Registrations
-                <span className="text-xs bg-yellow-500 text-black px-2 py-0.5">
+                <span className="text-xs bg-yellow-500 rounded-full text-black px-2 py-0.5">
                     {filtered.length}
                 </span>
             </h2>
@@ -290,87 +290,114 @@ const PendingRegistrationsTable = () => {
     );
 };
 
+/* ==================================================================
+   Confirm dialog — asset-drawer theme
+   ================================================================== */
+
 const ConfirmDialog = ({ action, selectedRole, onCancel, onConfirm }) => {
     const { type, user } = action;
     const isApprove = type === 'approve';
 
-    return (
+    const config = isApprove
+        ? {
+            eyebrow: 'Approve Registration',
+            title: user.fullName || user.username,
+            subtitle:
+                'The applicant will be granted access to the system with the role you selected.',
+            confirmLabel: 'Yes, approve',
+            confirmClass: 'bg-green-600 hover:bg-green-700 text-white',
+            accentBar: 'bg-green-500',
+            iconBorder: 'border-green-500/30 text-green-400',
+            icon: <FaCheck className="w-5 h-5" />,
+        }
+        : {
+            eyebrow: 'Reject Registration',
+            title: user.fullName || user.username,
+            subtitle:
+                'The registration will be discarded. The applicant will not be able to sign in.',
+            confirmLabel: 'Yes, reject',
+            confirmClass: 'bg-red-600 hover:bg-red-700 text-white',
+            accentBar: 'bg-red-500',
+            iconBorder: 'border-red-500/30 text-red-400',
+            icon: <FaTimes className="w-5 h-5" />,
+        };
+
+    return createPortal(
         <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70"
+            className="fixed inset-0 z-9999 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
             onClick={onCancel}
         >
             <div
-                className="bg-[#242424] w-full max-w-md p-4 sm:p-6"
+                className="bg-[#161616] border border-white/10 w-full max-w-md shadow-2xl"
                 onClick={(e) => e.stopPropagation()}
             >
-                <div className="flex items-start gap-3 sm:gap-4 mb-4">
-                    <div
-                        className={`w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center shrink-0 ${
-                            isApprove
-                                ? 'bg-[#1a1a1a] text-green-400'
-                                : 'bg-[#1a1a1a] text-red-400'
-                        }`}
-                    >
-                        {isApprove ? (
-                            <FaCheck className="w-5 h-5" />
-                        ) : (
-                            <FaExclamationTriangle className="w-5 h-5" />
-                        )}
+                <div className={`h-0.5 w-full ${config.accentBar}`} />
+
+                <div className="px-6 sm:px-8 pt-8 pb-6">
+                    <div className="flex justify-center mb-5">
+                        <div
+                            className={`w-12 h-12 flex items-center justify-center border ${config.iconBorder}`}
+                        >
+                            {config.icon}
+                        </div>
                     </div>
-                    <div>
-                        <h3 className="text-base sm:text-lg font-semibold text-white">
-                            {isApprove ? 'Approve registration?' : 'Reject registration?'}
-                        </h3>
-                        <p className="text-sm text-white/60 mt-1">
-                            {isApprove
-                                ? 'This will grant the user access to the system.'
-                                : 'This action cannot be undone.'}
+
+                    <div className="text-center mb-6">
+                        <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/40 mb-2">
+                            {config.eyebrow}
+                        </p>
+                        <h2 className="text-xl font-semibold text-white leading-snug tracking-tight">
+                            {config.title}
+                        </h2>
+                        <p className="text-sm text-white/60 mt-3 leading-relaxed max-w-xs mx-auto">
+                            {config.subtitle}
                         </p>
                     </div>
+
+                    <div className="border border-white/5 bg-white/2 divide-y divide-white/5">
+                        <MetadataRow label="Username" value={`@${user.username}`} />
+                        <MetadataRow label="Email" value={user.email || '—'} />
+                        <MetadataRow label="Ward" value={user.ward || '—'} />
+                        {isApprove && (
+                            <MetadataRow
+                                label="Assign role"
+                                value={roleLabel(selectedRole)}
+                            />
+                        )}
+                    </div>
                 </div>
 
-                <div className="bg-[#1a1a1a] p-3 sm:p-4 mb-5 sm:mb-6 space-y-2">
-                    <div className="flex justify-between text-sm gap-4">
-                        <span className="text-white/50 shrink-0">Name</span>
-                        <span className="text-white font-medium text-right truncate">{user.fullName}</span>
-                    </div>
-                    <div className="flex justify-between text-sm gap-4">
-                        <span className="text-white/50 shrink-0">Username</span>
-                        <span className="text-white font-medium text-right truncate">@{user.username}</span>
-                    </div>
-                    <div className="flex justify-between text-sm gap-4">
-                        <span className="text-white/50 shrink-0">Email</span>
-                        <span className="text-white font-medium text-right truncate">{user.email}</span>
-                    </div>
-                    {isApprove && (
-                        <div className="flex justify-between text-sm gap-4">
-                            <span className="text-white/50 shrink-0">Assign role</span>
-                            <span className="text-white font-medium text-right">{roleLabel(selectedRole)}</span>
-                        </div>
-                    )}
-                </div>
-
-                <div className="flex justify-end gap-2 sm:gap-3">
+                <div className="border-t border-white/10 px-6 sm:px-8 py-4 flex gap-3">
                     <button
+                        type="button"
                         onClick={onCancel}
-                        className="px-4 py-2 text-sm font-medium text-white/70 hover:bg-white/5 transition-colors"
+                        className="flex-1 px-5 py-2.5 text-sm font-medium text-white/70 border border-white/10 hover:bg-white/5 hover:text-white transition-colors"
                     >
                         Cancel
                     </button>
                     <button
+                        type="button"
                         onClick={onConfirm}
-                        className={`px-4 py-2 text-sm font-medium text-white transition-colors ${
-                            isApprove
-                                ? 'bg-green-600 hover:bg-green-700'
-                                : 'bg-red-600 hover:bg-red-700'
-                        }`}
+                        className={`flex-1 px-5 py-2.5 text-sm font-medium transition-colors ${config.confirmClass}`}
                     >
-                        {isApprove ? 'Yes, approve' : 'Yes, reject'}
+                        {config.confirmLabel}
                     </button>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
+
+const MetadataRow = ({ label, value }) => (
+    <div className="flex items-center justify-between gap-4 px-4 py-3">
+        <span className="text-[10px] font-mono uppercase tracking-[0.15em] text-white/40">
+            {label}
+        </span>
+        <span className="text-sm text-white font-medium truncate">
+            {value}
+        </span>
+    </div>
+);
 
 export default PendingRegistrationsTable;

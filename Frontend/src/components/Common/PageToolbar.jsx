@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { GrLogout } from 'react-icons/gr';
+import { GrLogout, GrInbox } from 'react-icons/gr';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
     FaSearch,
-    FaBell,
     FaCheck,
     FaOutdent,
+    FaBars,
     FaUserCircle,
     FaUserCog,
     FaHistory,
@@ -48,7 +48,11 @@ const PageToolbar = () => {
         markNotificationRead,
         markAllNotificationsRead,
     } = useAuth();
-    const { sidebarCollapsed, toggleSidebar } = useUi();
+    const {
+        sidebarCollapsed,
+        toggleSidebar,
+        openMenu,
+    } = useUi();
     const location = useLocation();
     const navigate = useNavigate();
 
@@ -62,7 +66,6 @@ const PageToolbar = () => {
 
     const unreadCount = notifications.filter((n) => !n.read).length;
 
-    /* Close dropdowns on outside click */
     useEffect(() => {
         const onClick = (e) => {
             if (menuRef.current && !menuRef.current.contains(e.target)) {
@@ -76,13 +79,11 @@ const PageToolbar = () => {
         return () => document.removeEventListener('mousedown', onClick);
     }, []);
 
-    /* Close dropdowns on route change */
     useEffect(() => {
         setMenuOpen(false);
         setNotifOpen(false);
     }, [location.pathname]);
 
-    /* Reset tab when dropdown closes */
     useEffect(() => {
         if (!menuOpen) setActiveTab('profile');
     }, [menuOpen]);
@@ -94,7 +95,6 @@ const PageToolbar = () => {
         navigate('/login');
     };
 
-    /* Navigate to profile with a specific tab */
     const goToProfileTab = (tab = 'details') => {
         setMenuOpen(false);
         setNotifOpen(false);
@@ -113,12 +113,32 @@ const PageToolbar = () => {
 
     return (
         <>
-            <div className="mb-4 flex items-center gap-2 sm:gap-3">
-                {/* Sidebar toggle (desktop only) */}
+            <div
+                className="
+                    fixed top-0 left-0 right-0 z-40
+                    lg:relative lg:top-auto lg:left-auto lg:right-auto lg:z-auto
+                    bg-[#1a1a1a] border-b border-white/10 lg:border-0 lg:bg-transparent
+                    px-4 sm:px-6 lg:px-0
+                    py-3.5 lg:py-0
+                    lg:mb-4
+                    flex items-center gap-2 sm:gap-3
+                "
+            >
+                {/* Mobile hamburger — visible only below lg */}
+                <button
+                    type="button"
+                    onClick={openMenu}
+                    aria-label="Open menu"
+                    className="lg:hidden shrink-0 flex items-center justify-center w-9 h-9 text-white/70 hover:text-white hover:bg-white/5 transition-colors"
+                >
+                    <FaBars className="w-4 h-4" />
+                </button>
+
+                {/* Desktop sidebar toggle */}
                 <button
                     type="button"
                     onClick={toggleSidebar}
-                    className="hidden lg:flex shrink-0 items-center justify-center w-9 h-9 text-white bg-white/5 transition-colors"
+                    className="hidden lg:flex shrink-0 items-center justify-center w-9 h-9 text-white/60 hover:text-white hover:bg-white/5 transition-colors"
                     aria-label="Toggle sidebar"
                     title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
                 >
@@ -129,26 +149,25 @@ const PageToolbar = () => {
                     />
                 </button>
 
-                {/* Search (placeholder) */}
-                <div className="relative w-full max-w-md">
-                    <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white pointer-events-none" />
+                {/* Search — hidden on mobile */}
+                <div className="relative hidden sm:block w-full sm:max-w-xs md:max-w-sm lg:max-w-md">
+                    <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/40 pointer-events-none" />
                     <input
                         type="text"
                         placeholder="Search assets, users…"
-                        className="w-full pl-9 pr-16 py-2 bg-white/5 border border-white/10 text-white placeholder-white text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] transition cursor-pointer"
+                        className="w-full pl-9 pr-3 lg:pr-16 py-2 bg-white/5 border border-white/10 text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-[#173ef0] transition cursor-pointer"
                         readOnly
                     />
-                    <kbd className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono text-white/40 border border-white/10 px-1.5 py-0.5">
+                    <kbd className="absolute right-3 top-1/2 -translate-y-1/2 hidden lg:inline-block text-[10px] font-mono text-white/40 border border-white/10 px-1.5 py-0.5">
                         Ctrl + K
                     </kbd>
                 </div>
 
-                {/* Spacer */}
                 <div className="flex-1" />
 
                 {/* Right cluster: bell + avatar */}
-                <div className="flex items-center gap-3 shrink-0">
-                    {/* ---------- Notification bell ---------- */}
+                <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-3 shrink-0">
+                    {/* Notification bell */}
                     <div className="relative" ref={notifRef}>
                         <button
                             type="button"
@@ -164,7 +183,7 @@ const PageToolbar = () => {
                             aria-label="Notifications"
                             aria-expanded={notifOpen}
                         >
-                            <FaBell className="w-4 h-4" />
+                            <GrInbox className="w-4 h-4" />
                             {unreadCount > 0 && (
                                 <span className="absolute top-0.5 right-0.5 min-w-4 h-4 px-1 flex items-center justify-center text-[10px] font-semibold bg-[#173ef0] text-white rounded-full">
                                     {unreadCount > 9 ? '9+' : unreadCount}
@@ -173,7 +192,7 @@ const PageToolbar = () => {
                         </button>
 
                         {notifOpen && (
-                            <div className="fade-slide-in absolute right-0 top-full mt-2 w-96 max-w-[calc(100vw-2rem)] bg-[#161616] border border-white/10 shadow-2xl z-2000">
+                            <div className="fade-slide-in absolute right-0 top-full mt-2 w-96 max-w-[calc(100vw-1rem)] bg-[#161616] border border-white/10 shadow-2xl z-2000">
                                 <div className="px-5 py-4 border-b border-white/10 flex items-center justify-between">
                                     <h3 className="text-base font-semibold text-white">
                                         Notifications
@@ -233,21 +252,11 @@ const PageToolbar = () => {
                                         ))
                                     )}
                                 </div>
-
-                                {notifications.length > 0 && (
-                                    <button
-                                        type="button"
-                                        onClick={() => goToProfileTab('notifications')}
-                                        className="w-full px-5 py-3 text-center text-sm font-medium text-[#7c8cff] hover:text-[#173ef0] hover:bg-white/2 transition-colors border-t border-white/10"
-                                    >
-                                        View All
-                                    </button>
-                                )}
                             </div>
                         )}
                     </div>
 
-                    {/* ---------- Avatar + dropdown ---------- */}
+                    {/* Avatar + dropdown */}
                     <div className="relative" ref={menuRef}>
                         <button
                             type="button"
@@ -273,8 +282,7 @@ const PageToolbar = () => {
                         </button>
 
                         {menuOpen && (
-                            <div className="fade-slide-in absolute right-0 top-full mt-2 w-80 bg-[#161616] border border-white/10 shadow-2xl z-2000">
-                                {/* Header row */}
+                            <div className="fade-slide-in absolute right-0 top-full mt-2 w-80 max-w-[calc(100vw-1rem)] bg-[#161616] border border-white/10 shadow-2xl z-2000">
                                 <div className="px-4 py-4 flex items-center gap-3 border-b border-white/10">
                                     <div className="w-10 h-10 shrink-0 rounded-full bg-[#173ef0]/20 text-[#7c8cff] font-semibold flex items-center justify-center overflow-hidden">
                                         {user?.avatar ? (
@@ -310,7 +318,6 @@ const PageToolbar = () => {
                                     </button>
                                 </div>
 
-                                {/* Tabs */}
                                 <div className="flex border-b border-white/10">
                                     <button
                                         type="button"
@@ -338,7 +345,6 @@ const PageToolbar = () => {
                                     </button>
                                 </div>
 
-                                {/* Profile tab content */}
                                 {activeTab === 'profile' && (
                                     <div className="py-1">
                                         <MenuItem
@@ -355,7 +361,6 @@ const PageToolbar = () => {
                                     </div>
                                 )}
 
-                                {/* Settings tab content */}
                                 {activeTab === 'settings' && (
                                     <div className="py-1">
                                         <MenuItem
@@ -376,7 +381,9 @@ const PageToolbar = () => {
                 </div>
             </div>
 
-            {/* Full-screen logout loader */}
+            {/* Spacer — reserves space under the fixed bar on mobile only */}
+            <div className="h-16 lg:hidden" aria-hidden="true" />
+
             {loggingOut &&
                 createPortal(
                     <div className="fixed inset-0 z-9999 bg-[#1a1a1a] flex items-center justify-center">
@@ -387,8 +394,6 @@ const PageToolbar = () => {
         </>
     );
 };
-
-/* ---------------- small sub-components ---------------- */
 
 const MenuItem = ({ icon, label, onClick, danger = false }) => (
     <button

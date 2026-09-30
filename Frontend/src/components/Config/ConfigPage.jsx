@@ -62,7 +62,7 @@ const ConfigPage = () => {
                 <div className="flex-1 p-4 sm:p-6 lg:px-8 lg:pt-4 lg:pb-8 overflow-y-auto bg-[#1a1a1a]">
                     <PageToolbar />
 
-                    <div className="mb-6">
+                    <div className="mb-6 px-4">
                         <h1 className="text-3xl font-bold text-white">
                             System Configuration
                         </h1>
@@ -71,7 +71,7 @@ const ConfigPage = () => {
                         </p>
                     </div>
 
-                    <div className="mb-6">
+                    <div className="mb-6 px-4">
                         <div className="overflow-x-auto hide-scrollbar">
                             <div className="flex gap-2 border-b border-white/10 min-w-max">
                                 {ALL_TABS.map(({ id, label, Icon }) => {
@@ -95,7 +95,7 @@ const ConfigPage = () => {
                         </div>
                     </div>
 
-                    <div className="w-full">
+                    <div className="w-full px-4">
                         {activeTab === 'chains' && <ApprovalChainsSection />}
                         {activeTab === 'categories' && <CategoriesSection />}
 
