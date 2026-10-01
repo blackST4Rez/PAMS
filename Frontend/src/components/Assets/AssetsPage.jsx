@@ -45,9 +45,9 @@ const AssetsPage = () => {
 
     if (authLoading || assetsLoading) {
         return (
-            <div className="min-h-screen bg-gray-700 flex">
+            <div className="h-screen bg-gray-700 flex overflow-hidden">
                 <UnifiedSidebar />
-                <div className="flex-1 flex flex-col min-w-0">
+                <div className="flex-1 flex flex-col min-w-0 h-screen">
                     <div className="flex-1 p-4 sm:p-6 lg:p-8 bg-[#1a1a1a] flex items-center justify-center">
                         <Loader />
                     </div>
@@ -59,10 +59,10 @@ const AssetsPage = () => {
 
     if (!hasPermission('asset.view')) {
         return (
-            <div className="min-h-screen bg-gray-700 flex">
+            <div className="h-screen bg-gray-700 flex overflow-hidden">
                 <UnifiedSidebar />
-                <div className="flex-1 flex flex-col min-w-0">
-                    <div className="flex-1 p-4 sm:p-6 lg:p-8 bg-[#1a1a1a]">
+                <div className="flex-1 flex flex-col min-w-0 h-screen">
+                    <div className="flex-1 p-4 sm:p-6 lg:p-8 bg-[#1a1a1a] overflow-y-auto content-scroll min-h-0">
                         <div className="bg-[#242424] p-8 max-w-xl">
                             <h2 className="text-lg font-semibold text-white mb-2">Access Denied</h2>
                             <p className="text-white/60 text-sm">
@@ -79,11 +79,11 @@ const AssetsPage = () => {
     const canCreate = hasPermission('asset.create');
 
     return (
-        <div className="min-h-screen bg-gray-700 flex">
+        <div className="h-screen bg-gray-700 flex overflow-hidden">
             <UnifiedSidebar />
 
-            <div className="flex-1 flex flex-col min-w-0">
-                <div className="flex-1 p-4 sm:p-6 lg:px-8 lg:pt-4 lg:pb-8 overflow-y-auto bg-[#1a1a1a]">
+            <div className="flex-1 flex flex-col min-w-0 h-screen">
+                <div className="flex-1 p-4 sm:p-6 lg:px-8 lg:pt-4 lg:pb-8 overflow-y-auto content-scroll bg-[#1a1a1a] min-h-0">
                     <PageToolbar />
 
                     <div className="mb-6 px-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">

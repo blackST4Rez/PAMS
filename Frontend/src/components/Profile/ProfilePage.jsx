@@ -18,7 +18,7 @@ const UNIVERSAL_ADMIN_USERNAME = 'admin.gaurishankar';
 const ALL_TABS = [
     { id: 'details',       label: 'Profile Details',     Icon: FaUserCircle },
     { id: 'security',      label: 'Password & Security', Icon: FaLock },
-    { id: 'notifications', label: 'Notifications',       Icon: GrNotification},
+    { id: 'notifications', label: 'Notifications',       Icon: GrNotification },
     { id: 'history',       label: 'Login History',       Icon: FaHistory },
 ];
 
@@ -57,11 +57,11 @@ const ProfilePage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-700 flex">
+        <div className="h-screen bg-gray-700 flex overflow-hidden">
             <UnifiedSidebar />
 
-            <div className="flex-1 flex flex-col min-w-0">
-                <div className="flex-1 p-6 lg:px-8 lg:pt-4 lg:pb-8 overflow-y-auto bg-[#1a1a1a]">
+            <div className="flex-1 flex flex-col min-w-0 h-screen">
+                <div className="flex-1 p-6 lg:px-8 lg:pt-4 lg:pb-8 overflow-y-auto content-scroll bg-[#1a1a1a] min-h-0">
                     <PageToolbar />
 
                     <button
