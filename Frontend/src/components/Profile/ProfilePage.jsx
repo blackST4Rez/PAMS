@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FaUserCircle, FaLock, FaHistory } from 'react-icons/fa';
+import { GrNotification } from "react-icons/gr";
 import Footer from '../Common/Footer';
 import PageToolbar from '../Common/PageToolbar';
 import UnifiedSidebar from '../Sidebars/UnifiedSidebar';
 import ProfileHeader from './ProfileHeader';
 import ProfileDetailsTab from './ProfileDetailsTab';
 import LoginHistoryTab from './LoginHistoryTab';
+import NotificationsTab from './NotificationsTab';
 import SecurityTab from './SecurityTab';
 import { useAuth } from '../Context/AuthContext';
 import { GrCaretPrevious } from 'react-icons/gr';
@@ -14,9 +16,10 @@ import { GrCaretPrevious } from 'react-icons/gr';
 const UNIVERSAL_ADMIN_USERNAME = 'admin.gaurishankar';
 
 const ALL_TABS = [
-    { id: 'details',  label: 'Profile Details',     Icon: FaUserCircle },
-    { id: 'security', label: 'Password & Security', Icon: FaLock },
-    { id: 'history',  label: 'Login History',       Icon: FaHistory },
+    { id: 'details',       label: 'Profile Details',     Icon: FaUserCircle },
+    { id: 'security',      label: 'Password & Security', Icon: FaLock },
+    { id: 'notifications', label: 'Notifications',       Icon: GrNotification},
+    { id: 'history',       label: 'Login History',       Icon: FaHistory },
 ];
 
 const VALID_TAB_IDS = new Set(ALL_TABS.map((t) => t.id));
@@ -61,12 +64,6 @@ const ProfilePage = () => {
                 <div className="flex-1 p-6 lg:px-8 lg:pt-4 lg:pb-8 overflow-y-auto bg-[#1a1a1a]">
                     <PageToolbar />
 
-                    {/*
-                      Back button — its icon aligns with the toolbar toggle
-                      icon above. `px-2.5` puts the arrow 10px from the
-                      content edge, matching the toggle icon's centered
-                      position inside its 36px box.
-                    */}
                     <button
                         type="button"
                         onClick={handleBack}
@@ -100,9 +97,10 @@ const ProfilePage = () => {
                         </div>
                     </div>
 
-                    {activeTab === 'details'  && <ProfileDetailsTab />}
-                    {activeTab === 'security' && <SecurityTab />}
-                    {activeTab === 'history'  && <LoginHistoryTab />}
+                    {activeTab === 'details'       && <ProfileDetailsTab />}
+                    {activeTab === 'security'      && <SecurityTab />}
+                    {activeTab === 'notifications' && <NotificationsTab />}
+                    {activeTab === 'history'       && <LoginHistoryTab />}
                 </div>
 
                 <Footer />
